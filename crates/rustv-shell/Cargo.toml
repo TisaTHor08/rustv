@@ -21,4 +21,6 @@ tauri = { version = "2", features = ["tray-icon", "image-png"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 rand = "0.8"
+ureq = "2"
+zip = { version = "2", default-features = false, features = ["deflate"] }
 qrcode = { version = "0.15", default-features = false, features = ["svg"] }

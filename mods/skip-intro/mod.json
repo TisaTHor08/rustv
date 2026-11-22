@@ -1,0 +1,17 @@
+{
+  "id": "skip-intro",
+  "name": "Skip intro",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "description": "Automatically presses the \"Skip intro / recap\" buttons on Netflix and Prime Video. Experimental: streaming sites change their pages often.",
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "contributes": {
+    "adapters": [
+      {
+        "match": ["*://www.netflix.com/*", "*://*.primevideo.com/*"],
+        "js": "skip.js"
+      }
+    ]
+  }
+}

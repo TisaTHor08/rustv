@@ -1,0 +1,10 @@
+/* Midnight: rounder tiles and a soft blue glow on the focused one. */
+.tile {
+  border-radius: 1.7rem !important;
+}
+.tile.focus {
+  box-shadow:
+    0 0 0 0.22rem #7be9ff,
+    0 2.2rem 3.6rem -0.8rem rgba(34, 211, 238, 0.55),
+    0 1rem 2rem rgba(0, 0, 0, 0.5) !important;
+}

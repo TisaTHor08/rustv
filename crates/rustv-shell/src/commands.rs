@@ -99,6 +99,82 @@ pub async fn app_icon(target: String) -> Result<Option<String>, String> {
     Ok(rustv_core::icons::icon_png_base64(&target))
 }
 
+// ---------- mods ----------
+
+#[tauri::command]
+pub async fn mods_list() -> Result<Value, String> {
+    Ok(Value::Array(crate::mods::list()))
+}
+
+#[tauri::command]
+pub async fn mod_set_enabled(id: String, enabled: bool) -> Result<(), String> {
+    crate::mods::set_enabled(&id, enabled)
+}
+
+#[tauri::command]
+pub async fn mod_uninstall(id: String) -> Result<(), String> {
+    crate::mods::uninstall(&id)
+}
+
+#[tauri::command]
+pub async fn mod_text(id: String, rel: String) -> Result<String, String> {
+    crate::mods::text(&id, &rel)
+}
+
+/// URL de base du dossier d'un mod (pour les iframes de widgets et de pages, et ses icônes).
+#[tauri::command]
+pub async fn mod_base_url(shell: State<'_, Shell>, id: String) -> Result<String, String> {
+    if !crate::mods::valid_id(&id) {
+        return Err("id invalide".into());
+    }
+    shell.media.mod_base(&crate::mods::root().join(&id)).ok_or_else(|| "mod introuvable".to_string())
+}
+
+#[tauri::command]
+pub async fn mod_storage_get(id: String, key: String) -> Result<Value, String> {
+    crate::mods::storage_get(&id, &key)
+}
+
+#[tauri::command]
+pub async fn mod_storage_set(id: String, key: String, value: Value) -> Result<(), String> {
+    crate::mods::storage_set(&id, &key, value)
+}
+
+#[tauri::command]
+pub async fn mod_fetch(id: String, url: String) -> Result<Value, String> {
+    tauri::async_runtime::spawn_blocking(move || crate::mods::fetch(&id, &url)).await.map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn registry_fetch() -> Result<Value, String> {
+    tauri::async_runtime::spawn_blocking(crate::mods::registry).await.map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn mod_install_prepare(entry: Value) -> Result<Value, String> {
+    tauri::async_runtime::spawn_blocking(move || crate::mods::install_prepare(&entry)).await.map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn mod_install_commit(id: String) -> Result<(), String> {
+    crate::mods::install_commit(&id)
+}
+
+#[tauri::command]
+pub async fn mod_install_cancel(id: String) -> Result<(), String> {
+    crate::mods::install_cancel(&id);
+    Ok(())
+}
+
+/// Ouvre le dossier des mods dans l'explorateur (pour installer un mod à la main).
+#[tauri::command]
+pub async fn mods_open_folder() -> Result<(), String> {
+    let d = crate::mods::root();
+    std::fs::create_dir_all(&d).map_err(|e| e.to_string())?;
+    rustv_core::apps::launch(&d.to_string_lossy());
+    Ok(())
+}
+
 #[tauri::command]
 pub async fn go_home(app: AppHandle) {
     tv::go_home(&app);

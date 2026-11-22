@@ -39,19 +39,15 @@ The `rustv.exe` Tauri application: the "TV mode".
   **native** tiles launch an executable or URI (VLC, Steam).
 - Web app windows have no capability, hence no access to RusTV's commands.
 
-### `rustv-mods` (planned)
-A mod is a folder with a `mod.json` manifest plus JS/CSS assets:
+### Mods (`crates/rustv-shell/src/mods.rs`, `ui/src/lib/mods.svelte.ts`)
+A mod is a folder with a `mod.json` manifest plus JS/CSS/HTML assets, documented in [MODS.md](MODS.md). It can contribute themes, tiles,
+pages, top-bar widgets, site adapters and translations. Execution model:
 
-```
-mods/my-theme/
-  mod.json        { "id", "name", "version", "permissions": [...], "entry": "main.js", "styles": ["theme.css"] }
-  main.js
-  theme.css
-```
-
-Mods can add themes, tiles, pages, channel providers, and inject scripts into web apps (for example
-spatial navigation for sites without a TV mode). Every sensitive capability (network, launching programs,
-key injection) must be declared in the manifest and accepted by the user at install time.
+- Widgets and pages run in a sandboxed iframe served by the local media server with a strict CSP (no network). The only way out
+  is a small host API (storage, `fetch` to approved origins, launch, toast) over `postMessage`; every call is checked against the
+  permissions the user accepted (stored in `mods-state.json`).
+- Site adapters are injected into web app windows as initialization scripts, only if the user approved the matching `inject:` permission.
+- The catalog installs a *full commit* of a GitHub repository (content-addressed), previews the real manifest, then asks for approval.
 
 ### `rustv-live` (planned)
 Live TV from user-supplied M3U playlists and XMLTV guides. RusTV does not ship any channel list.

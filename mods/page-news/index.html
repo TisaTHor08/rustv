@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html { font-size: calc(100vh / 54); scrollbar-width: none; }
+      body { margin: 0; padding: 4rem 6rem; font-family: 'Segoe UI', system-ui, sans-serif; background: #0e1116; color: #f4f6fb; }
+      h1 { margin: 0 0 2rem; font-size: 3rem; }
+      .story { display: flex; align-items: baseline; gap: 1.4rem; padding: 1rem 1.4rem; border-radius: 1rem; font-size: 1.6rem; }
+      .story.sel { background: #ff6600; color: #fff; }
+      .story small { opacity: 0.75; font-size: 1.1rem; margin-left: auto; white-space: nowrap; }
+      .story span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      #status { color: #9aa3b5; font-size: 1.3rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Hacker News</h1>
+    <div id="status">Loading…</div>
+    <div id="list"></div>
+    <script src="__rustv.js"></script>
+    <script>
+      var stories = [], sel = 0;
+      function render() {
+        var list = document.getElementById('list');
+        list.innerHTML = '';
+        stories.forEach(function (s, i) {
+          var d = document.createElement('div');
+          d.className = 'story' + (i === sel ? ' sel' : '');
+          d.innerHTML = '<span></span><small></small>';
+          d.firstChild.textContent = s.title;
+          d.lastChild.textContent = s.score + ' pts · ' + (s.descendants || 0) + ' comments';
+          list.appendChild(d);
+          if (i === sel) d.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        });
+      }
+      rustv.onKey(function (k) {
+        if (k === 'ArrowDown') sel = Math.min(stories.length - 1, sel + 1);
+        else if (k === 'ArrowUp') sel = Math.max(0, sel - 1);
+        else if (k === 'Enter' && stories[sel]) {
+          var url = stories[sel].url || 'https://news.ycombinator.com/item?id=' + stories[sel].id;
+          rustv.launch({ url: url, name: stories[sel].title }).catch(function (e) { rustv.toast(String(e.message || e)); });
+          return;
+        } else return;
+        render();
+      });
+      var base = 'https://hacker-news.firebaseio.com/v0/';
+      rustv.fetchJson(base + 'topstories.json').then(function (ids) {
+        return Promise.all(ids.slice(0, 15).map(function (id) { return rustv.fetchJson(base + 'item/' + id + '.json'); }));
+      }).then(function (items) {
+        stories = items.filter(Boolean);
+        document.getElementById('status').textContent = '';
+        render();
+      }).catch(function (e) {
+        document.getElementById('status').textContent = 'Error: ' + (e.message || e);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; display: grid; place-items: center; }
+      svg { width: 100%; height: 100%; }
+      .face { fill: rgba(255, 255, 255, 0.1); stroke: rgba(255, 255, 255, 0.5); stroke-width: 2; }
+      .h, .m { stroke: #fff; stroke-linecap: round; }
+      .s { stroke: #ff6a1a; stroke-linecap: round; }
+    </style>
+  </head>
+  <body>
+    <svg viewBox="-50 -50 100 100">
+      <circle class="face" r="46" />
+      <line id="h" class="h" x1="0" y1="0" x2="0" y2="-22" stroke-width="5" />
+      <line id="m" class="m" x1="0" y1="0" x2="0" y2="-33" stroke-width="3" />
+      <line id="s" class="s" x1="0" y1="4" x2="0" y2="-36" stroke-width="1.6" />
+      <circle r="3" fill="#ff6a1a" />
+    </svg>
+    <script src="__rustv.js"></script>
+    <script>
+      function tick() {
+        var d = new Date();
+        var s = d.getSeconds(), m = d.getMinutes() + s / 60, h = (d.getHours() % 12) + m / 60;
+        document.getElementById('s').setAttribute('transform', 'rotate(' + s * 6 + ')');
+        document.getElementById('m').setAttribute('transform', 'rotate(' + m * 6 + ')');
+        document.getElementById('h').setAttribute('transform', 'rotate(' + h * 30 + ')');
+      }
+      tick();
+      setInterval(tick, 1000);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "id": "page-news",
+  "name": "Hacker News",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "description": "A full-screen page listing the top Hacker News stories. Shows how pages use the network and launch permissions.",
+  "license": "GPL-3.0-or-later",
+  "permissions": ["network:https://hacker-news.firebaseio.com", "launch"],
+  "contributes": {
+    "pages": [
+      {
+        "id": "news",
+        "name": "Hacker News",
+        "desc": "Top stories",
+        "entry": "index.html",
+        "category": "library",
+        "color": "#ff6600",
+        "color2": "#7a2f00"
+      }
+    ]
+  }
+}

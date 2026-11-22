@@ -1,0 +1,12 @@
+{
+  "id": "widget-analog-clock",
+  "name": "Analog clock",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "description": "A small analog clock in the top bar. Needs no permission.",
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "contributes": {
+    "widgets": [{ "id": "clock", "slot": "topbar", "entry": "clock.html", "width": 3.6 }]
+  }
+}

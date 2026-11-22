@@ -1,0 +1,16 @@
+{
+  "id": "tiles-community",
+  "name": "Community tiles",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "description": "A few extra website tiles: Wikipedia, Radio Paradise and NASA Live.",
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "contributes": {
+    "tiles": [
+      { "id": "wikipedia", "name": "Wikipedia", "desc": "The free encyclopedia", "kind": "web", "url": "https://www.wikipedia.org", "category": "library", "color": "#3a3a3a", "color2": "#111111" },
+      { "id": "radioparadise", "name": "Radio Paradise", "desc": "Eclectic listener-supported radio", "kind": "web", "url": "https://radioparadise.com/player", "category": "music", "color": "#2d6cdf", "color2": "#0e2a63" },
+      { "id": "nasa", "name": "NASA Live", "desc": "NASA TV and live streams", "kind": "web", "url": "https://www.nasa.gov/nasa-live/", "category": "tv", "color": "#0b3d91", "color2": "#04163a" }
+    ]
+  }
+}

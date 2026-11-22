@@ -71,7 +71,28 @@ export interface WinApp {
   target: string;
 }
 
+export interface ModInfo {
+  id: string;
+  manifest: any | null;
+  permissions: string[];
+  enabled: boolean;
+  error: string | null;
+}
+
 export const api = {
+  modsList: () => invoke<ModInfo[]>('mods_list'),
+  modSetEnabled: (id: string, enabled: boolean) => invoke<void>('mod_set_enabled', { id, enabled }),
+  modUninstall: (id: string) => invoke<void>('mod_uninstall', { id }),
+  modText: (id: string, rel: string) => invoke<string>('mod_text', { id, rel }),
+  modBaseUrl: (id: string) => invoke<string>('mod_base_url', { id }),
+  modStorageGet: (id: string, key: string) => invoke<unknown>('mod_storage_get', { id, key }),
+  modStorageSet: (id: string, key: string, value: unknown) => invoke<void>('mod_storage_set', { id, key, value }),
+  modFetch: (id: string, url: string) => invoke<{ status: number; body: string }>('mod_fetch', { id, url }),
+  registryFetch: () => invoke<any>('registry_fetch'),
+  modInstallPrepare: (entry: unknown) => invoke<{ manifest: any; permissions: string[] }>('mod_install_prepare', { entry }),
+  modInstallCommit: (id: string) => invoke<void>('mod_install_commit', { id }),
+  modInstallCancel: (id: string) => invoke<void>('mod_install_cancel', { id }),
+  modsOpenFolder: () => invoke<void>('mods_open_folder'),
   prefsGet: () => invoke<Record<string, unknown> | null>('prefs_get'),
   prefsSet: (prefs: unknown) => invoke<void>('prefs_set', { prefs }),
   mediaUrl: (path: string) => invoke<string>('media_url', { path }),

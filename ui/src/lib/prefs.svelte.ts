@@ -20,6 +20,8 @@ export interface Prefs {
   lang: 'fr' | 'en';
   theme: 'dark' | 'light' | 'auto';
   accent: string;
+  /** Thème apporté par un mod, au format « idDuMod/idDuThème » (vide = aucun). */
+  modTheme: string;
   tint: boolean;
   clock24: boolean;
   wallpaper: {
@@ -60,6 +62,7 @@ function defaults(): Prefs {
     lang: 'fr',
     theme: 'dark',
     accent: ACCENTS[0],
+    modTheme: '',
     tint: true,
     clock24: true,
     wallpaper: { type: 'aurora', path: '', color: '#0b0e14', blur: 0, dim: 30, interval: 30 },

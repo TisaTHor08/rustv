@@ -2,6 +2,7 @@
 // (ordre, noms, couleurs, icônes, masquage).
 import { api, type Tile } from './api';
 import { tileDesc } from './i18n';
+import { modTiles, type ModTile } from './mods.svelte';
 import { prefs, savePrefs, type Category, type CustomTile } from './prefs.svelte';
 
 export interface DTile {
@@ -14,20 +15,25 @@ export interface DTile {
   dark_text?: boolean;
   icon?: string;
   custom: boolean;
+  source: 'catalog' | 'custom' | 'mod';
   customized: boolean;
-  raw: Tile | CustomTile;
+  raw: Tile | CustomTile | ModTile;
 }
 
 export const CATEGORIES: Category[] = ['video', 'tv', 'music', 'library', 'games'];
 
-function decorate(raw: Tile | CustomTile, custom: boolean): DTile {
+function decorate(raw: Tile | CustomTile | ModTile, source: DTile['source']): DTile {
+  const custom = source === 'custom';
   const o = prefs.tiles;
   const col = o.colors[raw.id];
-  const desc = custom
-    ? (raw as CustomTile).kind === 'web'
-      ? (raw as CustomTile).url ?? ''
-      : 'Application Windows'
-    : tileDesc(raw.id, (raw as Tile).desc);
+  const desc =
+    source === 'catalog'
+      ? tileDesc(raw.id, (raw as Tile).desc)
+      : source === 'mod'
+        ? ((raw as ModTile).desc ?? '')
+        : (raw as CustomTile).kind === 'web'
+          ? ((raw as CustomTile).url ?? '')
+          : 'Application Windows';
   return {
     id: raw.id,
     name: o.names[raw.id] ?? raw.name,
@@ -38,6 +44,7 @@ function decorate(raw: Tile | CustomTile, custom: boolean): DTile {
     dark_text: (raw as Tile).dark_text && !col,
     icon: o.icons[raw.id] ?? (raw as CustomTile).icon,
     custom,
+    source,
     customized: !!(o.names[raw.id] || col || o.icons[raw.id]),
     raw,
   };
@@ -45,7 +52,11 @@ function decorate(raw: Tile | CustomTile, custom: boolean): DTile {
 
 /** Toutes les tuiles d'une catégorie, dans l'ordre choisi par l'utilisateur (masquées incluses si demandé). */
 export function tilesOf(catalog: Tile[], cat: Category, includeHidden = false): DTile[] {
-  const base = [...catalog.filter((t) => t.category === cat).map((t) => decorate(t, false)), ...prefs.tiles.custom.filter((c) => c.category === cat).map((c) => decorate(c, true))];
+  const base = [
+    ...catalog.filter((t) => t.category === cat).map((t) => decorate(t, 'catalog')),
+    ...prefs.tiles.custom.filter((c) => c.category === cat).map((c) => decorate(c, 'custom')),
+    ...modTiles().filter((m) => m.category === cat).map((m) => decorate(m, 'mod')),
+  ];
   const order = prefs.tiles.order[cat] ?? [];
   const rank = (id: string) => {
     const i = order.indexOf(id);

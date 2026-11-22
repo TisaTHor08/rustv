@@ -6,14 +6,16 @@
   import { askText, pickApp, pickFile } from './overlays.svelte';
   import { ACCENTS, TILE_COLORS, prefs, resetTiles, savePrefs, type Category, type CustomTile } from './prefs.svelte';
   import { geocode } from './weather';
+  import { modThemes } from './mods.svelte';
 
   let {
     st,
     refresh,
     onclose,
     onpairing,
+    onmods,
     note,
-  }: { st: ShellState | null; refresh: () => Promise<void>; onclose: () => void; onpairing: () => void; note: (m: string) => void } = $props();
+  }: { st: ShellState | null; refresh: () => Promise<void>; onclose: () => void; onpairing: () => void; onmods: () => void; note: (m: string) => void } = $props();
 
   type Page = 'root' | 'appearance' | 'wallpaper' | 'tiles' | 'weather' | 'system';
   interface Row {
@@ -109,6 +111,7 @@
           { label: t('settings.wallpaper'), enter: () => go('wallpaper') },
           { label: t('settings.tiles'), enter: () => go('tiles') },
           { label: t('settings.weather'), enter: () => go('weather') },
+          { label: t('settings.mods'), enter: onmods },
           { label: t('settings.phones'), enter: onpairing },
           { label: t('settings.screens'), enter: () => go('system') },
         ];
@@ -117,6 +120,9 @@
           choice(t('settings.language'),['fr', 'en'] as const, () => prefs.lang, (v) => set('lang', v), (v) => (v === 'fr' ? 'Français' : 'English')),
           choice(t('settings.theme'), ['dark', 'light', 'auto'] as const, () => prefs.theme, (v) => set('theme', v), (v) => t(`theme.${v}`)),
           { ...choice(t('settings.accent'), ACCENTS, () => prefs.accent, (v) => set('accent', v), () => ''), swatch: prefs.accent },
+          ...(modThemes().length
+            ? [choice(t('settings.modtheme'), ['', ...modThemes().map((x) => x.key)], () => prefs.modTheme, (v) => set('modTheme', v), (v) => (v ? (modThemes().find((x) => x.key === v)?.name ?? v) : t('common.none')))]
+            : []),
           choice(t('settings.tint'), ['yes', 'no'] as const, () => (prefs.tint ? 'yes' : 'no'), (v) => set('tint', v === 'yes'), (v) => t(`common.${v}`)),
           choice(t('settings.clock24'), ['24', '12'] as const, () => (prefs.clock24 ? '24' : '12'), (v) => set('clock24', v === '24'), (v) => t(`clock.${v}`)),
         ];

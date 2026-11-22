@@ -7,6 +7,10 @@
   import { askText } from './overlays.svelte';
   import { anyOverlay } from './overlays.svelte';
   import OverlayHost from './OverlayHost.svelte';
+  import ModManager from './ModManager.svelte';
+  import ModWidgets from './ModWidgets.svelte';
+  import { mods, pageSrc, type ModTile } from './mods.svelte';
+  import PageHost from './PageHost.svelte';
   import Pairing from './Pairing.svelte';
   import { prefs } from './prefs.svelte';
   import Settings from './Settings.svelte';
@@ -15,7 +19,7 @@
   import Wallpaper from './Wallpaper.svelte';
   import Weather from './Weather.svelte';
 
-  type Modal = null | { kind: 'settings' } | { kind: 'pairing' } | { kind: 'tile'; id: string };
+  type Modal = null | { kind: 'settings' } | { kind: 'pairing' } | { kind: 'mods' } | { kind: 'page'; modId: string; entry: string; title: string } | { kind: 'tile'; id: string };
 
   const TILE_STEP = 18.6; // rem : largeur d'une tuile + espacement
   const ROW_H = 17; // rem
@@ -40,7 +44,7 @@
     if (!st) return [];
     // dépendances explicites : la liste se recalcule quand les préférences de tuiles changent
     const catalog = st.catalog;
-    void prefs.tiles.order, prefs.tiles.hidden, prefs.tiles.names, prefs.tiles.colors, prefs.tiles.icons, prefs.tiles.custom, prefs.lang;
+    void prefs.tiles.order, prefs.tiles.hidden, prefs.tiles.names, prefs.tiles.colors, prefs.tiles.icons, prefs.tiles.custom, prefs.lang, mods.list;
     const out: { key: string; title: string; tiles: DTile[] }[] = [];
     const rec = recent.map((id) => findTile(catalog, id)).filter((x): x is DTile => !!x && !prefs.tiles.hidden.includes(x.id));
     if (rec.length) out.push({ key: 'recent', title: t('row.recent'), tiles: rec });
@@ -99,7 +103,14 @@
   async function openTile(tile: DTile) {
     try {
       let r: string;
-      if (tile.custom) r = await api.launchCustom(tile.raw);
+      if (tile.source === 'mod') {
+        const raw = tile.raw as ModTile;
+        if (raw.kind === 'page') {
+          modal = { kind: 'page', modId: raw.modId, entry: raw.entry ?? 'index.html', title: tile.name };
+          return;
+        }
+        r = await api.launchCustom({ id: raw.id, name: tile.name, kind: raw.kind, url: raw.url, target: raw.target, spatnav: raw.spatnav });
+      } else if (tile.custom) r = await api.launchCustom(tile.raw);
       else {
         const needs = (tile.raw as any).needs_url && !st?.settings.urls[tile.id];
         r = needs ? 'needs_url' : await api.launch(tile.id);
@@ -196,6 +207,7 @@
       <span>RusTV</span>
     </div>
     <div class="right">
+      <ModWidgets toast={note} />
       <Weather />
       <div class="pill" class:on={phones > 0}>
         <span class="dot"></span>{phones === 0 ? t('phones.none') : phones === 1 ? t('phones.one') : t('phones.many', { n: phones })}
@@ -265,15 +277,21 @@
   {#if modal}
     <div class="scrim" transition:fade={{ duration: 180 }}>
       {#if modal.kind === 'settings'}
-        <Settings {st} {refresh} {note} onclose={() => (modal = null)} onpairing={() => (modal = { kind: 'pairing' })} />
+        <Settings {st} {refresh} {note} onclose={() => (modal = null)} onpairing={() => (modal = { kind: 'pairing' })} onmods={() => (modal = { kind: 'mods' })} />
       {:else if modal.kind === 'pairing'}
         <div class="sheet wide" in:fly={{ y: 30, duration: 360, easing: cubicOut }}>
           <Pairing embedded onclose={() => (modal = { kind: 'settings' })} />
         </div>
+      {:else if modal.kind === 'mods'}
+        <ModManager {note} onclose={() => (modal = { kind: 'settings' })} />
       {:else if modal.kind === 'tile' && menuTile && st}
         <TileMenu tile={menuTile} onclose={() => (modal = null)} onopen={() => openTile(menuTile)} onmove={(d) => onMove(menuTile.id, d)} />
       {/if}
     </div>
+  {/if}
+
+  {#if modal?.kind === 'page'}
+    <PageHost modId={modal.modId} src={pageSrc(modal.modId, modal.entry)} title={modal.title} onclose={() => (modal = null)} toast={note} />
   {/if}
 
   <OverlayHost />

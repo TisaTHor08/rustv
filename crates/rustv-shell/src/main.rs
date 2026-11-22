@@ -4,6 +4,7 @@ mod autostart;
 mod commands;
 mod fs;
 mod media;
+mod mods;
 mod prefs;
 mod settings;
 mod tv;
@@ -69,6 +70,19 @@ fn main() {
             commands::fs_list,
             commands::windows_apps,
             commands::app_icon,
+            commands::mods_list,
+            commands::mod_set_enabled,
+            commands::mod_uninstall,
+            commands::mod_text,
+            commands::mod_base_url,
+            commands::mod_storage_get,
+            commands::mod_storage_set,
+            commands::mod_fetch,
+            commands::registry_fetch,
+            commands::mod_install_prepare,
+            commands::mod_install_commit,
+            commands::mod_install_cancel,
+            commands::mods_open_folder,
             commands::go_home,
             commands::pairing_start,
             commands::pairing_cancel,

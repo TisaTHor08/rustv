@@ -1,0 +1,24 @@
+{
+  "id": "theme-midnight",
+  "name": "Midnight",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "description": "Deep blue theme with a cyan accent and rounder tiles.",
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "contributes": {
+    "themes": [
+      {
+        "id": "midnight",
+        "name": "Midnight",
+        "vars": {
+          "--bg": "#050a18",
+          "--bg-rgb": "5, 10, 24",
+          "--accent": "#22d3ee",
+          "--sheet": "rgba(10, 18, 42, 0.94)"
+        },
+        "css": "theme.css"
+      }
+    ]
+  }
+}

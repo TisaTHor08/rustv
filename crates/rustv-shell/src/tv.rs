@@ -246,6 +246,7 @@ fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tauri::Result<
         }
     }
     let label = format!("app-{id}");
+    let mod_scripts = crate::mods::adapters_for(url.as_str());
     // Un profil WebView2 par application : sessions, cookies et comptes isolés.
     let profile = settings::dir().join("profiles").join(id);
     let mut b = WebviewWindowBuilder::new(app, &label, WebviewUrl::External(url))
@@ -255,6 +256,10 @@ fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tauri::Result<
         .visible(false);
     if tile["spatnav"].as_bool().unwrap_or(false) {
         b = b.initialization_script(SPATNAV);
+    }
+    // Adaptateurs de sites apportés par les mods activés (une permission « inject » a été acceptée).
+    if !mod_scripts.is_empty() {
+        b = b.initialization_script(&mod_scripts);
     }
     if let Some(ua) = tile["ua"].as_str() {
         b = b.user_agent(ua);
