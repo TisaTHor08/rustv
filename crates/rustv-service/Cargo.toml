@@ -1,0 +1,37 @@
+[package]
+name = "rustv-service"
+version = "0.1.0"
+edition = "2021"
+license = "GPL-3.0-or-later"
+description = "RusTV background service: remote-control server, input injection, Bluetooth, text-field detection"
+
+[dependencies]
+rustv-protocol = { path = "../rustv-protocol" }
+base64 = "0.22"
+if-addrs = "0.15"
+png = "0.17"
+qrcode = { version = "0.15", default-features = false }
+rand = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[dependencies.windows]
+version = "0.62"
+features = [
+    "Devices_Bluetooth",
+    "Devices_Bluetooth_Rfcomm",
+    "Foundation",
+    "Networking_Sockets",
+    "Storage_Streams",
+    "Win32_Foundation",
+    "Win32_Graphics_Gdi",
+    "Win32_Security",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Com",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Registry",
+    "Win32_UI_Accessibility",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+]

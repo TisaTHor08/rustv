@@ -1,0 +1,57 @@
+:root {
+  --bg: #0e1116;
+  --panel: #1a1f29;
+  --panel-2: #232a37;
+  --text: #e8ecf2;
+  --muted: #8a94a6;
+  --accent: #4c8dff;
+  --ok: #3ecf8e;
+  --warn: #f5a524;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: var(--panel);
+  border-radius: 16px;
+  touch-action: none;
+}
+button:active {
+  background: var(--panel-2);
+  transform: scale(0.97);
+}
+button.primary {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+button.primary:active {
+  filter: brightness(0.9);
+}
+
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
