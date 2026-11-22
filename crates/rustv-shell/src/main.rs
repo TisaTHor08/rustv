@@ -11,6 +11,7 @@ mod player;
 mod prefs;
 mod settings;
 mod tv;
+mod update;
 
 use rustv_core::{Core, Event};
 use std::sync::{Arc, Mutex};
@@ -75,6 +76,8 @@ fn main() {
             commands::fs_list,
             commands::windows_apps,
             commands::app_icon,
+            commands::update_check,
+            commands::update_install,
             commands::player_status,
             commands::player_install,
             commands::player_play,

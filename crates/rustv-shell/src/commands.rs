@@ -99,6 +99,23 @@ pub async fn app_icon(target: String) -> Result<Option<String>, String> {
     Ok(rustv_core::icons::icon_png_base64(&target))
 }
 
+// ---------- mises à jour ----------
+
+#[tauri::command]
+pub async fn update_check() -> Result<Value, String> {
+    tauri::async_runtime::spawn_blocking(crate::update::check).await.map_err(|e| e.to_string())?
+}
+
+/// Télécharge, vérifie et lance l'installeur, puis ferme RusTV pour laisser l'installeur le remplacer.
+#[tauri::command]
+pub async fn update_install(app: AppHandle, asset: Value) -> Result<(), String> {
+    let a = app.clone();
+    tauri::async_runtime::spawn_blocking(move || crate::update::install(&a, &asset)).await.map_err(|e| e.to_string())??;
+    tv::exit(&app);
+    app.exit(0);
+    Ok(())
+}
+
 // ---------- lecteur (mpv) ----------
 
 #[tauri::command]

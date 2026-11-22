@@ -205,6 +205,17 @@ const fr: Dict = {
   'lib.music': 'Dossiers de musique',
   'lib.addfolder': 'Ajouter un dossier…',
   'lib.remove': 'Retirer : {path}',
+  'settings.size': "Taille de l'interface",
+  'sys.update': 'Version {v} · rechercher les mises à jour',
+  'sys.autoupdate': 'Vérifier les mises à jour',
+  'upd.checking': 'Recherche de mises à jour…',
+  'upd.uptodate': 'RusTV est à jour.',
+  'upd.available': 'RusTV {v} est disponible (Réglages → Écrans et démarrage).',
+  'upd.title': 'Installer RusTV {v} ?',
+  'upd.install': 'Télécharger et installer',
+  'upd.downloading': 'Téléchargement de la mise à jour…',
+  'upd.openpage': 'Ouvrir la page de la version',
+  'upd.failed': 'Mise à jour impossible : {e}',
 };
 
 const en: Dict = {
@@ -409,6 +420,17 @@ const en: Dict = {
   'lib.music': 'Music folders',
   'lib.addfolder': 'Add a folder…',
   'lib.remove': 'Remove: {path}',
+  'settings.size': 'Interface size',
+  'sys.update': 'Version {v} · check for updates',
+  'sys.autoupdate': 'Check for updates',
+  'upd.checking': 'Checking for updates…',
+  'upd.uptodate': 'RusTV is up to date.',
+  'upd.available': 'RusTV {v} is available (Settings → Screens & startup).',
+  'upd.title': 'Install RusTV {v}?',
+  'upd.install': 'Download and install',
+  'upd.downloading': 'Downloading the update…',
+  'upd.openpage': 'Open the release page',
+  'upd.failed': 'Update failed: {e}',
 };
 
 /** Descriptions des tuiles du catalogue en anglais (le catalogue est en français). */

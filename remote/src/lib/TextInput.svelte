@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from './i18n.ts';
   import { onMount } from 'svelte';
   import { send } from './connection.svelte.ts';
 
@@ -40,7 +41,7 @@
     autocapitalize="off"
     spellcheck="false"
     enterkeyhint="send"
-    placeholder="Saisie envoyée au PC…"
+    placeholder={t('kb.placeholder')}
   />
   <button onclick={onclose}>✕</button>
 </div>

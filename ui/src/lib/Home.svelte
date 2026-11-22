@@ -15,7 +15,7 @@
   import { mods, pageSrc, type ModTile } from './mods.svelte';
   import PageHost from './PageHost.svelte';
   import Pairing from './Pairing.svelte';
-  import { prefs } from './prefs.svelte';
+  import { prefs, savePrefs } from './prefs.svelte';
   import Settings from './Settings.svelte';
   import TileMenu from './TileMenu.svelte';
   import { CATEGORIES, findTile, iconSrc, moveTile, tilesOf, type BuiltinTile, type DTile } from './tiles.svelte';
@@ -179,6 +179,14 @@
 
   onMount(() => {
     refresh();
+    // Vérification quotidienne des mises à jour (désactivable) : un simple GET vers l'API GitHub.
+    if (prefs.autoUpdate && Date.now() - prefs.lastUpdateCheck > 24 * 3600 * 1000) {
+      api.updateCheck().then((info) => {
+        prefs.lastUpdateCheck = Date.now();
+        savePrefs();
+        if (info.available) note(t('upd.available', { v: info.latest }));
+      }).catch(() => {});
+    }
     const clock = setInterval(() => (now = new Date()), 1000 * 15);
     const un = api.onDevicesChanged(() => refresh());
     wake();

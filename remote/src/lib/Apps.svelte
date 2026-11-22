@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from './i18n.ts';
   import { app, send } from './connection.svelte.ts';
   import { tick } from './haptics.ts';
 
@@ -12,7 +13,7 @@
   }
 </script>
 
-<input placeholder="Rechercher…" bind:value={filter} />
+<input placeholder={t('apps.search')} bind:value={filter} />
 <div class="grid">
   {#each shown as a (a.id)}
     <button onclick={() => launch(a.id)}>
@@ -24,7 +25,7 @@
       <span class="name">{a.name}</span>
     </button>
   {:else}
-    <p>Aucune application.</p>
+    <p>{t('apps.none')}</p>
   {/each}
 </div>
 

@@ -3,7 +3,7 @@
   import { fly } from 'svelte/transition';
   import { api, type ShellState } from './api';
   import { t } from './i18n';
-  import { askText, pickApp, pickFile } from './overlays.svelte';
+  import { askConfirm, askText, overlay, pickApp, pickFile } from './overlays.svelte';
   import { ACCENTS, TILE_COLORS, prefs, resetTiles, savePrefs, type Category, type CustomTile } from './prefs.svelte';
   import { geocode } from './weather';
   import { modThemes } from './mods.svelte';
@@ -128,6 +128,36 @@
     scanLibrary(true).catch(() => {});
   }
 
+  async function updateNow() {
+    overlay.busy = { title: t('upd.checking'), text: '', pct: null };
+    let info;
+    try {
+      info = await api.updateCheck();
+    } catch (e) {
+      overlay.busy = null;
+      return note(t('upd.failed', { e: String(e) }));
+    }
+    overlay.busy = null;
+    prefs.lastUpdateCheck = Date.now();
+    savePrefs();
+    if (!info.available) return note(t('upd.uptodate'));
+    const ok = await askConfirm(t('upd.title', { v: info.latest }), info.notes || info.latest, info.asset ? t('upd.install') : t('upd.openpage'), t('common.cancel'));
+    if (!ok) return;
+    if (!info.asset) {
+      await api.launchCustom({ id: 'update-page', name: 'RusTV', kind: 'web', url: info.page, spatnav: true });
+      return;
+    }
+    overlay.busy = { title: t('upd.downloading'), text: info.latest, pct: 0 };
+    const off = await api.onUpdateProgress((p) => overlay.busy && (overlay.busy.pct = p.pct));
+    try {
+      await api.updateInstall(info.asset); // l'installeur se lance et RusTV se ferme
+    } catch (e) {
+      note(t('upd.failed', { e: String(e) }));
+    }
+    off();
+    overlay.busy = null;
+  }
+
   async function pickWallpaper() {
     const w = prefs.wallpaper;
     const kind = w.type === 'folder' ? 'folder' : w.type === 'video' ? 'video' : 'image';
@@ -162,6 +192,7 @@
             ? [choice(t('settings.modtheme'), ['', ...modThemes().map((x) => x.key)], () => prefs.modTheme, (v) => set('modTheme', v), (v) => (v ? (modThemes().find((x) => x.key === v)?.name ?? v) : t('common.none')))]
             : []),
           choice(t('settings.tint'), ['yes', 'no'] as const, () => (prefs.tint ? 'yes' : 'no'), (v) => set('tint', v === 'yes'), (v) => t(`common.${v}`)),
+          choice(t('settings.size'), ['80', '90', '100', '110', '125', '140'], () => String(prefs.uiScale), (v) => ((prefs.uiScale = +v), savePrefs()), (v) => ` %`),
           choice(t('settings.clock24'), ['24', '12'] as const, () => (prefs.clock24 ? '24' : '12'), (v) => set('clock24', v === '24'), (v) => t(`clock.${v}`)),
         ];
       case 'wallpaper': {
@@ -248,6 +279,8 @@
             await api.setAutostart(v);
             await refresh();
           }, (v) => t(`sys.auto.${v}`)),
+          choice(t('sys.autoupdate'), ['yes', 'no'] as const, () => (prefs.autoUpdate ? 'yes' : 'no'), (v) => ((prefs.autoUpdate = v === 'yes'), savePrefs()), (v) => t(`common.${v}`)),
+          { label: t('sys.update', { v: st?.version ?? '' }), enter: updateNow },
           { label: t('sys.screen'), enter: async () => (onclose(), await api.tvExit(), await api.tvStart()) },
           { label: t('sys.exit'), enter: () => api.tvExit() },
           { label: t('sys.quit'), enter: () => api.quit() },

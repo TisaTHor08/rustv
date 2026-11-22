@@ -24,6 +24,10 @@ export interface Prefs {
   modTheme: string;
   tint: boolean;
   clock24: boolean;
+  /** Taille de l'interface en % (accessibilité / distance d'écran). */
+  uiScale: number;
+  autoUpdate: boolean;
+  lastUpdateCheck: number;
   wallpaper: {
     type: 'aurora' | 'color' | 'image' | 'folder' | 'video';
     path: string;
@@ -67,6 +71,9 @@ function defaults(): Prefs {
     modTheme: '',
     tint: true,
     clock24: true,
+    uiScale: 100,
+    autoUpdate: true,
+    lastUpdateCheck: 0,
     wallpaper: { type: 'aurora', path: '', color: '#0b0e14', blur: 0, dim: 30, interval: 30 },
     weather: { enabled: false, city: '', lat: null, lon: null, unit: 'c' },
     live: { sources: [], active: '' },
@@ -115,6 +122,9 @@ $effect.root(() => {
   });
   $effect(() => {
     document.documentElement.style.setProperty('--accent', prefs.accent);
+  });
+  $effect(() => {
+    document.documentElement.style.setProperty('--ui-scale', String(prefs.uiScale / 100));
   });
 });
 

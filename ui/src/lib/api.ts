@@ -104,7 +104,19 @@ export interface LiveLoad {
   epgError: string | null;
 }
 
+export interface UpdateInfo {
+  current: string;
+  latest: string;
+  available: boolean;
+  page: string;
+  notes: string;
+  asset: { name: string; url: string; size: number; digest: string | null } | null;
+}
+
 export const api = {
+  updateCheck: () => invoke<UpdateInfo>('update_check'),
+  updateInstall: (asset: unknown) => invoke<void>('update_install', { asset }),
+  onUpdateProgress: (cb: (p: { pct: number }) => void) => listen<{ pct: number }>('update-progress', (e) => cb(e.payload)),
   playerStatus: () => invoke<{ installed: boolean; path: string | null }>('player_status'),
   playerInstall: () => invoke<string>('player_install'),
   playerPlay: (req: { kind: 'live' | 'video' | 'audio'; items: PlayItem[]; index?: number }) => invoke<void>('player_play', { req }),

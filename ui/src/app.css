@@ -34,7 +34,7 @@ html[data-theme='light'] {
 
 html {
   /* Toute l'interface TV est dimensionnée en rem : 1080p => 20 px. */
-  font-size: calc(100vh / 54);
+  font-size: calc(100vh / 54 * var(--ui-scale, 1));
 }
 html[data-view='pairing'] {
   font-size: 16px;
@@ -69,4 +69,16 @@ input {
   user-select: text;
   -webkit-user-select: text;
   font: inherit;
+}
+
+/* Mouvement réduit (réglage de Windows) : plus d'animations continues ni de transitions longues. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from './i18n.ts';
   import { send } from './connection.svelte.ts';
   import { tick, tickSelect } from './haptics.ts';
 
@@ -107,7 +108,7 @@
 
 <div bind:this={el} class="surface" onpointerdown={pdown} onpointermove={pmove} onpointerup={pup} onpointercancel={pup} role="application" aria-label="Surface tactile">
   {#if dot}<i style:left="{dot.x}px" style:top="{dot.y}px"></i>{/if}
-  <span>Glisser pour naviguer<br />Toucher pour valider<br />Maintenir pour les options</span>
+  <span>{t('surface.1')}<br />{t('surface.2')}<br />{t('surface.3')}</span>
 </div>
 
 <style>

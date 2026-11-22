@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from './i18n.ts';
   import { activate, app, deactivate, send, unpair } from './connection.svelte.ts';
   import { longpress, repeat, tick } from './haptics.ts';
   import type { KeyName, MediaAction } from './protocol/types.ts';
@@ -67,26 +68,26 @@
     <div class="title">
       <strong>{app.pairing?.name}</strong>
       <small>
-        {#if connected}{app.via}{app.tvMode ? ' · Mode TV' : ''}{:else if app.status === 'connecting'}Connexion…{app.error ? ` (${app.error})` : ''}{:else}Déconnecté{/if}
+        {#if connected}{app.via}{app.tvMode ? t('mode.tv') : ''}{:else if app.status === 'connecting'}{t('connecting')}{app.error ? ` (${app.error})` : ''}{:else}{t('disconnected')}{/if}
       </small>
     </div>
-    <button class="small" onclick={() => confirm('Oublier ce PC ?') && unpair()}>⚙</button>
+    <button class="small" onclick={() => confirm(t('forget')) && unpair()}>⚙</button>
   </header>
 
   {#if !connected}
     <div class="center">
       {#if app.status === 'idle'}
-        <button class="primary activate" onclick={activate}>Activer</button>
+        <button class="primary activate" onclick={activate}>{t('activate')}</button>
       {:else}
         <div class="spinner"></div>
-        <button class="small" onclick={deactivate}>Annuler</button>
+        <button class="small" onclick={deactivate}>{t('cancel')}</button>
       {/if}
     </div>
   {:else}
     <nav>
-      <button class:sel={tab === 'remote'} onclick={() => (tab = 'remote')}>Télécommande</button>
-      <button class:sel={tab === 'apps'} onclick={() => (tab = 'apps')}>Apps PC</button>
-      <button class:sel={tab === 'pad'} onclick={() => (tab = 'pad')}>Souris</button>
+      <button class:sel={tab === 'remote'} onclick={() => (tab = 'remote')}>{t('tab.remote')}</button>
+      <button class:sel={tab === 'apps'} onclick={() => (tab = 'apps')}>{t('tab.apps')}</button>
+      <button class:sel={tab === 'pad'} onclick={() => (tab = 'pad')}>{t('tab.mouse')}</button>
     </nav>
 
     <section>
@@ -105,12 +106,12 @@
         {/if}
 
         {#if !app.tvMode}
-          <button class="primary tvstart" onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'tv', on: true }); }}>📺 Démarrer le mode TV</button>
+          <button class="primary tvstart" onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'tv', on: true }); }}>{t('tv.start')}</button>
         {/if}
 
         <div class="seg">
-          <button class:sel={mode === 'surface'} onclick={() => setMode('surface')}>Surface</button>
-          <button class:sel={mode === 'dpad'} onclick={() => setMode('dpad')}>Croix</button>
+          <button class:sel={mode === 'surface'} onclick={() => setMode('surface')}>{t('seg.surface')}</button>
+          <button class:sel={mode === 'dpad'} onclick={() => setMode('dpad')}>{t('seg.dpad')}</button>
         </div>
 
         {#if mode === 'surface'}
@@ -119,7 +120,7 @@
           <div class="dpad">
             <button class="up" use:repeat={key('up')}>▲</button>
             <button class="left" use:repeat={key('left')}>◀</button>
-            <button class="ok primary" use:longpress={{ onTap: ok, onLong: key('menu') }}>{altOpen ? 'Valider' : 'OK'}</button>
+            <button class="ok primary" use:longpress={{ onTap: ok, onLong: key('menu') }}>{altOpen ? t('validate') : 'OK'}</button>
             <button class="right" use:repeat={key('right')}>▶</button>
             <button class="down" use:repeat={key('down')}>▼</button>
           </div>
@@ -127,16 +128,16 @@
 
         {#if altOpen}
           <div class="row">
-            <button use:repeat={() => alt('left')}>◀ Onglet</button>
-            <button use:repeat={() => alt('right')}>Onglet ▶</button>
-            <button class="primary" onpointerdown={(e) => { e.preventDefault(); tick(true); ok(); }}>Valider</button>
+            <button use:repeat={() => alt('left')}>{t('tab.prev')}</button>
+            <button use:repeat={() => alt('right')}>{t('tab.next')}</button>
+            <button class="primary" onpointerdown={(e) => { e.preventDefault(); tick(true); ok(); }}>{t('validate')}</button>
           </div>
         {/if}
 
         <div class="row">
-          <button use:longpress={{ onTap: key('back'), onLong: key('backlong') }}>↩ Retour</button>
-          <button onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'home' }); }}>⌂ Accueil</button>
-          <button onpointerdown={(e) => { e.preventDefault(); tick(); tabSwitch(); }}>⇥ Onglets</button>
+          <button use:longpress={{ onTap: key('back'), onLong: key('backlong') }}>{t('back')}</button>
+          <button onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'home' }); }}>{t('home')}</button>
+          <button onpointerdown={(e) => { e.preventDefault(); tick(); tabSwitch(); }}>{t('tabs')}</button>
           <button onpointerdown={(e) => { e.preventDefault(); tick(); send({ t: 'key', k: 'search' }); }} aria-label="Recherche">🔍</button>
           <button class:active={manualKeyboard} onpointerdown={(e) => { e.preventDefault(); tick(); manualKeyboard = !manualKeyboard; }}>⌨</button>
         </div>
@@ -151,7 +152,7 @@
         </div>
 
         {#if app.tvMode}
-          <button class="quit" onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'tv', on: false }); }}>Quitter le mode TV</button>
+          <button class="quit" onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'tv', on: false }); }}>{t('tv.quit')}</button>
         {/if}
       {:else if tab === 'apps'}
         <Apps />

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from './i18n.ts';
   import { send } from './connection.svelte.ts';
   import { tick } from './haptics.ts';
 
@@ -61,11 +62,11 @@
 </script>
 
 <div class="pad" onpointerdown={down} onpointermove={move} onpointerup={up} onpointercancel={up} role="application" aria-label="Pavé tactile">
-  <span>Glisser = déplacer · Tap = clic · 2 doigts = clic droit / défiler</span>
+  <span>{t('pad.hint')}</span>
 </div>
 <div class="row">
-  <button onpointerdown={(e) => { e.preventDefault(); tick(); send({ t: 'mouse', dx: 0, dy: 0, click: 'left' }); }}>Clic gauche</button>
-  <button onpointerdown={(e) => { e.preventDefault(); tick(); send({ t: 'mouse', dx: 0, dy: 0, click: 'right' }); }}>Clic droit</button>
+  <button onpointerdown={(e) => { e.preventDefault(); tick(); send({ t: 'mouse', dx: 0, dy: 0, click: 'left' }); }}>{t('pad.left')}</button>
+  <button onpointerdown={(e) => { e.preventDefault(); tick(); send({ t: 'mouse', dx: 0, dy: 0, click: 'right' }); }}>{t('pad.right')}</button>
 </div>
 
 <style>
