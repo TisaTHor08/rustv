@@ -8,6 +8,13 @@ and a phone app that works as the remote. It is built to be themed and extended 
 
 > Status: **v0.5** (TV mode, customization, mods, live TV and library). See the [roadmap](docs/ROADMAP.md) and the [architecture](docs/ARCHITECTURE.md).
 
+<!-- screenshots -->
+
+**Contents:** [What works today](#what-works-today) · [Repository layout](#repository-layout) · [Build](#build) ·
+[Testing](#testing) · [Documentation](#documentation) · [Contributing](#contributing) · [License](#license)
+
+Français : [README.fr.md](README.fr.md)
+
 ## What works today
 
 - **TV mode** (Tauri + WebView2): pick the screen that is your TV (others can be blacked out),
@@ -66,9 +73,18 @@ On first launch Windows Firewall asks to allow RusTV on your network: accept, ot
 - `node remote/scripts/send.ts …`: send phone messages by hand. `remote/scripts/cdp.mjs`: drive and screenshot the TV UI
   through WebView2's debugging port (`WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9222`).
 
+## Documentation
+
+The full index is in [docs/README.md](docs/README.md):
+[development guide](docs/DEVELOPMENT.md), [architecture](docs/ARCHITECTURE.md), [protocol](docs/PROTOCOL.md),
+[writing mods](docs/MODS.md), [roadmap](docs/ROADMAP.md).
+
 ## Contributing
 
 Issues and pull requests are welcome. RusTV is, and will stay, free and open source.
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md), and look at the
+"Help wanted" section of the [roadmap](docs/ROADMAP.md) for good first issues. Please follow the
+[Code of Conduct](CODE_OF_CONDUCT.md); report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
 ## License
 

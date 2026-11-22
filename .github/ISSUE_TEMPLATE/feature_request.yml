@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest an idea or an improvement
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: dropdown
+    id: mod
+    attributes:
+      label: Could this be a mod instead?
+      description: See docs/MODS.md. Themes, tiles, pages, widgets and site adapters do not need to change RusTV itself.
+      options:
+        - Not sure
+        - Yes, but mods cannot do it today
+        - No, it needs a change in RusTV
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to work on this myself

@@ -1,0 +1,52 @@
+name: Bug report
+description: Something does not work as expected
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, what happened instead? Screenshots are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Press ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: RusTV version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: part
+    attributes:
+      label: Which part?
+      options:
+        - TV interface (rustv.exe)
+        - Phone app (Android)
+        - Pairing / connection
+        - Web app (YouTube, Netflix, ...)
+        - Live TV / library / player
+        - Mods
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: Windows version, WebView2 version if known, Android version for the phone app.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Remove anything private (IP addresses, keys, playlist URLs) before pasting.
+      render: text
