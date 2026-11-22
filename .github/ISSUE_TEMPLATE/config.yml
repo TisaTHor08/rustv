@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://github.com/TisaTHor08/rustv/tree/main/docs
+    about: Architecture, protocol, mod authoring and development guide.
+  - name: Security vulnerability
+    url: https://github.com/TisaTHor08/rustv/security/advisories/new
+    about: Please report vulnerabilities privately, not as a public issue.

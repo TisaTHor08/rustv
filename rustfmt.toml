@@ -1,0 +1,3 @@
+# Conservative settings. Do not mass-reformat the code base in unrelated PRs.
+edition = "2021"
+max_width = 120

@@ -9,3 +9,18 @@
 - [ ] **v1.0 Polish**: installer, update check via GitHub Releases, accessibility, documentation
 
 Ideas for later: gamepad support, per-profile layouts, voice dictation from the phone, Wake-on-LAN.
+
+## Help wanted
+
+Good first issues and exploration ideas. Open an issue before starting so we can discuss the approach
+(see [CONTRIBUTING.md](../CONTRIBUTING.md)).
+
+- **Site adapters**: small JS/CSS adapters (as mods) that make more streaming sites comfortable with a remote.
+- **Translations**: more languages for the TV interface and the phone app (both tables are needed).
+- **Mods**: themes, widgets, pages and tiles for the community catalog ([MODS.md](MODS.md)).
+- **Gamepad support**: use a game controller to navigate the home screen.
+- **Wake-on-LAN**: wake the PC from the phone app.
+- **Accessibility review**: focus order, contrast, text sizes, screen-reader and reduced-motion behavior.
+- **Tests and docs**: more unit tests in `rustv-protocol` and `rustv-shell`, clearer docs, screenshots.
+- **Exploration, macOS and Linux ports**: what would a non-Windows shell and input layer need? A written findings
+  issue is already a valuable contribution.

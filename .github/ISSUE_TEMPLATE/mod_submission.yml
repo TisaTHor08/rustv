@@ -1,0 +1,63 @@
+name: Mod submission
+description: Propose a mod for the community catalog (registry/index.json)
+labels: ["mod"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The catalog is a pull request on `registry/index.json` (see docs/MODS.md). You can open this issue first to
+        discuss the mod, or link it from your pull request.
+  - type: input
+    id: id
+    attributes:
+      label: Mod id
+      description: a-z, 0-9 and dashes, 2 to 40 characters, equal to the folder name.
+    validations:
+      required: true
+  - type: input
+    id: repo
+    attributes:
+      label: Repository and path
+      placeholder: "you/your-repo, path/to/my-mod"
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Full commit SHA (40 characters)
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What does it do?
+    validations:
+      required: true
+  - type: textarea
+    id: permissions
+    attributes:
+      label: Permissions requested and why
+      description: storage, launch, network:<origin>, inject:<pattern> (adapters). Justify each one.
+    validations:
+      required: true
+  - type: dropdown
+    id: license
+    attributes:
+      label: License
+      options:
+        - MIT
+        - GPL-3.0-or-later
+        - Apache-2.0
+        - Other (explain above)
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: The mod works without a build step and matches its manifest
+          required: true
+        - label: It contains no telemetry and does nothing its manifest does not declare
+          required: true
+        - label: Strings are provided in French and English
