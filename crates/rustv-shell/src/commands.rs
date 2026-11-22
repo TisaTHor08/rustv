@@ -334,3 +334,40 @@ pub async fn quit_app(app: AppHandle) {
     let _ = settings::dir(); // (réservé : nettoyage futur)
     app.exit(0);
 }
+
+// ---- Bitwarden (voir docs/BITWARDEN.md) : aucun secret ne transite par ces commandes ----
+
+#[tauri::command]
+pub async fn vault_status(shell: State<'_, Shell>) -> Result<Value, String> {
+    let core = shell.core.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        core.vault.refresh();
+        serde_json::to_value(core.vault.info()).unwrap_or(Value::Null)
+    })
+    .await
+    .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn vault_lock(shell: State<'_, Shell>) -> Result<(), String> {
+    let core = shell.core.clone();
+    tauri::async_runtime::spawn_blocking(move || core.vault.lock()).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn vault_logout(shell: State<'_, Shell>) -> Result<(), String> {
+    let core = shell.core.clone();
+    tauri::async_runtime::spawn_blocking(move || core.vault.logout().map_err(|e| e.code().to_string())).await.map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn vault_set_autolock(shell: State<'_, Shell>, minutes: u32) -> Result<(), String> {
+    shell.core.vault.set_autolock(minutes);
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn vault_set_server(shell: State<'_, Shell>, url: String) -> Result<(), String> {
+    let core = shell.core.clone();
+    tauri::async_runtime::spawn_blocking(move || core.vault.set_server(&url).map_err(|e| e.code().to_string())).await.map_err(|e| e.to_string())?
+}

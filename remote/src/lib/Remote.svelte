@@ -7,12 +7,14 @@
   import Surface from './Surface.svelte';
   import Touchpad from './Touchpad.svelte';
   import TextInput from './TextInput.svelte';
+  import Vault from './Vault.svelte';
 
   type Tab = 'remote' | 'apps' | 'pad';
   let tab = $state<Tab>('remote');
   let altOpen = $state(false);
   let altTimer: number | undefined;
   let manualKeyboard = $state(false);
+  let vaultOpen = $state(false);
   let mode = $state<'dpad' | 'surface'>(loadMode());
 
   function loadMode(): 'dpad' | 'surface' {
@@ -140,6 +142,7 @@
           <button onpointerdown={(e) => { e.preventDefault(); tick(); tabSwitch(); }}>{t('tabs')}</button>
           <button onpointerdown={(e) => { e.preventDefault(); tick(); send({ t: 'key', k: 'search' }); }} aria-label="Recherche">🔍</button>
           <button class:active={manualKeyboard} onpointerdown={(e) => { e.preventDefault(); tick(); manualKeyboard = !manualKeyboard; }}>⌨</button>
+          <button class:active={app.textFocus} onpointerdown={(e) => { e.preventDefault(); tick(); vaultOpen = true; }} aria-label="Bitwarden">🔑</button>
         </div>
 
         <div class="row media">
@@ -163,7 +166,8 @@
   {/if}
 </div>
 
-{#if showKeyboard}<TextInput onclose={() => (manualKeyboard = false)} />{/if}
+{#if vaultOpen}<Vault onclose={() => (vaultOpen = false)} />{/if}
+{#if showKeyboard && !vaultOpen}<TextInput onclose={() => (manualKeyboard = false)} />{/if}
 
 <style>
   .screen {

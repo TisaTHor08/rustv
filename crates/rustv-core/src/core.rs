@@ -4,7 +4,8 @@ use rustv_protocol::messages::*;
 use rustv_protocol::pairing::PairingInfo;
 use std::collections::HashMap;
 use std::sync::mpsc::{channel, Receiver, Sender};
-use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use windows::Win32::Foundation::HWND;
 use windows::Win32::UI::Input::KeyboardAndMouse::*;
@@ -73,10 +74,18 @@ pub struct Core {
     text_focus: Mutex<bool>,
     apps: Mutex<Vec<apps::App>>,
     icons: Mutex<HashMap<String, String>>,
+    /// Coffre Bitwarden (CLI `bw`) : voir `vault.rs`.
+    pub vault: Arc<crate::vault::Vault>,
+    typer: Arc<crate::vault::WinTyper>,
+    vault_ver: AtomicU64,
 }
 
 impl Core {
     pub fn new(cfg: Config) -> Self {
+        Self::with_vault(cfg, Arc::new(crate::vault::Vault::system()))
+    }
+
+    pub fn with_vault(cfg: Config, vault: Arc<crate::vault::Vault>) -> Self {
         Self {
             cfg: Mutex::new(cfg),
             bt_addr: Mutex::new(None),
@@ -92,6 +101,9 @@ impl Core {
             text_focus: Mutex::new(false),
             apps: Mutex::new(vec![]),
             icons: Mutex::new(HashMap::new()),
+            vault,
+            typer: Arc::new(crate::vault::WinTyper { focus: Arc::new(AtomicBool::new(false)) }),
+            vault_ver: AtomicU64::new(0),
         }
     }
 
@@ -226,6 +238,7 @@ impl Core {
         if empty {
             self.release_alt(); // plus de téléphone : ne jamais laisser Alt coincé
             self.set_text_focus(false);
+            self.vault.lock_async(); // plus de téléphone : le coffre se verrouille
         }
         self.emit(Event::DevicesChanged);
     }
@@ -310,6 +323,7 @@ impl Core {
         let mut t = self.text_focus.lock().unwrap();
         if *t != on {
             *t = on;
+            self.typer.focus.store(on, Ordering::Relaxed);
             drop(t);
             self.broadcast(self.state_msg());
         }
@@ -334,6 +348,15 @@ impl Core {
                     self.release_alt();
                 }
             }
+        }
+        // Coffre : auto-verrouillage, et diffusion de l'état quand il change.
+        if self.vault.expire(Instant::now()) {
+            let v = self.vault.clone();
+            std::thread::spawn(move || v.bw_lock());
+        }
+        let ver = self.vault.version();
+        if self.vault_ver.swap(ver, Ordering::Relaxed) != ver {
+            self.broadcast(self.vault.state_msg());
         }
         let pinned = *self.pinned.lock().unwrap();
         if let Some(h) = pinned {
@@ -450,6 +473,16 @@ impl Core {
             },
             PhoneMsg::Ping => {
                 let _ = reply.send(PcMsg::Pong);
+            }
+            // `bw` est lent : un thread par opération du coffre (elles sont sérialisées dans `Vault`).
+            m @ (PhoneMsg::VaultStatus
+            | PhoneMsg::VaultUnlock { .. }
+            | PhoneMsg::VaultLogin { .. }
+            | PhoneMsg::VaultLock
+            | PhoneMsg::VaultSearch { .. }
+            | PhoneMsg::VaultFill { .. }) => {
+                let (v, t, r) = (self.vault.clone(), self.typer.clone(), reply.clone());
+                std::thread::spawn(move || crate::vault::dispatch(&v, &*t, m, &r));
             }
         }
     }

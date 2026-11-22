@@ -104,6 +104,15 @@ export interface LiveLoad {
   epgError: string | null;
 }
 
+export interface VaultInfo {
+  installed: boolean;
+  path: string | null;
+  status: 'unknown' | 'notInstalled' | 'loggedOut' | 'locked' | 'unlocked';
+  email: string;
+  server: string;
+  autolockMin: number;
+}
+
 export interface UpdateInfo {
   current: string;
   latest: string;
@@ -138,6 +147,11 @@ export const api = {
   modInstallCommit: (id: string) => invoke<void>('mod_install_commit', { id }),
   modInstallCancel: (id: string) => invoke<void>('mod_install_cancel', { id }),
   modsOpenFolder: () => invoke<void>('mods_open_folder'),
+  vaultStatus: () => invoke<VaultInfo>('vault_status'),
+  vaultLock: () => invoke<void>('vault_lock'),
+  vaultLogout: () => invoke<void>('vault_logout'),
+  vaultSetAutolock: (minutes: number) => invoke<void>('vault_set_autolock', { minutes }),
+  vaultSetServer: (url: string) => invoke<void>('vault_set_server', { url }),
   prefsGet: () => invoke<Record<string, unknown> | null>('prefs_get'),
   prefsSet: (prefs: unknown) => invoke<void>('prefs_set', { prefs }),
   mediaUrl: (path: string) => invoke<string>('media_url', { path }),
