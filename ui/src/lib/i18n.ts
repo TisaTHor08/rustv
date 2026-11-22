@@ -451,7 +451,7 @@ const descEn: Record<string, string> = {
   spotify: 'Music and podcasts',
   plex: 'Your media library',
   jellyfin: 'Your Jellyfin server',
-  ugreen: 'Your UGREEN NAS',
+  ugreen: 'UGREEN Theater on your NAS (UGOS)',
   geforcenow: 'Cloud gaming',
   steam: 'Big Picture mode',
   vlc: 'Media player',

@@ -3,6 +3,7 @@
 mod autostart;
 mod commands;
 mod fs;
+mod lan;
 mod library;
 mod live;
 mod media;
