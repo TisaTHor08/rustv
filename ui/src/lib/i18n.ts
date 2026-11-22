@@ -134,6 +134,7 @@ const fr: Dict = {
   'mods.done': '« {name} » est installé',
   'mods.permissions': 'Permissions demandées',
   'mods.noperms': 'Aucune permission particulière.',
+  'mods.permsbefore': 'Les permissions exactes vous seront montrées avant l\'installation.',
   'mods.confirm': 'Installer « {name} » ?',
 };
 
@@ -268,6 +269,7 @@ const en: Dict = {
   'mods.done': '"{name}" is installed',
   'mods.permissions': 'Requested permissions',
   'mods.noperms': 'No special permission.',
+  'mods.permsbefore': 'The exact permissions are shown to you before installing.',
   'mods.confirm': 'Install "{name}"?',
 };
 

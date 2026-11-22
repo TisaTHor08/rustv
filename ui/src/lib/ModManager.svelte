@@ -191,7 +191,7 @@
       return { name: m?.name ?? current.mod.id, version: m?.version, author: m?.author, desc: m?.description, perms: current.mod.permissions, error: current.mod.error };
     }
     const e = current.entry;
-    return { name: e.name, version: e.version, author: e.author, desc: e.description, perms: e.permissions ?? [], error: null, source: `${e.source?.repo}@${String(e.source?.commit ?? '').slice(0, 7)}` };
+    return { name: e.name, version: e.version, author: e.author, desc: e.description, perms: (e.permissions ?? null) as string[] | null, error: null, source: `${e.source?.repo}@${String(e.source?.commit ?? '').slice(0, 7)}` };
   });
 </script>
 
@@ -224,7 +224,9 @@
       {#if detail.author}<p class="meta">{detail.author}{detail.source ? ' · ' + detail.source : ''}</p>{/if}
       {#if detail.desc}<p class="desc">{detail.desc}</p>{/if}
       {#if detail.error}<p class="err">{detail.error}</p>{/if}
-      {#if detail.perms.length}
+      {#if detail.perms === null}
+        <p class="meta">{t('mods.permsbefore')}</p>
+      {:else if detail.perms.length}
         <h4>{t('mods.permissions')}</h4>
         <ul>{#each detail.perms as p}<li>{permLabel(p, fr)}</li>{/each}</ul>
       {:else}<p class="meta">{t('mods.noperms')}</p>{/if}
