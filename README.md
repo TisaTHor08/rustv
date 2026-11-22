@@ -6,9 +6,19 @@ RusTV turns a Windows PC into a smart TV: a Google-TV/Apple-TV-style home screen
 (YouTube, Netflix, Prime Video, Disney+, Plex, Jellyfin, UGREEN Theater, …), VLC and Steam Big Picture,
 and a phone app that works as the remote. It is built to be themed and extended with **mods**.
 
-> Status: **v0.5** (TV mode, customization, mods, live TV and library). See the [roadmap](docs/ROADMAP.md) and the [architecture](docs/ARCHITECTURE.md).
+> Status: **v1.0** (TV mode, customization, mods, live TV and library, updates). See the [roadmap](docs/ROADMAP.md) and the [architecture](docs/ARCHITECTURE.md).
 
-<!-- screenshots -->
+<p align="center">
+  <img src="docs/screenshots/home.png" alt="RusTV home screen" width="49%" />
+  <img src="docs/screenshots/theme-midnight.png" alt="Home screen with the Midnight mod theme" width="49%" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/live-tv.png" alt="Live TV with now/next guide" width="32%" />
+  <img src="docs/screenshots/library.png" alt="Local media library" width="32%" />
+  <img src="docs/screenshots/mods-catalog.png" alt="In-app mod catalog" width="32%" />
+</p>
+
+<sub>Screenshots use demo data. The logo is derived from the Rust gear (CC-BY 4.0), see <a href="assets/LOGO-LICENSE.md">assets/LOGO-LICENSE.md</a>.</sub>
 
 **Contents:** [What works today](#what-works-today) · [Repository layout](#repository-layout) · [Build](#build) ·
 [Testing](#testing) · [Documentation](#documentation) · [Contributing](#contributing) · [License](#license)
