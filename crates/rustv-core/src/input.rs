@@ -52,11 +52,50 @@ pub fn chord(mods: &[VIRTUAL_KEY], vk: VIRTUAL_KEY) {
 }
 
 /// Injecte du texte Unicode (fonctionne indépendamment de la disposition clavier).
+/// Vraie touche (selon la disposition de clavier courante) pour un caractère, avec l'état de Maj.
+/// `None` si le caractère exige Ctrl/Alt/AltGr ou n'existe pas sur ce clavier : on retombe alors sur l'Unicode.
+fn real_key(u: u16) -> Option<(VIRTUAL_KEY, bool)> {
+    let r = unsafe { VkKeyScanW(u) };
+    if r == -1 {
+        return None;
+    }
+    let vk = (r & 0xFF) as u16;
+    let state = ((r >> 8) & 0xFF) as u8;
+    if vk == 0xFF || state & !1 != 0 {
+        return None;
+    }
+    Some((VIRTUAL_KEY(vk), state & 1 != 0))
+}
+
+/// Saisit du texte. Les caractères ordinaires passent par de vraies touches : certaines applis (YouTube TV, jeux,
+/// interfaces TV) ignorent les événements Unicode et n'écoutent que les codes de touches. Le reste est injecté en Unicode.
 pub fn type_text(text: &str) {
     let mut v = Vec::new();
     for u in text.encode_utf16() {
-        v.push(kbd(VIRTUAL_KEY(0), u, KEYEVENTF_UNICODE));
-        v.push(kbd(VIRTUAL_KEY(0), u, KEYEVENTF_UNICODE | KEYEVENTF_KEYUP));
+        match real_key(u) {
+            Some((vk, shift)) => {
+                if !v.is_empty() {
+                    send(&v);
+                    v.clear();
+                }
+                let mut one = Vec::with_capacity(4);
+                if shift {
+                    one.push(kbd(VK_SHIFT, 0, flags(VK_SHIFT, false)));
+                }
+                one.push(kbd(vk, 0, flags(vk, false)));
+                one.push(kbd(vk, 0, flags(vk, true)));
+                if shift {
+                    one.push(kbd(VK_SHIFT, 0, flags(VK_SHIFT, true)));
+                }
+                send(&one);
+                // Les interfaces TV (YouTube…) perdent des touches envoyées en rafale : on espace un peu.
+                std::thread::sleep(std::time::Duration::from_millis(10));
+            }
+            None => {
+                v.push(kbd(VIRTUAL_KEY(0), u, KEYEVENTF_UNICODE));
+                v.push(kbd(VIRTUAL_KEY(0), u, KEYEVENTF_UNICODE | KEYEVENTF_KEYUP));
+            }
+        }
     }
     if !v.is_empty() {
         send(&v);
