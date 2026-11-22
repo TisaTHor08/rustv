@@ -27,6 +27,8 @@ export interface Prefs {
   /** Taille de l'interface en % (accessibilité / distance d'écran). */
   uiScale: number;
   autoUpdate: boolean;
+  /** Navigateur pour les tuiles à bloqueur de pub (YouTube). */
+  youtubeBrowser: 'auto' | 'builtin' | 'brave' | 'vivaldi';
   lastUpdateCheck: number;
   wallpaper: {
     type: 'aurora' | 'color' | 'image' | 'folder' | 'video';
@@ -73,6 +75,7 @@ function defaults(): Prefs {
     clock24: true,
     uiScale: 100,
     autoUpdate: true,
+    youtubeBrowser: 'auto',
     lastUpdateCheck: 0,
     wallpaper: { type: 'aurora', path: '', color: '#0b0e14', blur: 0, dim: 30, interval: 30 },
     weather: { enabled: false, city: '', lat: null, lon: null, unit: 'c' },

@@ -123,7 +123,7 @@
       } else if (tile.custom) r = await api.launchCustom(tile.raw);
       else {
         const needs = (tile.raw as any).needs_url && !st?.settings.urls[tile.id];
-        r = needs ? 'needs_url' : await api.launch(tile.id);
+        r = needs ? 'needs_url' : await api.launch(tile.id, undefined, prefs.youtubeBrowser);
       }
       if (r === 'needs_url') {
         const v = await askText(t('url.title', { name: tile.name }), st?.settings.urls[tile.id] ?? '', (tile.raw as any).url_hint ?? '');

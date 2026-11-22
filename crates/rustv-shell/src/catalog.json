@@ -1,5 +1,5 @@
 [
-  { "id": "youtube", "name": "YouTube", "desc": "Vidéos, en mode TV", "category": "video", "kind": "web", "url": "https://www.youtube.com/tv?hl=fr", "color": "#ff0033", "color2": "#8a0020", "ua": "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36 (KHTML, like Gecko) 76.0.3809.146/6.0 TV Safari/537.36", "spatnav": false },
+  { "id": "youtube", "name": "YouTube", "desc": "Vidéos, en mode TV", "category": "video", "kind": "web", "url": "https://www.youtube.com/tv?hl=fr", "color": "#ff0033", "color2": "#8a0020", "ua": "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36 (KHTML, like Gecko) 76.0.3809.146/6.0 TV Safari/537.36", "spatnav": false, "adblock_browser": true },
   { "id": "netflix", "name": "Netflix", "desc": "Séries et films", "category": "video", "kind": "web", "url": "https://www.netflix.com/browse", "color": "#e50914", "color2": "#5c0409", "spatnav": true },
   { "id": "prime", "name": "Prime Video", "desc": "Films, séries et originaux Amazon", "category": "video", "kind": "web", "url": "https://www.primevideo.com", "color": "#00a8e1", "color2": "#04485f", "spatnav": true },
   { "id": "disney", "name": "Disney+", "desc": "Disney, Pixar, Marvel, Star Wars", "category": "video", "kind": "web", "url": "https://www.disneyplus.com", "color": "#1b4fd8", "color2": "#0a1f5c", "spatnav": true },

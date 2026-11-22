@@ -19,7 +19,7 @@
     note,
   }: { st: ShellState | null; refresh: () => Promise<void>; onclose: () => void; onpairing: () => void; onmods: () => void; note: (m: string) => void } = $props();
 
-  type Page = 'root' | 'appearance' | 'wallpaper' | 'tiles' | 'weather' | 'live' | 'library' | 'system';
+  type Page = 'root' | 'appearance' | 'wallpaper' | 'tiles' | 'weather' | 'live' | 'library' | 'apps' | 'system';
   interface Row {
     label: string;
     value?: string;
@@ -34,6 +34,7 @@
   let idx = $state(0);
   let newCat = $state<Category>('video');
   let confirmReset = $state(false);
+  let detected = $state('');
 
   const CATS: Category[] = ['video', 'tv', 'music', 'library', 'games'];
 
@@ -181,6 +182,7 @@
           { label: t('settings.library'), enter: () => go('library') },
           { label: t('settings.mods'), enter: onmods },
           { label: t('settings.phones'), enter: onpairing },
+          { label: t('settings.apps'), enter: () => go('apps') },
           { label: t('settings.screens'), enter: () => go('system') },
         ];
       case 'appearance':
@@ -269,6 +271,12 @@
         }
         return r;
       }
+      case 'apps':
+        return [
+          { label: t('apps.detected'), value: detected || t('apps.none') },
+          choice(t('apps.browser'), ['auto', 'builtin', 'brave', 'vivaldi'] as const, () => prefs.youtubeBrowser, (v) => set('youtubeBrowser', v), (v) => t(`apps.opt.${v}`)),
+          { label: t('apps.note') },
+        ];
       case 'system':
         return [
           choice(t('sys.blackout'), ['yes', 'no'] as const, () => (st?.settings.blackout ? 'yes' : 'no'), async (v) => {
@@ -288,11 +296,12 @@
     }
   });
 
-  const titles: Record<Page, string> = { root: 'settings.title', appearance: 'settings.appearance', wallpaper: 'settings.wallpaper', tiles: 'settings.tiles', weather: 'settings.weather', live: 'settings.live', library: 'settings.library', system: 'settings.screens' };
+  const titles: Record<Page, string> = { root: 'settings.title', appearance: 'settings.appearance', wallpaper: 'settings.wallpaper', tiles: 'settings.tiles', weather: 'settings.weather', live: 'settings.live', library: 'settings.library', apps: 'settings.apps', system: 'settings.screens' };
 
   function go(p: Page) {
     page = p;
     idx = 0;
+    if (p === 'apps') void api.browsersDetected().then((l) => (detected = l.map((b) => (b.kind === 'brave' ? 'Brave' : 'Vivaldi')).join(', '))).catch(() => {});
     confirmReset = false;
   }
 
