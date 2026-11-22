@@ -1,0 +1,65 @@
+{
+    "version":  1,
+    "mods":  [
+                 {
+                     "id":  "theme-midnight",
+                     "name":  "Midnight",
+                     "version":  "1.0.0",
+                     "author":  "RusTV",
+                     "description":  "Deep blue theme with a cyan accent and rounder tiles.",
+                     "source":  {
+                                    "repo":  "TisaTHor08/rustv",
+                                    "commit":  "c7f1e6e19138fd359dbc8931521d9a88df90a0ef",
+                                    "path":  "mods/theme-midnight"
+                                }
+                 },
+                 {
+                     "id":  "widget-analog-clock",
+                     "name":  "Analog clock",
+                     "version":  "1.0.0",
+                     "author":  "RusTV",
+                     "description":  "A small analog clock in the top bar. Needs no permission.",
+                     "source":  {
+                                    "repo":  "TisaTHor08/rustv",
+                                    "commit":  "c7f1e6e19138fd359dbc8931521d9a88df90a0ef",
+                                    "path":  "mods/widget-analog-clock"
+                                }
+                 },
+                 {
+                     "id":  "skip-intro",
+                     "name":  "Skip intro",
+                     "version":  "1.0.0",
+                     "author":  "RusTV",
+                     "description":  "Automatically presses the Skip intro / recap buttons on Netflix and Prime Video. Experimental.",
+                     "source":  {
+                                    "repo":  "TisaTHor08/rustv",
+                                    "commit":  "c7f1e6e19138fd359dbc8931521d9a88df90a0ef",
+                                    "path":  "mods/skip-intro"
+                                }
+                 },
+                 {
+                     "id":  "page-news",
+                     "name":  "Hacker News",
+                     "version":  "1.0.0",
+                     "author":  "RusTV",
+                     "description":  "A full-screen page listing the top Hacker News stories (network and launch permissions).",
+                     "source":  {
+                                    "repo":  "TisaTHor08/rustv",
+                                    "commit":  "c7f1e6e19138fd359dbc8931521d9a88df90a0ef",
+                                    "path":  "mods/page-news"
+                                }
+                 },
+                 {
+                     "id":  "tiles-community",
+                     "name":  "Community tiles",
+                     "version":  "1.0.0",
+                     "author":  "RusTV",
+                     "description":  "Extra website tiles: Wikipedia, Radio Paradise and NASA Live.",
+                     "source":  {
+                                    "repo":  "TisaTHor08/rustv",
+                                    "commit":  "c7f1e6e19138fd359dbc8931521d9a88df90a0ef",
+                                    "path":  "mods/tiles-community"
+                                }
+                 }
+             ]
+}
