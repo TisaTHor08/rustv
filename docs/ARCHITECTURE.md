@@ -49,9 +49,16 @@ pages, top-bar widgets, site adapters and translations. Execution model:
 - Site adapters are injected into web app windows as initialization scripts, only if the user approved the matching `inject:` permission.
 - The catalog installs a *full commit* of a GitHub repository (content-addressed), previews the real manifest, then asks for approval.
 
-### `rustv-live` (planned)
-Live TV from user-supplied M3U playlists and XMLTV guides. RusTV does not ship any channel list.
-
+### Player, live TV and library (`crates/rustv-shell/src/{player,live,library}.rs`)
+- **Player**: RusTV drives `mpv.exe` (full screen on the TV monitor) over its JSON IPC pipe. mpv is found if already installed, otherwise
+  downloaded **only after the user agrees** from the latest `shinchiro/mpv-winbuild-cmake` release (the build mpv.io links to) and checked against
+  the SHA-256 digest published by GitHub. A generated `input.conf` maps the remote's keys: in live mode Up/Down zap through the channel list (mpv sends
+  a `script-message` that RusTV answers with `loadfile`), in video mode Left/Right seek; Back quits and returns to the home screen.
+- **Live TV**: user-supplied M3U playlists and XMLTV guides (URL or file, `.gz` accepted, streamed). Only `http(s)`, `rtmp(s)`, `rtsp`, `udp`, `rtp`, `srt` and
+  `mms` stream URLs are accepted (a playlist cannot point mpv at local files). RusTV ships no channel list.
+- **Library**: scans the folders you pick (no network). Titles come from file names, series are grouped by `SxxExx`, posters are `poster.jpg`/`folder.jpg`
+  next to the media. Photos open in a built-in viewer with slideshow; music and video play in mpv; the file explorer opens anything else with its default app.
+- **Now playing**: the core reads Windows' media session (SMTC) and the mpv state and sends `nowPlaying` to the phone.
 ## Security model
 
 - The pairing secret is shared only through the QR code shown on the PC.

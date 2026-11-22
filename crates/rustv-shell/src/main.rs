@@ -3,8 +3,11 @@
 mod autostart;
 mod commands;
 mod fs;
+mod library;
+mod live;
 mod media;
 mod mods;
+mod player;
 mod prefs;
 mod settings;
 mod tv;
@@ -23,6 +26,8 @@ pub struct TvState {
 
 pub struct Shell {
     pub media: Arc<media::Media>,
+    pub player: Arc<player::Player>,
+    pub live: Mutex<live::Cache>,
     pub core: Arc<Core>,
     pub settings: Mutex<settings::Settings>,
     pub tv: Mutex<TvState>,
@@ -53,7 +58,7 @@ fn main() {
     }
 
     let app = tauri::Builder::default()
-        .manage(Shell { media: media::Media::start(), core: core.clone(), settings: Mutex::new(settings::Settings::load()), tv: Mutex::new(TvState::default()) })
+        .manage(Shell { media: media::Media::start(), player: Arc::new(player::Player::default()), live: Mutex::new(live::Cache::default()), core: core.clone(), settings: Mutex::new(settings::Settings::load()), tv: Mutex::new(TvState::default()) })
         .invoke_handler(tauri::generate_handler![
             commands::get_state,
             commands::tv_start,
@@ -70,6 +75,15 @@ fn main() {
             commands::fs_list,
             commands::windows_apps,
             commands::app_icon,
+            commands::player_status,
+            commands::player_install,
+            commands::player_play,
+            commands::player_stop,
+            commands::player_state,
+            commands::live_load,
+            commands::live_nownext,
+            commands::library_scan,
+            commands::open_path,
             commands::mods_list,
             commands::mod_set_enabled,
             commands::mod_uninstall,

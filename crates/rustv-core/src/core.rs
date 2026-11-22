@@ -30,6 +30,26 @@ pub enum Event {
     DevicesChanged,
 }
 
+/// Média en cours (SMTC ou lecteur RusTV).
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct NowPlaying {
+    pub title: String,
+    pub artist: String,
+    pub playing: bool,
+    pub position: f64,
+    pub duration: f64,
+    pub source: String,
+}
+
+/// État du lecteur RusTV (mpv), fourni par le shell.
+#[derive(Debug, Clone, Default)]
+pub struct PlayerInfo {
+    pub title: String,
+    pub playing: bool,
+    pub position: f64,
+    pub duration: f64,
+}
+
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct DeviceInfo {
     pub id: String,
@@ -43,6 +63,9 @@ pub struct Core {
     pub bt_addr: Mutex<Option<String>>,
     events: Mutex<Vec<Sender<Event>>>,
     tv_mode: Mutex<bool>,
+    player: Mutex<Option<PlayerInfo>>,
+    smtc: Mutex<Option<NowPlaying>>,
+    last_np: Mutex<Option<PcMsg>>,
     alt: Mutex<Option<Instant>>,   // Some(dernier événement) quand Alt est maintenu
     pinned: Mutex<Option<isize>>,  // HWND épinglé
     conns: Mutex<Vec<Conn>>,
@@ -59,6 +82,9 @@ impl Core {
             bt_addr: Mutex::new(None),
             events: Mutex::new(vec![]),
             tv_mode: Mutex::new(false),
+            player: Mutex::new(None),
+            smtc: Mutex::new(None),
+            last_np: Mutex::new(None),
             alt: Mutex::new(None),
             pinned: Mutex::new(None),
             conns: Mutex::new(vec![]),
@@ -88,6 +114,40 @@ impl Core {
             *t = on;
             drop(t);
             self.broadcast(self.state_msg());
+        }
+    }
+
+    // ---- média en cours ----
+
+    pub fn set_player_info(&self, p: Option<PlayerInfo>) {
+        *self.player.lock().unwrap() = p;
+        self.refresh_np();
+    }
+
+    pub fn set_smtc(&self, s: Option<NowPlaying>) {
+        *self.smtc.lock().unwrap() = s;
+        self.refresh_np();
+    }
+
+    fn np_msg(&self) -> PcMsg {
+        let cur = match self.player.lock().unwrap().clone() {
+            // Le lecteur RusTV a la priorité sur les autres sources.
+            Some(p) => Some(NowPlaying { title: p.title, artist: String::new(), playing: p.playing, position: p.position, duration: p.duration, source: "RusTV".into() }),
+            None => self.smtc.lock().unwrap().clone(),
+        };
+        match cur {
+            Some(n) => PcMsg::NowPlaying { active: true, title: n.title, artist: n.artist, playing: n.playing, position: n.position, duration: n.duration, source: n.source },
+            None => PcMsg::NowPlaying { active: false, title: String::new(), artist: String::new(), playing: false, position: 0.0, duration: 0.0, source: String::new() },
+        }
+    }
+
+    fn refresh_np(&self) {
+        let msg = self.np_msg();
+        let mut last = self.last_np.lock().unwrap();
+        if last.as_ref() != Some(&msg) {
+            *last = Some(msg.clone());
+            drop(last);
+            self.broadcast(msg);
         }
     }
 
@@ -150,6 +210,7 @@ impl Core {
         drop(n);
         self.conns.lock().unwrap().push(Conn { id, device: device.to_string(), tx: tx.clone() });
         let _ = tx.send(self.state_msg());
+        let _ = tx.send(self.np_msg());
         self.refresh_apps();
         let _ = tx.send(self.apps_msg());
         self.stream_icons(tx);
@@ -307,6 +368,8 @@ impl Core {
                 Key::BackLong => input::chord(&[VK_MENU], VK_LEFT),
                 // Touche « Menu contextuel » : ouvre le menu d'options d'une tuile sur l'accueil TV.
                 Key::Menu => input::tap(VK_APPS),
+                // F3 : ouvre la recherche universelle de l'accueil TV.
+                Key::Search => input::tap(VK_F3),
             },
             PhoneMsg::AltTab { a } => {
                 let mut alt = self.alt.lock().unwrap();

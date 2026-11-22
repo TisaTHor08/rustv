@@ -7,6 +7,8 @@
   import { ACCENTS, TILE_COLORS, prefs, resetTiles, savePrefs, type Category, type CustomTile } from './prefs.svelte';
   import { geocode } from './weather';
   import { modThemes } from './mods.svelte';
+  import { scanLibrary } from './library.svelte';
+  import { loadLive } from './live.svelte';
 
   let {
     st,
@@ -17,7 +19,7 @@
     note,
   }: { st: ShellState | null; refresh: () => Promise<void>; onclose: () => void; onpairing: () => void; onmods: () => void; note: (m: string) => void } = $props();
 
-  type Page = 'root' | 'appearance' | 'wallpaper' | 'tiles' | 'weather' | 'system';
+  type Page = 'root' | 'appearance' | 'wallpaper' | 'tiles' | 'weather' | 'live' | 'library' | 'system';
   interface Row {
     label: string;
     value?: string;
@@ -92,6 +94,40 @@
     }
   }
 
+  async function addLive() {
+    const name = await askText(t('live.name'), '');
+    if (!name) return;
+    const m3u = await askText(t('live.m3u'), 'https://');
+    if (!m3u) return;
+    const xmltv = (await askText(t('live.xmltv'), '', t('live.xmltv'))) ?? '';
+    const id = `src${Date.now().toString(36)}`;
+    prefs.live.sources = [...prefs.live.sources, { id, name, m3u, xmltv }];
+    prefs.live.active = id;
+    savePrefs();
+    loadLive(true).catch(() => {});
+  }
+
+  function removeLive(id: string) {
+    prefs.live.sources = prefs.live.sources.filter((s) => s.id !== id);
+    if (prefs.live.active === id) prefs.live.active = prefs.live.sources[0]?.id ?? '';
+    savePrefs();
+    loadLive(true).catch(() => {});
+  }
+
+  type LibKind = 'movies' | 'series' | 'photos' | 'music';
+  async function addLib(kind: LibKind) {
+    const p = await pickFile(t('picker.title.folder'), 'folder');
+    if (!p) return;
+    if (!prefs.library[kind].includes(p)) prefs.library[kind] = [...prefs.library[kind], p];
+    savePrefs();
+    scanLibrary(true).catch(() => {});
+  }
+  function removeLib(kind: LibKind, path: string) {
+    prefs.library[kind] = prefs.library[kind].filter((x) => x !== path);
+    savePrefs();
+    scanLibrary(true).catch(() => {});
+  }
+
   async function pickWallpaper() {
     const w = prefs.wallpaper;
     const kind = w.type === 'folder' ? 'folder' : w.type === 'video' ? 'video' : 'image';
@@ -111,6 +147,8 @@
           { label: t('settings.wallpaper'), enter: () => go('wallpaper') },
           { label: t('settings.tiles'), enter: () => go('tiles') },
           { label: t('settings.weather'), enter: () => go('weather') },
+          { label: t('settings.live'), enter: () => go('live') },
+          { label: t('settings.library'), enter: () => go('library') },
           { label: t('settings.mods'), enter: onmods },
           { label: t('settings.phones'), enter: onpairing },
           { label: t('settings.screens'), enter: () => go('system') },
@@ -178,6 +216,28 @@
           { label: t('weather.city'), value: prefs.weather.city || '—', enter: setCity },
           choice(t('weather.unit'), ['c', 'f'] as const, () => prefs.weather.unit, (v) => ((prefs.weather.unit = v), savePrefs()), (v) => (v === 'c' ? '°C' : '°F')),
         ];
+      case 'live': {
+        const r: Row[] = prefs.live.sources.map((s) => ({
+          label: s.name,
+          value: prefs.live.active === s.id ? '✓ ' + s.m3u.slice(0, 36) : s.m3u.slice(0, 36),
+          enter: () => {
+            prefs.live.active = s.id;
+            savePrefs();
+            loadLive(true).catch(() => {});
+          },
+        }));
+        r.push({ label: t('live.add'), enter: addLive });
+        for (const s of prefs.live.sources) r.push({ label: t('live.remove.named', { name: s.name }), enter: () => removeLive(s.id) });
+        return r;
+      }
+      case 'library': {
+        const r: Row[] = [];
+        for (const k of ['movies', 'series', 'photos', 'music'] as LibKind[]) {
+          r.push({ label: t(`lib.${k}`), value: `${prefs.library[k].length}`, enter: () => addLib(k) });
+          for (const p of prefs.library[k]) r.push({ label: t('lib.remove', { path: p.split('\\').slice(-2).join('\\') }), enter: () => removeLib(k, p) });
+        }
+        return r;
+      }
       case 'system':
         return [
           choice(t('sys.blackout'), ['yes', 'no'] as const, () => (st?.settings.blackout ? 'yes' : 'no'), async (v) => {
@@ -195,7 +255,7 @@
     }
   });
 
-  const titles: Record<Page, string> = { root: 'settings.title', appearance: 'settings.appearance', wallpaper: 'settings.wallpaper', tiles: 'settings.tiles', weather: 'settings.weather', system: 'settings.screens' };
+  const titles: Record<Page, string> = { root: 'settings.title', appearance: 'settings.appearance', wallpaper: 'settings.wallpaper', tiles: 'settings.tiles', weather: 'settings.weather', live: 'settings.live', library: 'settings.library', system: 'settings.screens' };
 
   function go(p: Page) {
     page = p;

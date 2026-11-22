@@ -20,6 +20,7 @@ features = [
     "Devices_Bluetooth",
     "Devices_Bluetooth_Rfcomm",
     "Foundation",
+    "Media_Control",
     "Networking_Sockets",
     "Storage_Streams",
     "Win32_Foundation",

@@ -20,6 +20,7 @@ export const app = $state({
   pinned: false,
   textFocus: false,
   tvMode: false,
+  now: { active: false, title: '', artist: '', playing: false, position: 0, duration: 0, source: '' },
   apps: [] as AppEntry[],
 });
 
@@ -206,6 +207,8 @@ async function serve(s: Session, active: () => boolean) {
         app.pinned = m.pinned;
         app.textFocus = m.textFocus;
         app.tvMode = m.tvMode;
+      } else if (m.t === 'nowPlaying') {
+        app.now = { active: m.active, title: m.title, artist: m.artist, playing: m.playing, position: m.position, duration: m.duration, source: m.source };
       } else if (m.t === 'apps') app.apps = m.apps;
       else if (m.t === 'icons') {
         // Les icônes arrivent par lots après la liste : on les rattache aux apps.

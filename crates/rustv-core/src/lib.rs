@@ -7,9 +7,10 @@ pub mod core;
 pub mod icons;
 pub mod input;
 pub mod server;
+pub mod smtc;
 pub mod uia;
 
-pub use crate::core::{Core, DeviceInfo, Event};
+pub use crate::core::{Core, DeviceInfo, Event, NowPlaying, PlayerInfo};
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -36,6 +37,10 @@ pub fn start(core: Arc<Core>) -> std::io::Result<()> {
     {
         let c = core.clone();
         std::thread::spawn(move || uia::run(c));
+    }
+    {
+        let c = core.clone();
+        std::thread::spawn(move || smtc::run(c));
     }
     {
         // Bluetooth : facultatif (PC sans adaptateur ou Bluetooth désactivé → on ignore).

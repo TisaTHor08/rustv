@@ -1,4 +1,4 @@
-export type KeyName = 'up' | 'down' | 'left' | 'right' | 'enter' | 'back' | 'backlong' | 'menu';
+export type KeyName = 'up' | 'down' | 'left' | 'right' | 'enter' | 'back' | 'backlong' | 'menu' | 'search';
 export type AltTabAction = 'open' | 'left' | 'right' | 'confirm';
 
 export type PhoneMsg =
@@ -26,6 +26,7 @@ export type PcMsg =
   | { t: 'apps'; apps: AppEntry[] }
   | { t: 'icons'; icons: { id: string; icon: string }[] }
   | { t: 'state'; pinned: boolean; textFocus: boolean; tvMode: boolean }
+  | { t: 'nowPlaying'; active: boolean; title: string; artist: string; playing: boolean; position: number; duration: number; source: string }
   | { t: 'pong' };
 
 /** Contenu du QR code affiché par le PC. */

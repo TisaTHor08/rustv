@@ -126,12 +126,32 @@
     o?.resolve(v);
   }
 
+  // ---------- confirmation ----------
+  let cidx = $state(0);
+  $effect(() => {
+    if (overlay.confirm) cidx = 0;
+  });
+  function finishConfirm(v: boolean) {
+    const c = overlay.confirm;
+    overlay.confirm = null;
+    c?.resolve(v);
+  }
+
   // ---------- clavier (phase de capture : prioritaire sur les autres écrans) ----------
   function onKey(e: KeyboardEvent) {
     const stop = () => {
       e.preventDefault();
       e.stopImmediatePropagation();
     };
+    if (overlay.busy) return stop(); // opération en cours : on ignore les touches
+    if (overlay.confirm) {
+      stop();
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') cidx = 1;
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') cidx = 0;
+      else if (e.key === 'Enter') finishConfirm(cidx === 0);
+      else if (e.key === 'Escape' || e.key === 'Backspace') finishConfirm(false);
+      return;
+    }
     if (overlay.prompt) {
       if (e.key === 'Enter') {
         stop();
@@ -167,6 +187,31 @@
 </script>
 
 <svelte:window onkeydowncapture={onKey} />
+
+{#if overlay.confirm}
+  <div class="scrim" transition:fade={{ duration: 160 }}>
+    <div class="sheet" in:fly={{ y: 30, duration: 320, easing: cubicOut }}>
+      <h3>{overlay.confirm.title}</h3>
+      <p class="body">{overlay.confirm.text}</p>
+      <div class="btns">
+        <button class:sel={cidx === 0} onmouseenter={() => (cidx = 0)} onclick={() => finishConfirm(true)}>{overlay.confirm.ok}</button>
+        <button class:sel={cidx === 1} onmouseenter={() => (cidx = 1)} onclick={() => finishConfirm(false)}>{overlay.confirm.cancel}</button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+{#if overlay.busy}
+  <div class="scrim" transition:fade={{ duration: 160 }}>
+    <div class="sheet">
+      <h3>{overlay.busy.title}</h3>
+      <p class="body">{overlay.busy.text}</p>
+      {#if overlay.busy.pct !== null}
+        <div class="bar"><i style:width="{overlay.busy.pct}%"></i></div>
+      {:else}<div class="spin"></div>{/if}
+    </div>
+  </div>
+{/if}
 
 {#if overlay.prompt}
   <div class="scrim" transition:fade={{ duration: 160 }}>
@@ -241,4 +286,12 @@
   .prev img { max-width: 100%; max-height: 100%; border-radius: 1rem; object-fit: contain; }
   .prev img.appico { width: 8rem; height: 8rem; }
   .empty { color: var(--muted); padding: 1rem; }
+  .body { margin: 0 0 1.4rem; font-size: 1.25rem; line-height: 1.5; color: var(--muted); }
+  .btns { display: flex; flex-direction: column; gap: 0.5rem; }
+  .btns button { padding: 0.95rem 1.2rem; border: 0; border-radius: 0.9rem; background: transparent; color: var(--text); font: inherit; font-size: 1.3rem; text-align: left; transition: background 0.2s, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .btns button.sel { background: var(--accent); color: #fff; font-weight: 600; transform: scale(1.02); }
+  .bar { height: 0.8rem; border-radius: 99rem; background: var(--glass-strong); overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--accent); transition: width 0.3s; }
+  .spin { width: 3.4rem; height: 3.4rem; margin: 0.6rem 0; border: 0.35rem solid var(--glass-strong); border-top-color: var(--accent); border-radius: 50%; animation: s 0.8s linear infinite; }
+  @keyframes s { to { transform: rotate(360deg); } }
 </style>

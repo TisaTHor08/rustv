@@ -7,6 +7,9 @@
   import { askText } from './overlays.svelte';
   import { anyOverlay } from './overlays.svelte';
   import OverlayHost from './OverlayHost.svelte';
+  import LivePage from './LivePage.svelte';
+  import MediaPage from './MediaPage.svelte';
+  import Search from './Search.svelte';
   import ModManager from './ModManager.svelte';
   import ModWidgets from './ModWidgets.svelte';
   import { mods, pageSrc, type ModTile } from './mods.svelte';
@@ -15,11 +18,11 @@
   import { prefs } from './prefs.svelte';
   import Settings from './Settings.svelte';
   import TileMenu from './TileMenu.svelte';
-  import { CATEGORIES, findTile, iconSrc, moveTile, tilesOf, type DTile } from './tiles.svelte';
+  import { CATEGORIES, findTile, iconSrc, moveTile, tilesOf, type BuiltinTile, type DTile } from './tiles.svelte';
   import Wallpaper from './Wallpaper.svelte';
   import Weather from './Weather.svelte';
 
-  type Modal = null | { kind: 'settings' } | { kind: 'pairing' } | { kind: 'mods' } | { kind: 'page'; modId: string; entry: string; title: string } | { kind: 'tile'; id: string };
+  type Modal = null | { kind: 'settings' } | { kind: 'pairing' } | { kind: 'mods' } | { kind: 'live' } | { kind: 'search' } | { kind: 'media'; tab: 'movies' | 'series' | 'photos' | 'music' | 'files' } | { kind: 'page'; modId: string; entry: string; title: string } | { kind: 'tile'; id: string };
 
   const TILE_STEP = 18.6; // rem : largeur d'une tuile + espacement
   const ROW_H = 17; // rem
@@ -103,6 +106,13 @@
   async function openTile(tile: DTile) {
     try {
       let r: string;
+      if (tile.source === 'builtin') {
+        const raw = tile.raw as BuiltinTile;
+        if (raw.action === 'live') modal = { kind: 'live' };
+        else if (raw.action?.startsWith('media:')) modal = { kind: 'media', tab: raw.action.slice(6) as any };
+        else r = await api.launchCustom({ id: raw.id, name: tile.name, kind: 'native', target: raw.target });
+        return;
+      }
       if (tile.source === 'mod') {
         const raw = tile.raw as ModTile;
         if (raw.kind === 'page') {
@@ -147,6 +157,9 @@
       case 'ArrowLeft': move(0, -1, 'left'); break;
       case 'ArrowRight': move(0, 1, 'right'); break;
       case 'Enter': activate(); break;
+      case 'F3':
+        modal = { kind: 'search' };
+        break;
       case 'ContextMenu':
         if (focused) modal = { kind: 'tile', id: focused.id };
         break;
@@ -213,6 +226,9 @@
         <span class="dot"></span>{phones === 0 ? t('phones.none') : phones === 1 ? t('phones.one') : t('phones.many', { n: phones })}
       </div>
       <div class="clock"><strong>{time}</strong><small>{date}</small></div>
+      <button class="icon" aria-label={t('search.title')} onclick={() => (modal = { kind: 'search' })}>
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" /></svg>
+      </button>
       <button class="icon" class:focus={focus.row === -1} onclick={() => (modal = { kind: 'settings' })} onmouseenter={() => (focus = { row: -1, col: 0 })} aria-label={t('settings.title')}>
         <svg viewBox="0 0 24 24"><path d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.6a.5.5 0 0 0 .1-.6l-1.9-3.3a.5.5 0 0 0-.6-.2l-2.4 1a7.2 7.2 0 0 0-1.7-1l-.4-2.5a.5.5 0 0 0-.5-.4h-3.8a.5.5 0 0 0-.5.4L9.3 5.3a7.2 7.2 0 0 0-1.7 1l-2.4-1a.5.5 0 0 0-.6.2L2.7 8.8a.5.5 0 0 0 .1.6l2 1.6a7.7 7.7 0 0 0 0 2l-2 1.6a.5.5 0 0 0-.1.6l1.9 3.3a.5.5 0 0 0 .6.2l2.4-1c.5.4 1.1.7 1.7 1l.4 2.5c0 .2.2.4.5.4h3.8c.3 0 .5-.2.5-.4l.4-2.5c.6-.3 1.2-.6 1.7-1l2.4 1c.2.1.5 0 .6-.2l1.9-3.3a.5.5 0 0 0-.1-.6ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z" /></svg>
       </button>
@@ -274,7 +290,7 @@
   {#if toast}<div class="toast" transition:fade={{ duration: 200 }}>{toast}</div>{/if}
 
   <!-- Fenêtres modales -->
-  {#if modal}
+  {#if modal && ['settings', 'pairing', 'mods', 'tile'].includes(modal.kind)}
     <div class="scrim" transition:fade={{ duration: 180 }}>
       {#if modal.kind === 'settings'}
         <Settings {st} {refresh} {note} onclose={() => (modal = null)} onpairing={() => (modal = { kind: 'pairing' })} onmods={() => (modal = { kind: 'mods' })} />
@@ -292,6 +308,12 @@
 
   {#if modal?.kind === 'page'}
     <PageHost modId={modal.modId} src={pageSrc(modal.modId, modal.entry)} title={modal.title} onclose={() => (modal = null)} toast={note} />
+  {/if}
+
+  {#if modal?.kind === 'live'}<LivePage {note} onclose={() => (modal = null)} />{/if}
+  {#if modal?.kind === 'media'}<MediaPage tab={modal.tab} {note} onclose={() => (modal = null)} />{/if}
+  {#if modal?.kind === 'search' && st}
+    <Search tiles={CATEGORIES.flatMap((c) => tilesOf(st!.catalog, c))} {note} onclose={() => (modal = null)} onopen={(x) => openTile(x)} onmedia={(tab) => (modal = { kind: 'media', tab })} />
   {/if}
 
   <OverlayHost />

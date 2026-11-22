@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
-pub enum Key { Up, Down, Left, Right, Enter, Back, BackLong, Menu }
+pub enum Key { Up, Down, Left, Right, Enter, Back, BackLong, Menu, Search }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -80,5 +80,7 @@ pub enum PcMsg {
     Icons { icons: Vec<IconEntry> },
     #[serde(rename_all = "camelCase")]
     State { pinned: bool, text_focus: bool, tv_mode: bool },
+    /// Média en cours de lecture sur le PC (lecteur RusTV ou n'importe quelle appli via les contrôles média Windows).
+    NowPlaying { active: bool, title: String, artist: String, playing: bool, position: f64, duration: f64, source: String },
     Pong,
 }

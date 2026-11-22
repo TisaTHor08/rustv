@@ -6,7 +6,7 @@ RusTV turns a Windows PC into a smart TV: a Google-TV/Apple-TV-style home screen
 (YouTube, Netflix, Prime Video, Disney+, Plex, Jellyfin, UGREEN Theater, …), VLC and Steam Big Picture,
 and a phone app that works as the remote. It is built to be themed and extended with **mods**.
 
-> Status: **v0.4** (TV mode + customization + mods). See the [roadmap](docs/ROADMAP.md) and the [architecture](docs/ARCHITECTURE.md).
+> Status: **v0.5** (TV mode, customization, mods, live TV and library). See the [roadmap](docs/ROADMAP.md) and the [architecture](docs/ARCHITECTURE.md).
 
 ## What works today
 
@@ -19,10 +19,11 @@ and a phone app that works as the remote. It is built to be themed and extended 
   video, blur and dim), dark/light/auto theme, accent color, French/English, optional weather, and tile editing
   (long-press OK on the phone: rename, recolor, set an icon, move, hide; add websites and Windows apps).
   Preferences live in `%APPDATA%\RusTV\prefs.json`.
+- **Live TV and media**: your own M3U playlists and XMLTV guides (now/next, zapping with the remote), a local library of movies, shows, photos and music, a file explorer, Windows settings shortcuts and a universal search. Playback uses mpv, installed on demand after you agree (checksum verified). No channel list is bundled.
 - **Mods** ([docs/MODS.md](docs/MODS.md)): themes, tiles, full-screen pages, top-bar widgets and site adapters, with declared and user-approved permissions, sandboxed execution and an in-app catalog installing pinned GitHub commits.
 - **Phone remote** (Svelte + Capacitor, Android): QR pairing, Siri-Remote-like swipe surface with haptic
   ticks and inertia, classic D-pad, Back/Home, tab switching, media keys + volume, touchpad,
-  keyboard that pops up when a text field has focus on the PC.
+  keyboard that pops up when a text field has focus on the PC, a *now playing* card (any app using Windows media controls, plus the RusTV player) and a search button.
 - **Security**: HMAC-SHA256 challenge-response (the secret never travels), AES-256-GCM encrypted
   frames with anti-replay counters, per-phone revocable pairing, no Internet needed, no telemetry.
   See [docs/PROTOCOL.md](docs/PROTOCOL.md).

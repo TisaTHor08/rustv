@@ -35,7 +35,7 @@ const s = await Session.connect(wrap(sock), unb64(key), deviceId);
   try {
     for (;;) {
       const m = await s.recv();
-      if (m.t === 'state') console.log('<-', JSON.stringify(m));
+      if (m.t === 'state' || m.t === 'nowPlaying') console.log('<-', JSON.stringify(m));
     }
   } catch {}
 })();

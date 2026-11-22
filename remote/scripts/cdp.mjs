@@ -39,7 +39,7 @@ if (cmd === 'shot') {
   fs.writeFileSync(args[0], Buffer.from(r.result.data, 'base64'));
   console.log('saved', args[0]);
 } else if (cmd === 'key') {
-  const codes = { ArrowDown: 40, ArrowUp: 38, ArrowLeft: 37, ArrowRight: 39, Enter: 13, Escape: 27, Backspace: 8 };
+  const codes = { ArrowDown: 40, ArrowUp: 38, ArrowLeft: 37, ArrowRight: 39, Enter: 13, Escape: 27, Backspace: 8, F3: 114, ContextMenu: 93 };
   for (const k of args) {
     const code = codes[k] ?? k.toUpperCase().charCodeAt(0);
     const base = { key: k, code: k, windowsVirtualKeyCode: code, nativeVirtualKeyCode: code };
@@ -48,6 +48,20 @@ if (cmd === 'shot') {
     await new Promise((r) => setTimeout(r, 350));
   }
   console.log('keys sent');
+} else if (cmd === 'type') {
+  await call('Input.insertText', { text: args.join(' ') });
+  console.log('typed');
+} else if (cmd === 'logs') {
+  // Affiche les erreurs et console.log de la page pendant N ms (pendant que d'autres commandes agissent).
+  await call('Runtime.enable');
+  await call('Log.enable');
+  ws.onmessage = (m) => {
+    const d = JSON.parse(m.data);
+    if (d.method === 'Runtime.exceptionThrown') console.log('EXC', d.params.exceptionDetails.exception?.description ?? d.params.exceptionDetails.text);
+    else if (d.method === 'Runtime.consoleAPICalled') console.log('LOG', d.params.type, d.params.args.map((a) => a.value ?? a.description).join(' '));
+    else if (d.method === 'Log.entryAdded') console.log('ENTRY', d.params.entry.level, d.params.entry.text);
+  };
+  await new Promise((r) => setTimeout(r, Number(args[0] ?? 4000)));
 } else if (cmd === 'eval') {
   const r = await call('Runtime.evaluate', { expression: args.join(' '), returnByValue: true, awaitPromise: true });
   console.log(JSON.stringify(r.result?.result?.value ?? r.result));

@@ -79,7 +79,40 @@ export interface ModInfo {
   error: string | null;
 }
 
+export interface PlayItem {
+  name: string;
+  url: string;
+}
+export interface LiveChannel {
+  id: string;
+  name: string;
+  logo: string;
+  group: string;
+  url: string;
+  tvg: string;
+}
+export interface Prog {
+  start: number;
+  stop: number;
+  title: string;
+  desc: string;
+}
+export interface LiveLoad {
+  channels: LiveChannel[];
+  groups: string[];
+  hasEpg: boolean;
+  epgError: string | null;
+}
+
 export const api = {
+  playerStatus: () => invoke<{ installed: boolean; path: string | null }>('player_status'),
+  playerInstall: () => invoke<string>('player_install'),
+  playerPlay: (req: { kind: 'live' | 'video' | 'audio'; items: PlayItem[]; index?: number }) => invoke<void>('player_play', { req }),
+  playerStop: () => invoke<void>('player_stop'),
+  liveLoad: (m3u: string, xmltv?: string) => invoke<LiveLoad>('live_load', { m3u, xmltv }),
+  liveNowNext: () => invoke<Record<string, { now: Prog | null; next: Prog | null }>>('live_nownext'),
+  libraryScan: (movies: string[], series: string[], photos: string[], music: string[]) => invoke<any>('library_scan', { movies, series, photos, music }),
+  openPath: (path: string) => invoke<void>('open_path', { path }),
   modsList: () => invoke<ModInfo[]>('mods_list'),
   modSetEnabled: (id: string, enabled: boolean) => invoke<void>('mod_set_enabled', { id, enabled }),
   modUninstall: (id: string) => invoke<void>('mod_uninstall', { id }),
@@ -116,4 +149,6 @@ export const api = {
   setAutostart: (mode: string) => invoke<void>('set_autostart', { mode }),
   quit: () => invoke<void>('quit_app'),
   onDevicesChanged: (cb: () => void) => listen('devices-changed', cb),
+  onPlayerInstall: (cb: (p: { pct: number; stage?: string }) => void) => listen<{ pct: number; stage?: string }>('player-install', (e) => cb(e.payload)),
+  onPlayerClosed: (cb: () => void) => listen('player-closed', cb),
 };

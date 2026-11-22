@@ -1,7 +1,7 @@
 // Préférences de l'interface : un seul objet réactif, persisté côté Rust (prefs.json).
 import { api } from './api';
 
-export type Category = 'video' | 'tv' | 'music' | 'library' | 'games';
+export type Category = 'video' | 'tv' | 'music' | 'library' | 'games' | 'system';
 
 export interface CustomTile {
   id: string;
@@ -33,6 +33,8 @@ export interface Prefs {
     interval: number;
   };
   weather: { enabled: boolean; city: string; lat: number | null; lon: number | null; unit: 'c' | 'f' };
+  live: { sources: { id: string; name: string; m3u: string; xmltv: string }[]; active: string };
+  library: { movies: string[]; series: string[]; photos: string[]; music: string[] };
   tiles: {
     order: Record<string, string[]>;
     hidden: string[];
@@ -67,6 +69,8 @@ function defaults(): Prefs {
     clock24: true,
     wallpaper: { type: 'aurora', path: '', color: '#0b0e14', blur: 0, dim: 30, interval: 30 },
     weather: { enabled: false, city: '', lat: null, lon: null, unit: 'c' },
+    live: { sources: [], active: '' },
+    library: { movies: [], series: [], photos: [], music: [] },
     tiles: { order: {}, hidden: [], names: {}, colors: {}, icons: {}, custom: [] },
   };
 }

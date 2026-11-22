@@ -91,6 +91,19 @@
 
     <section>
       {#if tab === 'remote'}
+        {#if app.now.active}
+          <div class="now">
+            <div class="np">
+              <b>{app.now.title}</b>
+              <small>{app.now.artist || app.now.source.replace(/\.exe$/i, '')}</small>
+              {#if app.now.duration > 0}<i class="pb"><u style:width="{Math.min(100, (app.now.position / app.now.duration) * 100)}%"></u></i>{/if}
+            </div>
+            <button onpointerdown={media('prev')} aria-label="Précédent">⏮</button>
+            <button class="primary" onpointerdown={media('playPause')} aria-label="Lecture / pause">{app.now.playing ? '⏸' : '▶'}</button>
+            <button onpointerdown={media('next')} aria-label="Suivant">⏭</button>
+          </div>
+        {/if}
+
         {#if !app.tvMode}
           <button class="primary tvstart" onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'tv', on: true }); }}>📺 Démarrer le mode TV</button>
         {/if}
@@ -124,6 +137,7 @@
           <button use:longpress={{ onTap: key('back'), onLong: key('backlong') }}>↩ Retour</button>
           <button onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'home' }); }}>⌂ Accueil</button>
           <button onpointerdown={(e) => { e.preventDefault(); tick(); tabSwitch(); }}>⇥ Onglets</button>
+          <button onpointerdown={(e) => { e.preventDefault(); tick(); send({ t: 'key', k: 'search' }); }} aria-label="Recherche">🔍</button>
           <button class:active={manualKeyboard} onpointerdown={(e) => { e.preventDefault(); tick(); manualKeyboard = !manualKeyboard; }}>⌨</button>
         </div>
 
@@ -303,6 +317,49 @@
   }
   .active {
     background: var(--accent);
+  }
+  .now {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 10px 10px 14px;
+    border-radius: 18px;
+    background: var(--panel);
+  }
+  .now .np {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .now b {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.95rem;
+  }
+  .now button {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    padding: 0;
+    font-size: 1rem;
+    flex: none;
+  }
+  .pb {
+    display: block;
+    height: 3px;
+    margin-top: 4px;
+    border-radius: 99px;
+    background: #ffffff22;
+    overflow: hidden;
+  }
+  .pb u {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    text-decoration: none;
   }
   .quit {
     padding: 12px;

@@ -99,6 +99,94 @@ pub async fn app_icon(target: String) -> Result<Option<String>, String> {
     Ok(rustv_core::icons::icon_png_base64(&target))
 }
 
+// ---------- lecteur (mpv) ----------
+
+#[tauri::command]
+pub async fn player_status() -> Result<Value, String> {
+    let p = crate::player::find_mpv();
+    Ok(json!({ "installed": p.is_some(), "path": p.map(|p| p.to_string_lossy().into_owned()) }))
+}
+
+#[tauri::command]
+pub async fn player_install(app: AppHandle) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || crate::player::install(&app).map(|p| p.to_string_lossy().into_owned()))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+/// Erreur « mpv_missing » : l'interface propose d'installer le lecteur.
+#[tauri::command]
+pub async fn player_play(app: AppHandle, req: crate::player::PlayRequest) -> Result<(), String> {
+    crate::player::play(&app, req)
+}
+
+#[tauri::command]
+pub async fn player_stop(app: AppHandle) -> Result<(), String> {
+    crate::player::stop(&app);
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn player_state(shell: State<'_, Shell>) -> Result<crate::player::PlayerState, String> {
+    Ok(shell.player.state.lock().unwrap().clone())
+}
+
+// ---------- TV en direct ----------
+
+/// Charge une liste M3U (et un guide XMLTV facultatif). Les erreurs de guide ne bloquent pas les chaînes.
+#[tauri::command]
+pub async fn live_load(shell: State<'_, Shell>, m3u: String, xmltv: Option<String>) -> Result<Value, String> {
+    let (channels, epg) = tauri::async_runtime::spawn_blocking(move || {
+        let channels = crate::live::parse_m3u(&m3u)?;
+        let epg = xmltv.filter(|x| !x.trim().is_empty()).map(|x| crate::live::parse_xmltv(x.trim()));
+        Ok::<_, String>((channels, epg))
+    })
+    .await
+    .map_err(|e| e.to_string())??;
+    let mut groups: Vec<String> = channels.iter().map(|c| c.group.clone()).filter(|g| !g.is_empty()).collect();
+    groups.sort();
+    groups.dedup();
+    let (mut has_epg, mut epg_error) = (false, None);
+    let mut cache = shell.live.lock().unwrap();
+    cache.channels = channels.clone();
+    cache.epg.clear();
+    cache.names.clear();
+    match epg {
+        Some(Ok((e, names))) => {
+            has_epg = !e.is_empty();
+            cache.epg = e;
+            cache.names = names;
+        }
+        Some(Err(e)) => epg_error = Some(e),
+        None => {}
+    }
+    Ok(json!({ "channels": channels, "groups": groups, "hasEpg": has_epg, "epgError": epg_error }))
+}
+
+#[tauri::command]
+pub async fn live_nownext(shell: State<'_, Shell>) -> Result<Value, String> {
+    let cache = shell.live.lock().unwrap();
+    Ok(serde_json::to_value(crate::live::now_next(&cache)).map_err(|e| e.to_string())?)
+}
+
+// ---------- médiathèque ----------
+
+#[tauri::command]
+pub async fn library_scan(movies: Vec<String>, series: Vec<String>, photos: Vec<String>, music: Vec<String>) -> Result<Value, String> {
+    tauri::async_runtime::spawn_blocking(move || crate::library::scan(&movies, &series, &photos, &music)).await.map_err(|e| e.to_string())
+}
+
+/// Ouvre un fichier avec l'application par défaut de Windows (explorateur de fichiers de la TV).
+#[tauri::command]
+pub async fn open_path(path: String) -> Result<(), String> {
+    let p = std::path::Path::new(&path);
+    if !p.is_file() {
+        return Err("fichier introuvable".into());
+    }
+    rustv_core::apps::launch(&path);
+    Ok(())
+}
+
 // ---------- mods ----------
 
 #[tauri::command]

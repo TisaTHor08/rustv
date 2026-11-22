@@ -1,7 +1,7 @@
 // Tuiles affichées : catalogue + tuiles personnalisées, avec les personnalisations de l'utilisateur
 // (ordre, noms, couleurs, icônes, masquage).
 import { api, type Tile } from './api';
-import { tileDesc } from './i18n';
+import { t, tileDesc } from './i18n';
 import { modTiles, type ModTile } from './mods.svelte';
 import { prefs, savePrefs, type Category, type CustomTile } from './prefs.svelte';
 
@@ -15,19 +15,46 @@ export interface DTile {
   dark_text?: boolean;
   icon?: string;
   custom: boolean;
-  source: 'catalog' | 'custom' | 'mod';
+  source: 'catalog' | 'custom' | 'mod' | 'builtin';
   customized: boolean;
-  raw: Tile | CustomTile | ModTile;
+  raw: Tile | CustomTile | ModTile | BuiltinTile;
 }
 
-export const CATEGORIES: Category[] = ['video', 'tv', 'music', 'library', 'games'];
+/** Tuiles intégrées à RusTV : pages internes (TV en direct, médiathèque…) et raccourcis Windows. */
+export interface BuiltinTile {
+  id: string;
+  name: string;
+  nameKey: string;
+  descKey: string;
+  category: Category;
+  /** Page interne : "live", "media:<onglet>" ; sinon `target` est lancé comme un programme/URI Windows. */
+  action?: string;
+  target?: string;
+  color: string;
+  color2: string;
+}
 
-function decorate(raw: Tile | CustomTile | ModTile, source: DTile['source']): DTile {
+export const BUILTIN: BuiltinTile[] = [
+  { id: 'live', name: 'Live TV', nameKey: 'b.live', descKey: 'b.live.d', category: 'tv', action: 'live', color: '#d62f4a', color2: '#4d0e1b' },
+  { id: 'media', name: 'Library', nameKey: 'b.media', descKey: 'b.media.d', category: 'library', action: 'media:movies', color: '#6d4aff', color2: '#1d1066' },
+  { id: 'files', name: 'Files', nameKey: 'b.files', descKey: 'b.files.d', category: 'library', action: 'media:files', color: '#2f80ed', color2: '#0b2a63' },
+  { id: 'set-wifi', name: 'Wi-Fi', nameKey: 'b.wifi', descKey: 'b.wifi.d', category: 'system', target: 'ms-settings:network-wifi', color: '#1d9bf0', color2: '#073b66' },
+  { id: 'set-bluetooth', name: 'Bluetooth', nameKey: 'b.bt', descKey: 'b.bt.d', category: 'system', target: 'ms-settings:bluetooth', color: '#3b6bff', color2: '#0f1f66' },
+  { id: 'set-sound', name: 'Sound', nameKey: 'b.sound', descKey: 'b.sound.d', category: 'system', target: 'ms-settings:sound', color: '#14a05a', color2: '#05361f' },
+  { id: 'set-display', name: 'Displays', nameKey: 'b.display', descKey: 'b.display.d', category: 'system', target: 'ms-settings:display', color: '#e5a00d', color2: '#5c3f00' },
+  { id: 'set-power', name: 'Power', nameKey: 'b.power', descKey: 'b.power.d', category: 'system', target: 'ms-settings:powersleep', color: '#8a94a6', color2: '#2b3140' },
+];
+
+export const CATEGORIES: Category[] = ['video', 'tv', 'music', 'library', 'games', 'system'];
+
+function decorate(raw: Tile | CustomTile | ModTile | BuiltinTile, source: DTile['source']): DTile {
   const custom = source === 'custom';
   const o = prefs.tiles;
   const col = o.colors[raw.id];
   const desc =
-    source === 'catalog'
+    source === 'builtin'
+      ? t((raw as BuiltinTile).descKey)
+      : source === 'catalog'
       ? tileDesc(raw.id, (raw as Tile).desc)
       : source === 'mod'
         ? ((raw as ModTile).desc ?? '')
@@ -36,7 +63,7 @@ function decorate(raw: Tile | CustomTile | ModTile, source: DTile['source']): DT
           : 'Application Windows';
   return {
     id: raw.id,
-    name: o.names[raw.id] ?? raw.name,
+    name: o.names[raw.id] ?? (source === 'builtin' ? t((raw as BuiltinTile).nameKey) : raw.name),
     desc,
     category: raw.category as Category,
     color: col?.[0] ?? raw.color,
@@ -53,6 +80,7 @@ function decorate(raw: Tile | CustomTile | ModTile, source: DTile['source']): DT
 /** Toutes les tuiles d'une catégorie, dans l'ordre choisi par l'utilisateur (masquées incluses si demandé). */
 export function tilesOf(catalog: Tile[], cat: Category, includeHidden = false): DTile[] {
   const base = [
+    ...BUILTIN.filter((b) => b.category === cat).map((b) => decorate(b, 'builtin')),
     ...catalog.filter((t) => t.category === cat).map((t) => decorate(t, 'catalog')),
     ...prefs.tiles.custom.filter((c) => c.category === cat).map((c) => decorate(c, 'custom')),
     ...modTiles().filter((m) => m.category === cat).map((m) => decorate(m, 'mod')),
@@ -111,15 +139,25 @@ export function resetTile(id: string) {
 
 // ---------- icônes : les chemins de fichiers passent par le serveur média local ----------
 
-const urls = $state<Record<string, string>>({});
+// Cache non réactif (on ne doit jamais modifier un état pendant le rendu) + compteur de version
+// incrémenté quand une URL arrive : la lecture de `ver` suffit à rafraîchir les composants.
+const cache = new Map<string, string>();
+let ver = $state(0);
 
 /** URL utilisable dans <img> pour une icône (data:, http(s) ou chemin local). */
 export function iconSrc(v?: string): string {
   if (!v) return '';
   if (v.startsWith('data:') || v.startsWith('http')) return v;
-  if (urls[v] === undefined) {
-    urls[v] = '';
-    api.mediaUrl(v).then((u) => (urls[v] = u)).catch(() => {});
+  void ver;
+  if (!cache.has(v)) {
+    cache.set(v, '');
+    api
+      .mediaUrl(v)
+      .then((u) => {
+        cache.set(v, u);
+        ver++;
+      })
+      .catch(() => {});
   }
-  return urls[v];
+  return cache.get(v) ?? '';
 }
