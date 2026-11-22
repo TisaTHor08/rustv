@@ -15,7 +15,7 @@
   { "id": "spotify", "name": "Spotify", "desc": "Musique et podcasts", "category": "music", "kind": "web", "url": "https://open.spotify.com", "color": "#1db954", "color2": "#0a4a22", "spatnav": true },
   { "id": "plex", "name": "Plex", "desc": "Votre médiathèque", "category": "library", "kind": "web", "url": "https://app.plex.tv", "color": "#e5a00d", "color2": "#6e4d00", "spatnav": true },
   { "id": "jellyfin", "name": "Jellyfin", "desc": "Votre serveur Jellyfin", "category": "library", "kind": "web", "needs_url": true, "url_hint": "http://192.168.1.10:8096", "color": "#00a4dc", "color2": "#0a3d6e", "spatnav": false },
-  { "id": "ugreen", "name": "UGREEN Theater", "desc": "Votre NAS UGREEN", "category": "library", "kind": "web", "needs_url": true, "url_hint": "http://192.168.1.20:9999", "color": "#14a05a", "color2": "#05361f", "spatnav": true },
+  { "id": "ugreen", "name": "UGREEN Theater", "desc": "Theater sur votre NAS UGREEN (UGOS)", "category": "library", "kind": "web", "needs_url": true, "url_hint": "http://192.168.1.20:9999", "allow_insecure_lan": true, "color": "#14a05a", "color2": "#05361f", "spatnav": true },
   { "id": "geforcenow", "name": "GeForce NOW", "desc": "Jeux dans le cloud", "category": "games", "kind": "web", "url": "https://play.geforcenow.com", "color": "#76b900", "color2": "#2c4500", "spatnav": true },
   { "id": "steam", "name": "Steam", "desc": "Mode Big Picture", "category": "games", "kind": "native", "target": "steam://open/bigpicture", "color": "#1b2838", "color2": "#0a0f16" },
   { "id": "vlc", "name": "VLC", "desc": "Lecteur multimédia", "category": "library", "kind": "native", "target": "vlc", "color": "#ff8800", "color2": "#7a4100" }

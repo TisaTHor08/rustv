@@ -246,6 +246,8 @@ fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tauri::Result<
         }
     }
     let label = format!("app-{id}");
+    // Option `allow_insecure_lan` : accepte les certificats auto-signés, uniquement pour un hôte du réseau local.
+    let insecure = tile["allow_insecure_lan"].as_bool().unwrap_or(false) && url.scheme() == "https" && url.host_str().is_some_and(crate::lan::is_private_host);
     let mod_scripts = crate::mods::adapters_for(url.as_str());
     // Un profil WebView2 par application : sessions, cookies et comptes isolés.
     let profile = settings::dir().join("profiles").join(id);
@@ -254,6 +256,10 @@ fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tauri::Result<
         .data_directory(profile)
         .decorations(false)
         .visible(false);
+    if insecure {
+        // Remplace les arguments par défaut de wry (voir la doc de additional_browser_args) ; profil dédié par tuile.
+        b = b.additional_browser_args("--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --ignore-certificate-errors");
+    }
     if tile["spatnav"].as_bool().unwrap_or(false) {
         b = b.initialization_script(SPATNAV);
     }
