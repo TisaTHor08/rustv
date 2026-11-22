@@ -22,6 +22,7 @@ Français : [README.fr.md](README.fr.md)
 - **Streaming apps** open full screen in their own WebView2 window with **one isolated profile per app**
   (sessions never mix). Widevine and PlayReady are available, so DRM services play inside RusTV.
   Sites without a TV mode get arrow-key **spatial navigation** injected.
+- **YouTube with an ad blocker**: if Brave or Vivaldi is installed, YouTube opens there (full screen on the TV, dedicated profile) instead of WebView2; configurable in Settings > Apps.
 - **Customization** (from the TV, with the remote): wallpapers (animated aurora, image, folder slideshow, looping
   video, blur and dim), dark/light/auto theme, accent color, French/English, optional weather, and tile editing
   (long-press OK on the phone: rename, recolor, set an icon, move, hide; add websites and Windows apps).

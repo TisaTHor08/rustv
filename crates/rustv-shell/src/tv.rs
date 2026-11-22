@@ -160,6 +160,7 @@ pub fn choose(app: &AppHandle, index: usize) {
 }
 
 pub fn exit(app: &AppHandle) {
+    crate::browser::close();
     let shell = app.state::<Shell>();
     for (label, w) in app.webview_windows() {
         if label == "tv" || label.starts_with("black-") || label.starts_with("picker-") || label.starts_with("app-") {
@@ -172,6 +173,7 @@ pub fn exit(app: &AppHandle) {
 
 /// Ferme l'app au premier plan et revient à l'accueil.
 pub fn go_home(app: &AppHandle) {
+    crate::browser::close();
     for (label, w) in app.webview_windows() {
         if label.starts_with("app-") {
             let _ = w.destroy();
@@ -199,8 +201,12 @@ fn find_vlc() -> Option<String> {
 }
 
 /// Lance une tuile du catalogue. Renvoie "ok", "needs_url" ou une erreur lisible.
-pub fn launch(app: &AppHandle, id: &str, url: Option<String>) -> Result<String, String> {
-    let tile = catalog().into_iter().find(|t| t["id"] == id).ok_or("Application inconnue")?;
+/// `browser` : choix de l'utilisateur pour les tuiles `adblock_browser` (auto | builtin | brave | vivaldi).
+pub fn launch(app: &AppHandle, id: &str, url: Option<String>, browser: Option<String>) -> Result<String, String> {
+    let mut tile = catalog().into_iter().find(|t| t["id"] == id).ok_or("Application inconnue")?;
+    if let Some(b) = browser {
+        tile["browser"] = Value::String(b);
+    }
     launch_value(app, &tile, url)
 }
 
@@ -232,13 +238,27 @@ pub fn launch_value(app: &AppHandle, tile: &Value, url: Option<String>) -> Resul
             if !matches!(parsed.scheme(), "http" | "https") {
                 return Err("Seules les adresses http(s) sont autorisées".into());
             }
+            if tile["adblock_browser"].as_bool().unwrap_or(false) {
+                let choice = tile["browser"].as_str().unwrap_or("auto");
+                if let Some(found) = crate::browser::resolve(choice, &crate::browser::detect()) {
+                    for (label, w) in app.webview_windows() {
+                        if label.starts_with("app-") {
+                            let _ = w.destroy();
+                        }
+                    }
+                    if crate::browser::launch(app, &found, id, &tile, parsed.as_str()).is_ok() {
+                        return Ok("ok".into());
+                    }
+                }
+            }
             open_web(app, id, &tile, parsed).map_err(|e| e.to_string())?;
             Ok("ok".into())
         }
     }
 }
 
-fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tauri::Result<()> {
+pub(crate) fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tauri::Result<()> {
+    crate::browser::close();
     let shell = app.state::<Shell>();
     for (label, w) in app.webview_windows() {
         if label.starts_with("app-") {

@@ -40,8 +40,8 @@ pub async fn picker_choose(app: AppHandle, index: usize) {
 }
 
 #[tauri::command]
-pub async fn launch_tile(app: AppHandle, id: String, url: Option<String>) -> Result<String, String> {
-    tv::launch(&app, &id, url)
+pub async fn launch_tile(app: AppHandle, id: String, url: Option<String>, browser: Option<String>) -> Result<String, String> {
+    tv::launch(&app, &id, url, browser)
 }
 
 /// Lance une tuile personnalisée (site web ou application Windows) décrite par l'interface.
@@ -333,4 +333,10 @@ pub async fn quit_app(app: AppHandle) {
     tv::exit(&app);
     let _ = settings::dir(); // (réservé : nettoyage futur)
     app.exit(0);
+}
+
+/// Brave / Vivaldi détectés sur ce PC (pour l'ouverture de YouTube avec bloqueur de pub).
+#[tauri::command]
+pub async fn browsers_detected() -> Result<Vec<crate::browser::Found>, String> {
+    Ok(crate::browser::detect())
 }

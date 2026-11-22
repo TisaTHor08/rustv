@@ -49,6 +49,15 @@ pages, top-bar widgets, site adapters and translations. Execution model:
 - Site adapters are injected into web app windows as initialization scripts, only if the user approved the matching `inject:` permission.
 - The catalog installs a *full commit* of a GitHub repository (content-addressed), previews the real manifest, then asks for approval.
 
+### Ad-blocking browser for YouTube (`crates/rustv-shell/src/browser.rs`)
+Tiles flagged `"adblock_browser": true` in `catalog.json` (YouTube only for now) open in an installed Chromium browser instead of WebView2.
+The UI sends the `youtubeBrowser` pref (`auto` | `builtin` | `brave` | `vivaldi`) with `launch_tile`; `auto` picks Brave, then Vivaldi, else WebView2.
+Detection checks the standard install paths (`%LOCALAPPDATA%`, `%ProgramFiles%`, `%ProgramFiles(x86)%`) and read-only `reg query` of App Paths (`browsers_detected` command).
+The browser runs as `--app=<url> --start-fullscreen` positioned on the TV monitor, with `--user-data-dir=%APPDATA%\RusTVrowser-profiles\<id>` (never the user's profile) and the tile user agent.
+RusTV keeps the spawned PID; `go_home`, `exit` and opening another app kill that process tree (`taskkill /PID <pid> /T /F`), so the phone's Home button returns to the TV home.
+If the browser exits by itself, RusTV returns home (or falls back to WebView2 if it died within 2 s). Limits: Brave Shields are on by default; Vivaldi's built-in blocker
+is configured in its own settings (RusTV does not edit the profile), so the user must enable it once in the dedicated profile.
+
 ### Player, live TV and library (`crates/rustv-shell/src/{player,live,library}.rs`)
 - **Player**: RusTV drives `mpv.exe` (full screen on the TV monitor) over its JSON IPC pipe. mpv is found if already installed, otherwise
   downloaded **only after the user agrees** from the latest `shinchiro/mpv-winbuild-cmake` release (the build mpv.io links to) and checked against

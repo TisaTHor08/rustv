@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod autostart;
+mod browser;
 mod commands;
 mod fs;
 mod lan;
@@ -102,6 +103,7 @@ fn main() {
             commands::mod_install_cancel,
             commands::mods_open_folder,
             commands::go_home,
+            commands::browsers_detected,
             commands::pairing_start,
             commands::pairing_cancel,
             commands::device_revoke,
