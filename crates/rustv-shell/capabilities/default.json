@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "IPC access for RusTV's own windows only. Web app windows (Netflix, YouTube, ...) get no capability and therefore no IPC.",
+  "windows": ["tv", "picker-*", "black-*", "pairing"],
+  "permissions": ["core:default"]
+}

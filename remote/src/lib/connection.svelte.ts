@@ -19,6 +19,7 @@ export const app = $state({
   error: '',
   pinned: false,
   textFocus: false,
+  tvMode: false,
   apps: [] as AppEntry[],
 });
 
@@ -204,6 +205,7 @@ async function serve(s: Session, active: () => boolean) {
       if (m.t === 'state') {
         app.pinned = m.pinned;
         app.textFocus = m.textFocus;
+        app.tvMode = m.tvMode;
       } else if (m.t === 'apps') app.apps = m.apps;
       else if (m.t === 'icons') {
         // Les icônes arrivent par lots après la liste : on les rattache aux apps.

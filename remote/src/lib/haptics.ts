@@ -6,6 +6,12 @@ export function tick(strong = false) {
   void Haptics.impact({ style: strong ? ImpactStyle.Medium : ImpactStyle.Light }).catch(() => {});
 }
 
+/** Cran de sélection très léger (façon molette iOS) : un pas de focus sur la TV. */
+export function tickSelect() {
+  if (!isNative) return;
+  void Haptics.selectionChanged().catch(() => {});
+}
+
 /** Action Svelte : appui + répétition automatique en maintenant (flèches). */
 export function repeat(node: HTMLElement, fire: () => void) {
   let t1: number | undefined;

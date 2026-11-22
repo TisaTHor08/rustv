@@ -1,0 +1,55 @@
+:root {
+  --bg: #06080c;
+  --text: #f4f6fb;
+  --muted: rgba(244, 246, 251, 0.62);
+  --accent: #ff6a1a;
+  --glass: rgba(255, 255, 255, 0.08);
+  --glass-strong: rgba(255, 255, 255, 0.16);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html {
+  /* Toute l'interface TV est dimensionnée en rem : 1080p => 20 px. */
+  font-size: calc(100vh / 54);
+}
+html[data-view='pairing'] {
+  font-size: 16px;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Écrans secondaires */
+html[data-view='black'],
+html[data-view='black'] body {
+  background: #000;
+  cursor: none;
+}
+
+/* Curseur masqué après inactivité (ajouté par Home) */
+html.idle,
+html.idle * {
+  cursor: none !important;
+}
+
+input {
+  user-select: text;
+  -webkit-user-select: text;
+  font: inherit;
+}

@@ -10,3 +10,7 @@ remote/android/app/src/main/assets/capacitor.config.json
 remote/android/app/src/main/assets/capacitor.plugins.json
 .idea/
 *.log
+crates/rustv-shell/icons/android/
+crates/rustv-shell/icons/ios/
+crates/rustv-shell/gen/
+ui/dist/

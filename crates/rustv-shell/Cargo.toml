@@ -1,0 +1,23 @@
+[package]
+name = "rustv-shell"
+version = "0.2.0"
+edition = "2021"
+license = "GPL-3.0-or-later"
+description = "RusTV TV shell: Tauri application (home screen, screen picker, web apps)"
+build = "build.rs"
+default-run = "rustv"
+
+[[bin]]
+name = "rustv"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+rustv-core = { path = "../rustv-core" }
+rustv-protocol = { path = "../rustv-protocol" }
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+qrcode = { version = "0.15", default-features = false, features = ["svg"] }

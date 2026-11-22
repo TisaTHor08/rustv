@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/rustv-protocol", "crates/rustv-service"]
+members = ["crates/rustv-protocol", "crates/rustv-core", "crates/rustv-shell"]
 
 [profile.release]
 opt-level = "s"

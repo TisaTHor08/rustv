@@ -1,8 +1,10 @@
 //! État partagé et traitement des commandes du téléphone.
 use crate::{apps, config::Config, icons, input};
 use rustv_protocol::messages::*;
+use rustv_protocol::pairing::PairingInfo;
 use std::collections::HashMap;
-use std::sync::{mpsc::Sender, Mutex};
+use std::sync::mpsc::{channel, Receiver, Sender};
+use std::sync::Mutex;
 use std::time::{Duration, Instant};
 use windows::Win32::Foundation::HWND;
 use windows::Win32::UI::Input::KeyboardAndMouse::*;
@@ -17,9 +19,30 @@ struct Conn {
     tx: Sender<PcMsg>,
 }
 
+/// Événements destinés au shell TV (interface), émis par les commandes du téléphone.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Event {
+    /// Retour à l'accueil TV.
+    Home,
+    /// Démarrer / arrêter le mode TV.
+    Tv(bool),
+    /// La liste des appareils ou leur état de connexion a changé.
+    DevicesChanged,
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct DeviceInfo {
+    pub id: String,
+    pub name: String,
+    pub used: bool,
+    pub connected: bool,
+}
+
 pub struct Core {
     pub cfg: Mutex<Config>,
     pub bt_addr: Mutex<Option<String>>,
+    events: Mutex<Vec<Sender<Event>>>,
+    tv_mode: Mutex<bool>,
     alt: Mutex<Option<Instant>>,   // Some(dernier événement) quand Alt est maintenu
     pinned: Mutex<Option<isize>>,  // HWND épinglé
     conns: Mutex<Vec<Conn>>,
@@ -34,6 +57,8 @@ impl Core {
         Self {
             cfg: Mutex::new(cfg),
             bt_addr: Mutex::new(None),
+            events: Mutex::new(vec![]),
+            tv_mode: Mutex::new(false),
             alt: Mutex::new(None),
             pinned: Mutex::new(None),
             conns: Mutex::new(vec![]),
@@ -42,6 +67,77 @@ impl Core {
             apps: Mutex::new(vec![]),
             icons: Mutex::new(HashMap::new()),
         }
+    }
+
+    // ---- événements vers le shell ----
+
+    pub fn subscribe(&self) -> Receiver<Event> {
+        let (tx, rx) = channel();
+        self.events.lock().unwrap().push(tx);
+        rx
+    }
+
+    fn emit(&self, e: Event) {
+        self.events.lock().unwrap().retain(|s| s.send(e.clone()).is_ok());
+    }
+
+    /// Le shell signale que le mode TV est actif ou non (le téléphone adapte son interface).
+    pub fn set_tv_mode(&self, on: bool) {
+        let mut t = self.tv_mode.lock().unwrap();
+        if *t != on {
+            *t = on;
+            drop(t);
+            self.broadcast(self.state_msg());
+        }
+    }
+
+    // ---- appairage ----
+
+    /// Crée un nouvel appairage (clé fraîche) et renvoie le contenu du QR code + l'id de l'appareil.
+    pub fn new_pairing(&self) -> (PairingInfo, String) {
+        let bt = self.bt_addr.lock().unwrap().clone();
+        let mut cfg = self.cfg.lock().unwrap();
+        let dev = cfg.new_device();
+        let info = PairingInfo {
+            v: rustv_protocol::PROTOCOL_VERSION,
+            id: cfg.pc_id.clone(),
+            name: cfg.pc_name.clone(),
+            device: dev.id.clone(),
+            key: dev.key,
+            ips: crate::server::local_ips(),
+            port: rustv_protocol::TCP_PORT,
+            bt,
+        };
+        drop(cfg);
+        self.emit(Event::DevicesChanged);
+        (info, dev.id)
+    }
+
+    /// Annule un appairage dont le QR n'a pas été scanné.
+    pub fn cancel_pairing(&self, device: &str) {
+        let mut cfg = self.cfg.lock().unwrap();
+        if cfg.devices.iter().any(|d| d.id == device && !d.used) {
+            cfg.revoke(device);
+        }
+        drop(cfg);
+        self.emit(Event::DevicesChanged);
+    }
+
+    pub fn revoke_device(&self, device: &str) {
+        self.cfg.lock().unwrap().revoke(device);
+        self.kick_device(device);
+        self.emit(Event::DevicesChanged);
+    }
+
+    pub fn devices(&self) -> Vec<DeviceInfo> {
+        let connected = self.connected_devices();
+        self.cfg
+            .lock()
+            .unwrap()
+            .devices
+            .iter()
+            .map(|d| DeviceInfo { id: d.id.clone(), name: d.name.clone(), used: d.used, connected: connected.contains(&d.id) })
+            .collect()
     }
 
     // ---- connexions ----
@@ -57,17 +153,20 @@ impl Core {
         self.refresh_apps();
         let _ = tx.send(self.apps_msg());
         self.stream_icons(tx);
+        self.emit(Event::DevicesChanged);
         id
     }
 
     pub fn remove_conn(&self, id: u64) {
         let mut c = self.conns.lock().unwrap();
         c.retain(|x| x.id != id);
-        if c.is_empty() {
-            drop(c);
+        let empty = c.is_empty();
+        drop(c);
+        if empty {
             self.release_alt(); // plus de téléphone : ne jamais laisser Alt coincé
             self.set_text_focus(false);
         }
+        self.emit(Event::DevicesChanged);
     }
 
     pub fn conn_count(&self) -> usize {
@@ -90,7 +189,11 @@ impl Core {
     }
 
     fn state_msg(&self) -> PcMsg {
-        PcMsg::State { pinned: self.pinned.lock().unwrap().is_some(), text_focus: *self.text_focus.lock().unwrap() }
+        PcMsg::State {
+            pinned: self.pinned.lock().unwrap().is_some(),
+            text_focus: *self.text_focus.lock().unwrap(),
+            tv_mode: *self.tv_mode.lock().unwrap(),
+        }
     }
 
     // ---- apps & icônes ----
@@ -268,6 +371,18 @@ impl Core {
                 self.refresh_apps();
                 let _ = reply.send(self.apps_msg());
             }
+            PhoneMsg::Home => self.emit(Event::Home),
+            PhoneMsg::Tv { on } => self.emit(Event::Tv(on)),
+            PhoneMsg::Media { a } => match a {
+                // Les touches multimédia sont routées par Windows vers la session média active (SMTC).
+                MediaAction::PlayPause => input::tap(VK_MEDIA_PLAY_PAUSE),
+                MediaAction::Next => input::tap(VK_MEDIA_NEXT_TRACK),
+                MediaAction::Prev => input::tap(VK_MEDIA_PREV_TRACK),
+                MediaAction::Stop => input::tap(VK_MEDIA_STOP),
+                MediaAction::VolUp => input::tap(VK_VOLUME_UP),
+                MediaAction::VolDown => input::tap(VK_VOLUME_DOWN),
+                MediaAction::Mute => input::tap(VK_VOLUME_MUTE),
+            },
             PhoneMsg::Ping => {
                 let _ = reply.send(PcMsg::Pong);
             }

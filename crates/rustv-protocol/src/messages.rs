@@ -36,7 +36,24 @@ pub enum PhoneMsg {
     #[serde(rename_all = "camelCase")]
     Launch { app_id: String },
     GetApps,
+    /// Retour à l'accueil TV (ferme l'app web au premier plan).
+    Home,
+    /// Démarre / arrête le mode TV sur le PC.
+    Tv { on: bool },
+    Media { a: MediaAction },
     Ping,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum MediaAction {
+    PlayPause,
+    Next,
+    Prev,
+    Stop,
+    VolUp,
+    VolDown,
+    Mute,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -62,6 +79,6 @@ pub enum PcMsg {
     /// Icônes envoyées par lots après la liste (une trame est limitée à 1 Mo).
     Icons { icons: Vec<IconEntry> },
     #[serde(rename_all = "camelCase")]
-    State { pinned: bool, text_focus: bool },
+    State { pinned: bool, text_focus: bool, tv_mode: bool },
     Pong,
 }

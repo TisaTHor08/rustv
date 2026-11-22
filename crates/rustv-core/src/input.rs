@@ -94,6 +94,18 @@ pub fn set_topmost(hwnd: HWND, on: bool) {
     }
 }
 
+/// Met une fenêtre au premier plan même si le process n'a pas le focus.
+/// Windows n'autorise SetForegroundWindow qu'au process qui vient de recevoir une entrée :
+/// une frappe F24 (sans effet dans les applis) suffit à « débloquer » l'appel.
+pub fn force_foreground(hwnd: isize) {
+    let h = HWND(hwnd as *mut _);
+    tap(VK_F24);
+    unsafe {
+        let _ = SetForegroundWindow(h);
+        let _ = BringWindowToTop(h);
+    }
+}
+
 pub fn is_window(hwnd: HWND) -> bool {
     unsafe { IsWindow(Some(hwnd)).as_bool() }
 }

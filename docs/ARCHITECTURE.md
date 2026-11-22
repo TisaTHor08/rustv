@@ -16,22 +16,28 @@ Transport-independent protocol: length-prefixed frames, mutual HMAC handshake, A
 JSON messages. Everything goes through `Read + Write`, so TCP and Bluetooth RFCOMM share one code path.
 Specified in [PROTOCOL.md](PROTOCOL.md).
 
-### `crates/rustv-service`
-Background Windows service with a tray icon: accepts phone connections (TCP port 47820, Bluetooth RFCOMM,
+### `crates/rustv-core`
+Library embedded by the shell: accepts phone connections (TCP port 47820, Bluetooth RFCOMM,
 UDP discovery beacon on 47821), injects keyboard/mouse input with `SendInput`, launches apps, detects focused
-text fields with UI Automation, handles Alt+Tab and "pin on top".
+text fields with UI Automation, handles Alt+Tab and "pin on top", extracts app icons. It reports phone
+commands that concern the TV (Home, start/stop TV mode, device changes) to the shell through an event channel.
+
+Design note: the phone is "just a keyboard" for the TV interface. Arrow keys sent by the remote are real key
+events, so the home screen, web apps and native apps all receive them the same way.
 
 ### `remote/`
 Svelte + Capacitor Android app. The protocol is re-implemented in TypeScript (WebCrypto). A small native
 plugin (`RusTVTransportPlugin.java`) exposes raw TCP / RFCOMM / UDP to the WebView. Connection paths are
 raced in parallel (last IP, discovery beacon, QR IPs, Bluetooth) and the first authenticated one wins.
 
-### `rustv-shell` (planned)
-Tauri application: the "TV mode".
-- Screen picker at launch; other displays are blacked out (can be disabled in settings).
-- 10-foot home screen with rows of tiles, wallpaper, spatial navigation driven by the remote.
-- App tiles: **web** (WebView2 window with its own persistent profile, Widevine/PlayReady verified available),
-  **native** (VLC, Kodi, any executable), **live channel**.
+### `crates/rustv-shell` + `ui/`
+The `rustv.exe` Tauri application: the "TV mode".
+- Screen picker at launch (one window per monitor); other displays are blacked out (toggle in settings).
+- 10-foot home screen (Svelte) with hero + rows of tiles driven by the remote.
+- App tiles come from `src/catalog.json`: **web** tiles open in a WebView2 window with its own profile
+  (`%APPDATA%\RusTV\profiles\<id>`), no Tauri IPC, optional user-agent override and spatial-navigation script;
+  **native** tiles launch an executable or URI (VLC, Steam).
+- Web app windows have no capability, hence no access to RusTV's commands.
 
 ### `rustv-mods` (planned)
 A mod is a folder with a `mod.json` manifest plus JS/CSS assets:

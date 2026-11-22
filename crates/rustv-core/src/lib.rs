@@ -1,26 +1,23 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+//! RusTV core: remote-control server, input injection, pairing, Bluetooth, text-field detection.
+//! Embedded by the TV shell (`rustv-shell`); contains no UI.
+pub mod apps;
+pub mod bluetooth;
+pub mod config;
+pub mod core;
+pub mod icons;
+pub mod input;
+pub mod server;
+pub mod uia;
 
-mod apps;
-mod bluetooth;
-mod config;
-mod core;
-mod icons;
-mod input;
-mod server;
-mod ui;
-mod uia;
+pub use crate::core::{Core, DeviceInfo, Event};
 
 use std::sync::Arc;
 use std::time::Duration;
 
-fn main() {
-    let core = Arc::new(core::Core::new(config::Config::load()));
-
-    let listener = match server::bind() {
-        Ok(l) => l,
-        Err(_) => return, // déjà lancé (port occupé)
-    };
-
+/// Démarre tous les services d'arrière-plan. Renvoie une erreur si le port est déjà pris
+/// (une autre instance de RusTV tourne).
+pub fn start(core: Arc<Core>) -> std::io::Result<()> {
+    let listener = server::bind()?;
     {
         let c = core.clone();
         std::thread::spawn(move || server::run_tcp(c, listener));
@@ -50,5 +47,5 @@ fn main() {
             }
         });
     }
-    ui::run(core);
+    Ok(())
 }

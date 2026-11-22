@@ -1,7 +1,9 @@
 <script lang="ts">
   import { activate, app, deactivate, send, unpair } from './connection.svelte.ts';
   import { longpress, repeat, tick } from './haptics.ts';
+  import type { MediaAction } from './protocol/types.ts';
   import Apps from './Apps.svelte';
+  import Surface from './Surface.svelte';
   import Touchpad from './Touchpad.svelte';
   import TextInput from './TextInput.svelte';
 
@@ -10,8 +12,28 @@
   let altOpen = $state(false);
   let altTimer: number | undefined;
   let manualKeyboard = $state(false);
+  let mode = $state<'dpad' | 'surface'>(loadMode());
+
+  function loadMode(): 'dpad' | 'surface' {
+    try {
+      return localStorage.getItem('rustv.mode') === 'dpad' ? 'dpad' : 'surface';
+    } catch {
+      return 'surface';
+    }
+  }
+  function setMode(m: 'dpad' | 'surface') {
+    mode = m;
+    try {
+      localStorage.setItem('rustv.mode', m);
+    } catch {}
+  }
 
   const key = (k: 'up' | 'down' | 'left' | 'right' | 'enter' | 'back' | 'backlong') => () => send({ t: 'key', k });
+  const media = (a: MediaAction) => (e: PointerEvent) => {
+    e.preventDefault();
+    tick();
+    send({ t: 'media', a });
+  };
 
   // Le PC relâche Alt tout seul après 5 s sans activité : on aligne l'affichage.
   function touchAlt() {
@@ -45,7 +67,7 @@
     <div class="title">
       <strong>{app.pairing?.name}</strong>
       <small>
-        {#if connected}{app.via}{:else if app.status === 'connecting'}Connexion…{app.error ? ` (${app.error})` : ''}{:else}Déconnecté{/if}
+        {#if connected}{app.via}{app.tvMode ? ' · Mode TV' : ''}{:else if app.status === 'connecting'}Connexion…{app.error ? ` (${app.error})` : ''}{:else}Déconnecté{/if}
       </small>
     </div>
     <button class="small" onclick={() => confirm('Oublier ce PC ?') && unpair()}>⚙</button>
@@ -63,33 +85,60 @@
   {:else}
     <nav>
       <button class:sel={tab === 'remote'} onclick={() => (tab = 'remote')}>Télécommande</button>
-      <button class:sel={tab === 'apps'} onclick={() => (tab = 'apps')}>Apps</button>
-      <button class:sel={tab === 'pad'} onclick={() => (tab = 'pad')}>Pavé</button>
+      <button class:sel={tab === 'apps'} onclick={() => (tab = 'apps')}>Apps PC</button>
+      <button class:sel={tab === 'pad'} onclick={() => (tab = 'pad')}>Souris</button>
     </nav>
 
     <section>
       {#if tab === 'remote'}
-        <div class="dpad">
-          <button class="up" use:repeat={key('up')}>▲</button>
-          <button class="left" use:repeat={key('left')}>◀</button>
-          <button class="ok primary" onpointerdown={(e) => { e.preventDefault(); tick(); ok(); }}>{altOpen ? 'Valider' : 'OK'}</button>
-          <button class="right" use:repeat={key('right')}>▶</button>
-          <button class="down" use:repeat={key('down')}>▼</button>
+        {#if !app.tvMode}
+          <button class="primary tvstart" onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'tv', on: true }); }}>📺 Démarrer le mode TV</button>
+        {/if}
+
+        <div class="seg">
+          <button class:sel={mode === 'surface'} onclick={() => setMode('surface')}>Surface</button>
+          <button class:sel={mode === 'dpad'} onclick={() => setMode('dpad')}>Croix</button>
         </div>
+
+        {#if mode === 'surface'}
+          <Surface />
+        {:else}
+          <div class="dpad">
+            <button class="up" use:repeat={key('up')}>▲</button>
+            <button class="left" use:repeat={key('left')}>◀</button>
+            <button class="ok primary" onpointerdown={(e) => { e.preventDefault(); tick(true); ok(); }}>{altOpen ? 'Valider' : 'OK'}</button>
+            <button class="right" use:repeat={key('right')}>▶</button>
+            <button class="down" use:repeat={key('down')}>▼</button>
+          </div>
+        {/if}
 
         {#if altOpen}
           <div class="row">
             <button use:repeat={() => alt('left')}>◀ Onglet</button>
             <button use:repeat={() => alt('right')}>Onglet ▶</button>
+            <button class="primary" onpointerdown={(e) => { e.preventDefault(); tick(true); ok(); }}>Valider</button>
           </div>
         {/if}
 
         <div class="row">
           <button use:longpress={{ onTap: key('back'), onLong: key('backlong') }}>↩ Retour</button>
+          <button onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'home' }); }}>⌂ Accueil</button>
           <button onpointerdown={(e) => { e.preventDefault(); tick(); tabSwitch(); }}>⇥ Onglets</button>
-          <button class:active={app.pinned} onpointerdown={(e) => { e.preventDefault(); tick(); send({ t: 'pin' }); }}>📌 Épingler</button>
-          <button class:active={manualKeyboard} onpointerdown={(e) => { e.preventDefault(); tick(); manualKeyboard = !manualKeyboard; }}>⌨ Clavier</button>
+          <button class:active={manualKeyboard} onpointerdown={(e) => { e.preventDefault(); tick(); manualKeyboard = !manualKeyboard; }}>⌨</button>
         </div>
+
+        <div class="row media">
+          <button onpointerdown={media('prev')} aria-label="Précédent">⏮</button>
+          <button onpointerdown={media('playPause')} aria-label="Lecture / pause">⏯</button>
+          <button onpointerdown={media('next')} aria-label="Suivant">⏭</button>
+          <button use:repeat={() => send({ t: 'media', a: 'volDown' })} aria-label="Volume moins">🔉</button>
+          <button use:repeat={() => send({ t: 'media', a: 'volUp' })} aria-label="Volume plus">🔊</button>
+          <button onpointerdown={media('mute')} aria-label="Muet">🔇</button>
+        </div>
+
+        {#if app.tvMode}
+          <button class="quit" onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'tv', on: false }); }}>Quitter le mode TV</button>
+        {/if}
       {:else if tab === 'apps'}
         <Apps />
       {:else}
@@ -187,16 +236,37 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
+  }
+  .tvstart {
+    padding: 16px;
+    font-size: 1.05rem;
+    border-radius: 18px;
+  }
+  .seg {
+    align-self: center;
+    display: flex;
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 3px;
+  }
+  .seg button {
+    padding: 6px 18px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    background: transparent;
+  }
+  .seg .sel {
+    background: var(--panel-2);
   }
   .dpad {
     flex: 1;
-    max-height: 420px;
+    min-height: 220px;
+    max-height: 380px;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
     gap: 10px;
-    margin-top: 8px;
   }
   .dpad button {
     font-size: 1.6rem;
@@ -224,10 +294,20 @@
   }
   .row button {
     flex: 1;
-    padding: 16px 4px;
+    padding: 14px 4px;
     font-size: 0.85rem;
+  }
+  .media button {
+    font-size: 1.15rem;
+    padding: 12px 0;
   }
   .active {
     background: var(--accent);
+  }
+  .quit {
+    padding: 12px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: transparent;
   }
 </style>

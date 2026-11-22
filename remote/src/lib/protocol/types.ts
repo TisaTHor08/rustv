@@ -9,7 +9,12 @@ export type PhoneMsg =
   | { t: 'mouse'; dx: number; dy: number; click?: 'left' | 'right'; scroll?: number }
   | { t: 'launch'; appId: string }
   | { t: 'getApps' }
+  | { t: 'home' }
+  | { t: 'tv'; on: boolean }
+  | { t: 'media'; a: MediaAction }
   | { t: 'ping' };
+
+export type MediaAction = 'playPause' | 'next' | 'prev' | 'stop' | 'volUp' | 'volDown' | 'mute';
 
 export interface AppEntry {
   id: string;
@@ -20,7 +25,7 @@ export interface AppEntry {
 export type PcMsg =
   | { t: 'apps'; apps: AppEntry[] }
   | { t: 'icons'; icons: { id: string; icon: string }[] }
-  | { t: 'state'; pinned: boolean; textFocus: boolean }
+  | { t: 'state'; pinned: boolean; textFocus: boolean; tvMode: boolean }
   | { t: 'pong' };
 
 /** Contenu du QR code affiché par le PC. */
