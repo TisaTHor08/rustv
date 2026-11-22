@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { api } from './api';
+  import { t } from './i18n';
 
   const params = new URLSearchParams(location.search);
   const index = Number(params.get('i') ?? 0);
@@ -36,12 +37,12 @@
 <button class="screen" class:active onclick={() => api.pickerChoose(index)}>
   <div class="ring"></div>
   <span class="num">{index + 1}</span>
-  <span class="title">Écran {index + 1}{name ? ` · ${name}` : ''}</span>
+  <span class="title">{t('picker.screen', { n: index + 1 })}{name ? ` · ${name}` : ''}</span>
   <span class="hint">
     {#if active}
-      <kbd>OK</kbd> pour utiliser cet écran comme TV
+      <kbd>OK</kbd> {t('picker.ok')}
     {:else}
-      ◀ ▶ pour aller sur cet écran
+      ◀ ▶ {t('picker.go')}
     {/if}
   </span>
   {#if count > 1}<span class="dots">{#each Array(count) as _, i}<i class:on={i === index}></i>{/each}</span>{/if}

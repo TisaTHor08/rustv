@@ -1,4 +1,4 @@
-export type KeyName = 'up' | 'down' | 'left' | 'right' | 'enter' | 'back' | 'backlong';
+export type KeyName = 'up' | 'down' | 'left' | 'right' | 'enter' | 'back' | 'backlong' | 'menu';
 export type AltTabAction = 'open' | 'left' | 'right' | 'confirm';
 
 export type PhoneMsg =

@@ -26,11 +26,14 @@ Nonce = 4 zero bytes + 64-bit message counter (per direction, starts at 0). The 
 replay, loss or reordering makes decryption fail and the connection is dropped.
 
 ## Messages (JSON, tag field `t`)
-Phone → PC: `key{k: up|down|left|right|enter|back|backlong}`, `altTab{a: open|left|right|confirm}`, `pin`,
-`text{backspaces, text}`, `mouse{dx, dy, click?: left|right, scroll}`, `launch{appId}`, `getApps`, `ping`.
+Phone → PC: `key{k: up|down|left|right|enter|back|backlong|menu}`, `altTab{a: open|left|right|confirm}`, `pin`,
+`text{backspaces, text}`, `mouse{dx, dy, click?: left|right, scroll}`, `launch{appId}`, `getApps`,
+`home`, `tv{on}`, `media{a: playPause|next|prev|stop|volUp|volDown|mute}`, `ping`.
+
+`menu` is injected as the Windows context-menu key (VK_APPS); the TV home screen uses it to open a tile's options.
 
 PC → phone: `apps{apps[{id,name,icon}]}`, `icons{icons[{id,icon}]}` (PNG base64, sent in batches),
-`state{pinned, textFocus}`, `pong`.
+`state{pinned, textFocus, tvMode}`, `pong`.
 
 ## Discovery
 UDP broadcast every 2 s on port 47821: `{"app":"rustv","id","name","port"}`. Unauthenticated hint only;

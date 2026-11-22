@@ -1,12 +1,29 @@
 :root {
   --bg: #06080c;
+  --bg-rgb: 6, 8, 12;
   --text: #f4f6fb;
   --muted: rgba(244, 246, 251, 0.62);
   --accent: #ff6a1a;
   --glass: rgba(255, 255, 255, 0.08);
   --glass-strong: rgba(255, 255, 255, 0.16);
+  --sheet: rgba(30, 34, 44, 0.94);
+  --field: rgba(0, 0, 0, 0.35);
+  --ring: #ffffff;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   color-scheme: dark;
+}
+
+html[data-theme='light'] {
+  --bg: #eef1f7;
+  --bg-rgb: 238, 241, 247;
+  --text: #10131a;
+  --muted: rgba(16, 19, 26, 0.62);
+  --glass: rgba(0, 0, 0, 0.07);
+  --glass-strong: rgba(0, 0, 0, 0.14);
+  --sheet: rgba(255, 255, 255, 0.96);
+  --field: rgba(0, 0, 0, 0.06);
+  --ring: #10131a;
+  color-scheme: light;
 }
 
 * {

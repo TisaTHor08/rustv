@@ -1,7 +1,7 @@
 <script lang="ts">
   import { activate, app, deactivate, send, unpair } from './connection.svelte.ts';
   import { longpress, repeat, tick } from './haptics.ts';
-  import type { MediaAction } from './protocol/types.ts';
+  import type { KeyName, MediaAction } from './protocol/types.ts';
   import Apps from './Apps.svelte';
   import Surface from './Surface.svelte';
   import Touchpad from './Touchpad.svelte';
@@ -28,7 +28,7 @@
     } catch {}
   }
 
-  const key = (k: 'up' | 'down' | 'left' | 'right' | 'enter' | 'back' | 'backlong') => () => send({ t: 'key', k });
+  const key = (k: KeyName) => () => send({ t: 'key', k });
   const media = (a: MediaAction) => (e: PointerEvent) => {
     e.preventDefault();
     tick();
@@ -106,7 +106,7 @@
           <div class="dpad">
             <button class="up" use:repeat={key('up')}>▲</button>
             <button class="left" use:repeat={key('left')}>◀</button>
-            <button class="ok primary" onpointerdown={(e) => { e.preventDefault(); tick(true); ok(); }}>{altOpen ? 'Valider' : 'OK'}</button>
+            <button class="ok primary" use:longpress={{ onTap: ok, onLong: key('menu') }}>{altOpen ? 'Valider' : 'OK'}</button>
             <button class="right" use:repeat={key('right')}>▶</button>
             <button class="down" use:repeat={key('down')}>▼</button>
           </div>

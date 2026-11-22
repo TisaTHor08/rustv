@@ -6,7 +6,7 @@ RusTV turns a Windows PC into a smart TV: a Google-TV/Apple-TV-style home screen
 (YouTube, Netflix, Prime Video, Disney+, Plex, Jellyfin, UGREEN Theater, …), VLC and Steam Big Picture,
 and a phone app that works as the remote. It is built to be themed and extended with **mods**.
 
-> Status: **v0.2** (TV mode). See the [roadmap](docs/ROADMAP.md) and the [architecture](docs/ARCHITECTURE.md).
+> Status: **v0.3** (TV mode + customization). See the [roadmap](docs/ROADMAP.md) and the [architecture](docs/ARCHITECTURE.md).
 
 ## What works today
 
@@ -15,6 +15,10 @@ and a phone app that works as the remote. It is built to be themed and extended 
 - **Streaming apps** open full screen in their own WebView2 window with **one isolated profile per app**
   (sessions never mix). Widevine and PlayReady are available, so DRM services play inside RusTV.
   Sites without a TV mode get arrow-key **spatial navigation** injected.
+- **Customization** (from the TV, with the remote): wallpapers (animated aurora, image, folder slideshow, looping
+  video, blur and dim), dark/light/auto theme, accent color, French/English, optional weather, and tile editing
+  (long-press OK on the phone: rename, recolor, set an icon, move, hide; add websites and Windows apps).
+  Preferences live in `%APPDATA%\RusTV\prefs.json`.
 - **Phone remote** (Svelte + Capacitor, Android): QR pairing, Siri-Remote-like swipe surface with haptic
   ticks and inertia, classic D-pad, Back/Home, tab switching, media keys + volume, touchpad,
   keyboard that pops up when a text field has focus on the PC.

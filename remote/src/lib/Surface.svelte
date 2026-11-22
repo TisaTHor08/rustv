@@ -16,6 +16,8 @@
   let t0 = 0;
   let dot = $state<{ x: number; y: number } | null>(null);
   let inertiaTimer: number | undefined;
+  let longTimer: number | undefined;
+  let longFired = false;
 
   function step(k: Dir) {
     send({ t: 'key', k });
@@ -49,6 +51,16 @@
     last = { x: e.clientX, y: e.clientY, t: t0 };
     const r = el.getBoundingClientRect();
     dot = { x: e.clientX - r.left, y: e.clientY - r.top };
+    // Appui long immobile = touche « Menu » (options de la tuile sur l'accueil TV).
+    longFired = false;
+    clearTimeout(longTimer);
+    longTimer = window.setTimeout(() => {
+      if (down && moved < 10) {
+        longFired = true;
+        tick(true);
+        send({ t: 'key', k: 'menu' });
+      }
+    }, 500);
   }
 
   function pmove(e: PointerEvent) {
@@ -70,6 +82,8 @@
     if (!down) return;
     down = false;
     dot = null;
+    clearTimeout(longTimer);
+    if (longFired) return;
     if (moved < 10 && performance.now() - t0 < 300) {
       tick(true);
       send({ t: 'key', k: 'enter' });
@@ -93,7 +107,7 @@
 
 <div bind:this={el} class="surface" onpointerdown={pdown} onpointermove={pmove} onpointerup={pup} onpointercancel={pup} role="application" aria-label="Surface tactile">
   {#if dot}<i style:left="{dot.x}px" style:top="{dot.y}px"></i>{/if}
-  <span>Glisser pour naviguer<br />Toucher pour valider</span>
+  <span>Glisser pour naviguer<br />Toucher pour valider<br />Maintenir pour les options</span>
 </div>
 
 <style>

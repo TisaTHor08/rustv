@@ -2943,6 +2943,7 @@ name = "rustv-shell"
 version = "0.2.0"
 dependencies = [
  "qrcode",
+ "rand",
  "rustv-core",
  "rustv-protocol",
  "serde",

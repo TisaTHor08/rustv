@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
   import { api, type Device, type PairingStart } from './api';
+  import { t } from './i18n';
 
   let { embedded = false, onclose }: { embedded?: boolean; onclose?: () => void } = $props();
 
@@ -61,46 +62,46 @@
 <svelte:window onkeydown={onKey} />
 
 <div class="wrap" class:embedded>
-  <h2>Appairer un téléphone</h2>
+  <h2>{t('pair.title')}</h2>
   <div class="grid">
     <div class="qr" class:ok={paired}>
       {#if pairing}
         {@html pairing.svg}
-        {#if paired}<div class="done"><span>✓</span><b>Téléphone connecté</b></div>{/if}
+        {#if paired}<div class="done"><span>✓</span><b>{t('pair.done')}</b></div>{/if}
       {:else}
         <div class="spin"></div>
       {/if}
     </div>
     <ol>
-      <li>Installez l'appli <b>RusTV Remote</b> sur votre téléphone Android.</li>
-      <li>Ouvrez-la et scannez ce QR code.</li>
-      <li>Appuyez sur <b>Activer</b> : c'est prêt.</li>
-      {#if pairing?.bluetooth}<li class="sub">Bluetooth disponible en secours si le Wi-Fi bloque.</li>{/if}
+      <li>{t('pair.s1')}</li>
+      <li>{t('pair.s2')}</li>
+      <li>{t('pair.s3')}</li>
+      {#if pairing?.bluetooth}<li class="sub">{t('pair.bt')}</li>{/if}
     </ol>
   </div>
 
-  <h3>Téléphones appairés</h3>
+  <h3>{t('pair.paired')}</h3>
   <div class="list">
     {#each others as d, i (d.id)}
       <div class="dev" class:sel={sel === i} class:armed={armed === d.id}>
         <span class="dot" class:on={d.connected}></span>
         <span class="n">{d.name}</span>
-        <span class="s">{armed === d.id ? 'Appuyez encore sur OK pour révoquer' : d.connected ? 'connecté' : 'hors ligne'}</span>
-        <button onclick={() => { sel = i; armed = d.id; activate(); }}>Révoquer</button>
+        <span class="s">{armed === d.id ? t('pair.revoke.confirm') : d.connected ? t('pair.connected') : t('pair.offline')}</span>
+        <button onclick={() => { sel = i; armed = d.id; activate(); }}>{t('pair.revoke')}</button>
       </div>
     {:else}
-      <p class="empty">Aucun téléphone pour l'instant.</p>
+      <p class="empty">{t('pair.none')}</p>
     {/each}
   </div>
 
   <div class="actions">
-    <button class="act" class:sel={sel === others.length} onclick={newCode}>Nouveau QR code</button>
-    {#if embedded}<button class="act" class:sel={sel === others.length + 1} onclick={() => onclose?.()}>Fermer</button>{/if}
+    <button class="act" class:sel={sel === others.length} onclick={newCode}>{t('pair.new')}</button>
+    {#if embedded}<button class="act" class:sel={sel === others.length + 1} onclick={() => onclose?.()}>{t('common.close')}</button>{/if}
   </div>
 </div>
 
 <style>
-  .wrap { padding: 1.4rem 1.6rem; color: var(--text); background: #12161d; min-height: 100%; }
+  .wrap { padding: 1.4rem 1.6rem; color: var(--text); background: var(--bg); min-height: 100%; }
   .wrap.embedded { padding: 0; background: transparent; min-height: 0; }
   h2 { margin: 0 0 1rem; font-size: 1.7rem; }
   h3 { margin: 1.4rem 0 0.6rem; font-size: 1.1rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }

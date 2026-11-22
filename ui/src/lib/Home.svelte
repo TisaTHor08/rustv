@@ -1,19 +1,22 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { cubicOut } from 'svelte/easing';
-  import { fly, fade } from 'svelte/transition';
-  import { api, type ShellState, type Tile } from './api';
+  import { fade, fly } from 'svelte/transition';
+  import { api, type ShellState } from './api';
+  import { locale, t } from './i18n';
+  import { askText } from './overlays.svelte';
+  import { anyOverlay } from './overlays.svelte';
+  import OverlayHost from './OverlayHost.svelte';
   import Pairing from './Pairing.svelte';
+  import { prefs } from './prefs.svelte';
+  import Settings from './Settings.svelte';
+  import TileMenu from './TileMenu.svelte';
+  import { CATEGORIES, findTile, iconSrc, moveTile, tilesOf, type DTile } from './tiles.svelte';
+  import Wallpaper from './Wallpaper.svelte';
+  import Weather from './Weather.svelte';
 
-  type Modal = null | { kind: 'settings' } | { kind: 'pairing' } | { kind: 'url'; tile: Tile };
+  type Modal = null | { kind: 'settings' } | { kind: 'pairing' } | { kind: 'tile'; id: string };
 
-  const CATEGORIES: [Tile['category'], string][] = [
-    ['video', 'Films et séries'],
-    ['tv', 'Télévision'],
-    ['music', 'Musique'],
-    ['library', 'Médiathèque'],
-    ['games', 'Jeux'],
-  ];
   const TILE_STEP = 18.6; // rem : largeur d'une tuile + espacement
   const ROW_H = 17; // rem
 
@@ -22,10 +25,7 @@
   let focus = $state({ row: 0, col: 0 });
   let tilt = $state('');
   let modal = $state<Modal>(null);
-  let menuIndex = $state(0);
   let toast = $state('');
-  let urlValue = $state('');
-  let urlInput = $state<HTMLInputElement | null>(null);
   let recent = $state<string[]>(loadRecent());
 
   function loadRecent(): string[] {
@@ -38,27 +38,30 @@
 
   const rows = $derived.by(() => {
     if (!st) return [];
-    const out: { title: string; tiles: Tile[] }[] = [];
-    const byId = new Map(st.catalog.map((t) => [t.id, t]));
-    const rec = recent.map((id) => byId.get(id)).filter((t): t is Tile => !!t);
-    if (rec.length) out.push({ title: 'Récemment utilisées', tiles: rec });
-    for (const [cat, title] of CATEGORIES) {
-      const tiles = st.catalog.filter((t) => t.category === cat);
-      if (tiles.length) out.push({ title, tiles });
+    // dépendances explicites : la liste se recalcule quand les préférences de tuiles changent
+    const catalog = st.catalog;
+    void prefs.tiles.order, prefs.tiles.hidden, prefs.tiles.names, prefs.tiles.colors, prefs.tiles.icons, prefs.tiles.custom, prefs.lang;
+    const out: { key: string; title: string; tiles: DTile[] }[] = [];
+    const rec = recent.map((id) => findTile(catalog, id)).filter((x): x is DTile => !!x && !prefs.tiles.hidden.includes(x.id));
+    if (rec.length) out.push({ key: 'recent', title: t('row.recent'), tiles: rec });
+    for (const c of CATEGORIES) {
+      const tiles = tilesOf(catalog, c);
+      if (tiles.length) out.push({ key: c, title: t(`cat.${c}`), tiles });
     }
     return out;
   });
 
+  // garde le focus dans les limites quand les rangées changent (masquage, suppression…)
+  $effect(() => {
+    if (!rows.length) return;
+    const row = Math.min(focus.row, rows.length - 1);
+    const col = row >= 0 ? Math.min(focus.col, rows[row].tiles.length - 1) : 0;
+    if (row !== focus.row || col !== focus.col) focus = { row, col };
+  });
+
   const focused = $derived(focus.row >= 0 ? rows[focus.row]?.tiles[focus.col] : undefined);
   const phones = $derived(st ? st.devices.filter((d) => d.connected).length : 0);
-  const menu = $derived([
-    { id: 'pairing', label: 'Téléphones et appairage' },
-    { id: 'blackout', label: `Éteindre les autres écrans : ${st?.settings.blackout ? 'oui' : 'non'}` },
-    { id: 'autostart', label: `Démarrer avec Windows : ${{ off: 'non', tray: 'zone de notification', tv: 'directement en mode TV' }[st?.autostart ?? 'off']}` },
-    { id: 'screen', label: "Changer d'écran" },
-    { id: 'exit', label: 'Quitter le mode TV' },
-    { id: 'quit', label: 'Fermer RusTV' },
-  ]);
+  const tinted = $derived(prefs.tint && !!focused);
 
   async function refresh() {
     st = await api.state();
@@ -78,8 +81,7 @@
       const nr = Math.max(-1, Math.min(rows.length - 1, row + dr));
       if (nr === row) return;
       row = nr;
-      if (row >= 0) col = Math.min(col, rows[row].tiles.length - 1);
-      else col = 0;
+      col = row >= 0 ? Math.min(col, rows[row].tiles.length - 1) : 0;
     } else if (row >= 0) {
       col = Math.max(0, Math.min(rows[row].tiles.length - 1, col + dc));
     }
@@ -89,88 +91,54 @@
   async function activate() {
     if (focus.row === -1) {
       modal = { kind: 'settings' };
-      menuIndex = 0;
       return;
     }
     if (focused) await openTile(focused);
   }
 
-  async function openTile(t: Tile) {
-    if (t.needs_url && !st?.settings.urls[t.id]) return askUrl(t);
+  async function openTile(tile: DTile) {
     try {
-      const r = await api.launch(t.id);
-      if (r === 'needs_url') return askUrl(t);
-      recent = [t.id, ...recent.filter((x) => x !== t.id)].slice(0, 8);
-      try {
-        localStorage.setItem('rustv.recent', JSON.stringify(recent));
-      } catch {}
+      let r: string;
+      if (tile.custom) r = await api.launchCustom(tile.raw);
+      else {
+        const needs = (tile.raw as any).needs_url && !st?.settings.urls[tile.id];
+        r = needs ? 'needs_url' : await api.launch(tile.id);
+      }
+      if (r === 'needs_url') {
+        const v = await askText(t('url.title', { name: tile.name }), st?.settings.urls[tile.id] ?? '', (tile.raw as any).url_hint ?? '');
+        if (!v) return;
+        r = await api.launch(tile.id, v);
+        await refresh();
+      }
+      if (r === 'ok') {
+        recent = [tile.id, ...recent.filter((x) => x !== tile.id)].slice(0, 8);
+        try {
+          localStorage.setItem('rustv.recent', JSON.stringify(recent));
+        } catch {}
+      }
     } catch (e) {
       note(String(e));
     }
   }
 
-  async function askUrl(t: Tile) {
-    urlValue = st?.settings.urls[t.id] ?? '';
-    modal = { kind: 'url', tile: t };
+  async function onMove(id: string, dir: -1 | 1) {
+    if (!st) return;
+    const i = moveTile(st.catalog, id, dir);
     await tick();
-    urlInput?.focus();
-  }
-
-  async function submitUrl() {
-    if (modal?.kind !== 'url') return;
-    const t = modal.tile;
-    const v = urlValue.trim();
-    if (!v) return;
-    modal = null;
-    try {
-      await api.launch(t.id, v);
-      await refresh();
-    } catch (e) {
-      note(String(e));
-    }
-  }
-
-  async function menuAction(id: string) {
-    if (id === 'pairing') modal = { kind: 'pairing' };
-    else if (id === 'blackout') {
-      await api.setBlackout(!st!.settings.blackout);
-      await refresh();
-    } else if (id === 'autostart') {
-      const next = { off: 'tray', tray: 'tv', tv: 'off' }[st!.autostart];
-      await api.setAutostart(next);
-      await refresh();
-    } else if (id === 'screen') {
-      modal = null;
-      await api.tvExit();
-      await api.tvStart();
-    } else if (id === 'exit') await api.tvExit();
-    else if (id === 'quit') await api.quit();
+    if (i >= 0 && focus.row >= 0 && rows[focus.row]?.key !== 'recent') focus = { row: focus.row, col: i };
   }
 
   function onKey(e: KeyboardEvent) {
-    if (modal?.kind === 'pairing') return; // le composant gère ses touches
-    if (modal?.kind === 'url') {
-      if (e.key === 'Enter') submitUrl();
-      else if (e.key === 'Escape') modal = null;
-      else return;
-      e.preventDefault();
-      return;
-    }
-    if (modal?.kind === 'settings') {
-      if (e.key === 'ArrowDown') menuIndex = Math.min(menu.length - 1, menuIndex + 1);
-      else if (e.key === 'ArrowUp') menuIndex = Math.max(0, menuIndex - 1);
-      else if (e.key === 'Enter') menuAction(menu[menuIndex].id);
-      else if (e.key === 'Escape' || e.key === 'Backspace') modal = null;
-      else return;
-      e.preventDefault();
-      return;
-    }
+    if (modal || anyOverlay()) return; // chaque fenêtre gère ses propres touches
     switch (e.key) {
       case 'ArrowDown': move(1, 0, 'down'); break;
       case 'ArrowUp': move(-1, 0, 'up'); break;
       case 'ArrowLeft': move(0, -1, 'left'); break;
       case 'ArrowRight': move(0, 1, 'right'); break;
       case 'Enter': activate(); break;
+      case 'ContextMenu':
+        if (focused) modal = { kind: 'tile', id: focused.id };
+        break;
       default: return;
     }
     e.preventDefault();
@@ -196,15 +164,18 @@
     };
   });
 
-  const time = $derived(now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
-  const date = $derived(now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }));
-  const fg = (t?: Tile) => (t?.dark_text ? '#16130a' : '#ffffff');
+  const time = $derived(now.toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit', hour12: !prefs.clock24 }));
+  const date = $derived(now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }));
+  const fg = (x?: DTile) => (x?.dark_text ? '#16130a' : '#ffffff');
+  const tileFor = (id: string) => (st ? findTile(st.catalog, id) : undefined);
+  const menuTile = $derived(modal?.kind === 'tile' ? tileFor(modal.id) : undefined);
 </script>
 
 <svelte:window onkeydown={onKey} onmousemove={wake} />
 
-<div class="root" style:--c1={focused?.color ?? '#3a2a1a'} style:--c2={focused?.color2 ?? '#1a1a2e'}>
-  <div class="bg"></div>
+<div class="root" style:--c1={tinted ? focused!.color : 'transparent'} style:--c2={tinted ? focused!.color2 : 'transparent'}>
+  <Wallpaper />
+  <div class="tint"></div>
   <div class="veil"></div>
 
   <!-- Barre du haut -->
@@ -225,11 +196,12 @@
       <span>RusTV</span>
     </div>
     <div class="right">
+      <Weather />
       <div class="pill" class:on={phones > 0}>
-        <span class="dot"></span>{phones > 0 ? `${phones} téléphone${phones > 1 ? 's' : ''}` : 'Aucun téléphone'}
+        <span class="dot"></span>{phones === 0 ? t('phones.none') : phones === 1 ? t('phones.one') : t('phones.many', { n: phones })}
       </div>
       <div class="clock"><strong>{time}</strong><small>{date}</small></div>
-      <button class="icon" class:focus={focus.row === -1} onclick={() => ((modal = { kind: 'settings' }), (menuIndex = 0))} onmouseenter={() => (focus = { row: -1, col: 0 })} aria-label="Réglages">
+      <button class="icon" class:focus={focus.row === -1} onclick={() => (modal = { kind: 'settings' })} onmouseenter={() => (focus = { row: -1, col: 0 })} aria-label={t('settings.title')}>
         <svg viewBox="0 0 24 24"><path d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.6a.5.5 0 0 0 .1-.6l-1.9-3.3a.5.5 0 0 0-.6-.2l-2.4 1a7.2 7.2 0 0 0-1.7-1l-.4-2.5a.5.5 0 0 0-.5-.4h-3.8a.5.5 0 0 0-.5.4L9.3 5.3a7.2 7.2 0 0 0-1.7 1l-2.4-1a.5.5 0 0 0-.6.2L2.7 8.8a.5.5 0 0 0 .1.6l2 1.6a7.7 7.7 0 0 0 0 2l-2 1.6a.5.5 0 0 0-.1.6l1.9 3.3a.5.5 0 0 0 .6.2l2.4-1c.5.4 1.1.7 1.7 1l.4 2.5c0 .2.2.4.5.4h3.8c.3 0 .5-.2.5-.4l.4-2.5c.6-.3 1.2-.6 1.7-1l2.4 1c.2.1.5 0 .6-.2l1.9-3.3a.5.5 0 0 0-.1-.6ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z" /></svg>
       </button>
     </div>
@@ -240,14 +212,14 @@
     {#key focused?.id}
       <div class="hero-in" in:fly={{ y: 24, duration: 520, easing: cubicOut }}>
         {#if focused}
-          <span class="eyebrow">{CATEGORIES.find((c) => c[0] === focused.category)?.[1]}</span>
+          <span class="eyebrow">{t(`cat.${focused.category}`)}</span>
           <h1>{focused.name}</h1>
           <p>{focused.desc}</p>
-          <div class="cta"><span class="play">▶</span> Ouvrir <kbd>OK</kbd></div>
+          <div class="cta"><span class="play">▶</span> {t('hero.open')} <kbd>OK</kbd></div>
         {:else}
           <span class="eyebrow">RusTV</span>
-          <h1>Réglages</h1>
-          <p>Téléphones, écrans et préférences</p>
+          <h1>{t('settings.title')}</h1>
+          <p>{t('settings.appearance')} · {t('settings.wallpaper')} · {t('settings.tiles')}</p>
         {/if}
       </div>
     {/key}
@@ -256,24 +228,29 @@
   <!-- Rangées -->
   <main style:--shift="{-focus.row * ROW_H}rem">
     <div class="rows">
-      {#each rows as r, ri (r.title)}
+      {#each rows as r, ri (r.key)}
         <div class="row" class:active={ri === focus.row}>
           <h2>{r.title}</h2>
           <div class="track" style:--tx="{-Math.max(0, (ri === focus.row ? focus.col : 0) - 2) * TILE_STEP}rem">
-            {#each r.tiles as t, ci (t.id)}
+            {#each r.tiles as tile, ci (tile.id)}
               <button
                 class="tile"
                 class:focus={ri === focus.row && ci === focus.col}
                 data-tilt={ri === focus.row && ci === focus.col ? tilt : ''}
-                style:--a={t.color}
-                style:--b={t.color2}
-                style:--fg={fg(t)}
+                style:--a={tile.color}
+                style:--b={tile.color2}
+                style:--fg={fg(tile)}
                 onmouseenter={() => (focus = { row: ri, col: ci })}
-                onclick={() => openTile(t)}
+                onclick={() => openTile(tile)}
+                oncontextmenu={(e) => (e.preventDefault(), (modal = { kind: 'tile', id: tile.id }))}
               >
-                <span class="mark">{t.name[0]}</span>
+                {#if tile.icon}
+                  <img class="ico" src={iconSrc(tile.icon)} alt="" />
+                {:else}
+                  <span class="mark">{tile.name[0]}</span>
+                {/if}
                 <span class="shine"></span>
-                <span class="label">{t.name}</span>
+                <span class="label">{tile.name}</span>
               </button>
             {/each}
           </div>
@@ -284,69 +261,45 @@
 
   {#if toast}<div class="toast" transition:fade={{ duration: 200 }}>{toast}</div>{/if}
 
-  <!-- Modales -->
+  <!-- Fenêtres modales -->
   {#if modal}
     <div class="scrim" transition:fade={{ duration: 180 }}>
       {#if modal.kind === 'settings'}
-        <div class="sheet" in:fly={{ y: 30, duration: 360, easing: cubicOut }}>
-          <h3>Réglages</h3>
-          {#each menu as m, i}
-            <button class="item" class:sel={i === menuIndex} onmouseenter={() => (menuIndex = i)} onclick={() => menuAction(m.id)}>{m.label}</button>
-          {/each}
-          <p class="hint">▲▼ choisir · OK valider · Retour fermer — RusTV {st?.version}</p>
-        </div>
+        <Settings {st} {refresh} {note} onclose={() => (modal = null)} onpairing={() => (modal = { kind: 'pairing' })} />
       {:else if modal.kind === 'pairing'}
         <div class="sheet wide" in:fly={{ y: 30, duration: 360, easing: cubicOut }}>
           <Pairing embedded onclose={() => (modal = { kind: 'settings' })} />
         </div>
-      {:else if modal.kind === 'url'}
-        <div class="sheet" in:fly={{ y: 30, duration: 360, easing: cubicOut }}>
-          <h3>Adresse de {modal.tile.name}</h3>
-          <input bind:this={urlInput} bind:value={urlValue} placeholder={modal.tile.url_hint ?? 'http://…'} autocomplete="off" spellcheck="false" />
-          <p class="hint">Saisissez avec le clavier du téléphone · OK valider · Retour annuler</p>
-        </div>
+      {:else if modal.kind === 'tile' && menuTile && st}
+        <TileMenu tile={menuTile} onclose={() => (modal = null)} onopen={() => openTile(menuTile)} onmove={(d) => onMove(menuTile.id, d)} />
       {/if}
     </div>
   {/if}
+
+  <OverlayHost />
 </div>
 
 <style>
-  @property --c1 { syntax: '<color>'; inherits: true; initial-value: #3a2a1a; }
-  @property --c2 { syntax: '<color>'; inherits: true; initial-value: #1a1a2e; }
+  @property --c1 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+  @property --c2 { syntax: '<color>'; inherits: true; initial-value: transparent; }
 
-  .root {
-    position: fixed;
-    inset: 0;
-    transition: --c1 0.9s ease, --c2 0.9s ease;
-  }
-  .bg {
+  .root { position: fixed; inset: 0; background: var(--bg); transition: --c1 0.9s ease, --c2 0.9s ease; }
+  .tint {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(70rem 46rem at 14% 4%, color-mix(in srgb, var(--c1) 70%, transparent), transparent 62%),
-      radial-gradient(64rem 42rem at 96% -6%, color-mix(in srgb, var(--c2) 85%, transparent), transparent 66%),
-      var(--bg);
+      radial-gradient(70rem 46rem at 14% 4%, color-mix(in srgb, var(--c1) 68%, transparent), transparent 62%),
+      radial-gradient(64rem 42rem at 96% -6%, color-mix(in srgb, var(--c2) 85%, transparent), transparent 66%);
   }
-  .veil {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, transparent 18%, rgba(6, 8, 12, 0.78) 52%, rgba(6, 8, 12, 0.94));
-  }
+  .veil { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 18%, rgba(var(--bg-rgb), 0.78) 52%, rgba(var(--bg-rgb), 0.94)); }
 
   /* ---- barre du haut ---- */
-  header {
-    position: absolute;
-    inset: 2.4rem 5rem auto 5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 5;
-  }
+  header { position: absolute; inset: 2.4rem 5rem auto 5rem; display: flex; justify-content: space-between; align-items: center; z-index: 5; }
   .brand { display: flex; align-items: center; gap: 0.8rem; font-weight: 700; font-size: 1.5rem; letter-spacing: 0.02em; }
   .brand svg { width: 2.6rem; height: 2.6rem; }
-  .right { display: flex; align-items: center; gap: 1.6rem; }
+  .right { display: flex; align-items: center; gap: 1.4rem; }
   .pill { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 1.1rem; border-radius: 99rem; background: var(--glass); font-size: 1.05rem; color: var(--muted); backdrop-filter: blur(1.2rem); }
-  .pill .dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: #666; }
+  .pill .dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: #888; }
   .pill.on { color: var(--text); }
   .pill.on .dot { background: #3ddc84; box-shadow: 0 0 0.8rem #3ddc84; }
   .clock { text-align: right; line-height: 1.15; }
@@ -355,18 +308,18 @@
   .clock small::first-letter { text-transform: uppercase; }
   .icon { width: 3.4rem; height: 3.4rem; border-radius: 50%; border: 0; background: var(--glass); display: grid; place-items: center; transition: transform 0.3s var(--ease), background 0.3s; }
   .icon svg { width: 1.7rem; height: 1.7rem; fill: var(--text); }
-  .icon.focus { background: #fff; transform: scale(1.18); box-shadow: 0 0.6rem 2rem rgba(0, 0, 0, 0.5); }
-  .icon.focus svg { fill: #111; }
+  .icon.focus { background: var(--ring); transform: scale(1.18); box-shadow: 0 0.6rem 2rem rgba(0, 0, 0, 0.5); }
+  .icon.focus svg { fill: var(--bg); }
 
   /* ---- héro ---- */
   .hero { position: absolute; left: 5rem; top: 10.5rem; width: 56rem; height: 15rem; z-index: 3; }
   .hero-in { position: absolute; inset: 0; }
   .eyebrow { font-size: 1.1rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-  h1 { margin: 0.5rem 0 0.4rem; font-size: 4.6rem; line-height: 1; font-weight: 800; letter-spacing: -0.02em; text-shadow: 0 0.3rem 2rem rgba(0, 0, 0, 0.45); }
-  .hero p { margin: 0 0 1.4rem; font-size: 1.5rem; color: var(--muted); }
-  .cta { display: inline-flex; align-items: center; gap: 0.8rem; padding: 0.7rem 1.6rem 0.7rem 1.3rem; border-radius: 99rem; background: #fff; color: #111; font-weight: 700; font-size: 1.25rem; }
+  h1 { margin: 0.5rem 0 0.4rem; font-size: 4.6rem; line-height: 1; font-weight: 800; letter-spacing: -0.02em; text-shadow: 0 0.3rem 2rem rgba(0, 0, 0, 0.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hero p { margin: 0 0 1.4rem; font-size: 1.5rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cta { display: inline-flex; align-items: center; gap: 0.8rem; padding: 0.7rem 1.6rem 0.7rem 1.3rem; border-radius: 99rem; background: var(--accent); color: #fff; font-weight: 700; font-size: 1.25rem; box-shadow: 0 0.6rem 1.6rem color-mix(in srgb, var(--accent) 45%, transparent); }
   .cta .play { font-size: 0.95rem; }
-  kbd { font: inherit; font-size: 0.8rem; padding: 0.15rem 0.5rem; border-radius: 0.4rem; background: rgba(0, 0, 0, 0.12); }
+  kbd { font: inherit; font-size: 0.8rem; padding: 0.15rem 0.5rem; border-radius: 0.4rem; background: rgba(0, 0, 0, 0.2); }
 
   /* ---- rangées ---- */
   main { position: absolute; left: 0; right: 0; top: 27rem; bottom: 0; overflow: hidden; z-index: 4; }
@@ -394,12 +347,13 @@
     transform-style: preserve-3d;
   }
   .tile .mark { position: absolute; right: -0.6rem; bottom: -2.6rem; font-size: 10rem; font-weight: 800; opacity: 0.14; line-height: 1; }
-  .tile .label { position: absolute; left: 1.1rem; bottom: 0.9rem; font-size: 1.55rem; font-weight: 700; letter-spacing: -0.01em; text-shadow: 0 0.1rem 0.6rem rgba(0, 0, 0, 0.35); }
+  .tile .ico { position: absolute; left: 1.1rem; top: 1rem; width: 3.6rem; height: 3.6rem; object-fit: contain; filter: drop-shadow(0 0.2rem 0.5rem rgba(0, 0, 0, 0.35)); }
+  .tile .label { position: absolute; left: 1.1rem; right: 1rem; bottom: 0.9rem; font-size: 1.55rem; font-weight: 700; letter-spacing: -0.01em; text-shadow: 0 0.1rem 0.6rem rgba(0, 0, 0, 0.35); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tile .shine { position: absolute; inset: 0; background: linear-gradient(115deg, transparent 28%, rgba(255, 255, 255, 0.32) 48%, transparent 66%); transform: translateX(-130%); }
   .tile.focus {
     transform: perspective(60rem) translateY(-0.3rem) scale(1.16);
     box-shadow:
-      0 0 0 0.22rem rgba(255, 255, 255, 0.95),
+      0 0 0 0.22rem var(--ring),
       0 2.2rem 3.6rem -0.8rem color-mix(in srgb, var(--a) 80%, transparent),
       0 1rem 2rem rgba(0, 0, 0, 0.5);
     z-index: 2;
@@ -416,17 +370,8 @@
   }
   @keyframes sweep { to { transform: translateX(130%); } }
 
-  /* ---- toast ---- */
-  .toast { position: absolute; left: 50%; bottom: 3rem; transform: translateX(-50%); padding: 0.9rem 1.8rem; border-radius: 99rem; background: rgba(255, 255, 255, 0.95); color: #111; font-size: 1.2rem; font-weight: 600; z-index: 20; }
+  .toast { position: absolute; left: 50%; bottom: 3rem; transform: translateX(-50%); padding: 0.9rem 1.8rem; border-radius: 99rem; background: rgba(255, 255, 255, 0.95); color: #111; font-size: 1.2rem; font-weight: 600; z-index: 40; }
 
-  /* ---- modales ---- */
   .scrim { position: absolute; inset: 0; background: rgba(4, 6, 10, 0.72); backdrop-filter: blur(1.6rem); display: grid; place-items: center; z-index: 10; }
-  .sheet { width: 36rem; padding: 2.2rem 2.4rem; border-radius: 1.8rem; background: rgba(34, 38, 48, 0.92); box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.6), inset 0 0 0 0.08rem rgba(255, 255, 255, 0.08); }
-  .sheet.wide { width: 56rem; }
-  .sheet h3 { margin: 0 0 1.2rem; font-size: 1.9rem; }
-  .item { display: block; width: 100%; text-align: left; margin: 0.3rem 0; padding: 0.95rem 1.2rem; border: 0; border-radius: 0.9rem; background: transparent; color: var(--text); font-family: inherit; font-size: 1.35rem; transition: background 0.2s, transform 0.25s var(--ease); }
-  .item.sel { background: #fff; color: #111; transform: scale(1.025); font-weight: 600; }
-  .hint { margin: 1.2rem 0 0; font-size: 0.95rem; color: var(--muted); }
-  .sheet input { width: 100%; padding: 1rem 1.2rem; border-radius: 0.9rem; border: 0.12rem solid rgba(255, 255, 255, 0.25); background: rgba(0, 0, 0, 0.35); color: var(--text); font-size: 1.4rem; outline: none; }
-  .sheet input:focus { border-color: #fff; }
+  .sheet.wide { width: 56rem; padding: 2.2rem 2.4rem; border-radius: 1.8rem; background: var(--sheet); box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.6), inset 0 0 0 0.08rem var(--glass-strong); }
 </style>

@@ -18,7 +18,8 @@ fn main() {
     println!("authentifié");
     for _ in 0..2 {
         match sess.recv::<PcMsg>().unwrap() {
-            PcMsg::State { pinned, text_focus } => println!("State pinned={pinned} textFocus={text_focus}"),
+            PcMsg::State { pinned, text_focus, tv_mode } => println!("State pinned={pinned} textFocus={text_focus} tvMode={tv_mode}"),
+            PcMsg::Icons { icons } => println!("Icons: {}", icons.len()),
             PcMsg::Apps { apps } => println!("Apps: {} (ex: {:?})", apps.len(), apps.iter().take(3).map(|a| &a.name).collect::<Vec<_>>()),
             m => println!("{m:?}"),
         }

@@ -44,6 +44,61 @@ pub async fn launch_tile(app: AppHandle, id: String, url: Option<String>) -> Res
     tv::launch(&app, &id, url)
 }
 
+/// Lance une tuile personnalisée (site web ou application Windows) décrite par l'interface.
+#[tauri::command]
+pub async fn launch_custom(app: AppHandle, tile: Value) -> Result<String, String> {
+    tv::launch_value(&app, &tile, None)
+}
+
+#[tauri::command]
+pub async fn prefs_get() -> Result<Value, String> {
+    Ok(crate::prefs::get())
+}
+
+#[tauri::command]
+pub async fn prefs_set(prefs: Value) -> Result<(), String> {
+    crate::prefs::set(&prefs)
+}
+
+/// Enregistre un fichier local et renvoie une URL http://127.0.0.1 secrète utilisable dans <img>/<video>.
+#[tauri::command]
+pub async fn media_url(shell: State<'_, Shell>, path: String) -> Result<String, String> {
+    shell.media.url(std::path::Path::new(&path)).ok_or_else(|| "Fichier introuvable".to_string())
+}
+
+/// URL des images d'un dossier (diaporama).
+#[tauri::command]
+pub async fn folder_images(shell: State<'_, Shell>, path: String) -> Result<Vec<String>, String> {
+    Ok(crate::fs::images_in(&path, 200).iter().filter_map(|p| shell.media.url(std::path::Path::new(p))).collect())
+}
+
+#[tauri::command]
+pub async fn fs_roots() -> Result<Vec<crate::fs::Root>, String> {
+    Ok(crate::fs::roots())
+}
+
+#[tauri::command]
+pub async fn fs_list(path: String, filter: String) -> Result<crate::fs::Listing, String> {
+    crate::fs::list(&path, &filter)
+}
+
+/// Applications du menu Démarrer (pour créer une tuile personnalisée).
+#[tauri::command]
+pub async fn windows_apps() -> Result<Value, String> {
+    Ok(json!(rustv_core::apps::list(&[])
+        .into_iter()
+        .filter(|a| a.id.starts_with("s:"))
+        .map(|a| json!({ "id": a.id, "name": a.name, "target": a.target }))
+        .collect::<Vec<_>>()))
+}
+
+/// Icône PNG (base64) d'un raccourci Windows.
+#[tauri::command]
+pub async fn app_icon(target: String) -> Result<Option<String>, String> {
+    rustv_core::icons::com_init();
+    Ok(rustv_core::icons::icon_png_base64(&target))
+}
+
 #[tauri::command]
 pub async fn go_home(app: AppHandle) {
     tv::go_home(&app);

@@ -305,6 +305,8 @@ impl Core {
                 }
                 Key::Back => input::tap(VK_ESCAPE),
                 Key::BackLong => input::chord(&[VK_MENU], VK_LEFT),
+                // Touche « Menu contextuel » : ouvre le menu d'options d'une tuile sur l'accueil TV.
+                Key::Menu => input::tap(VK_APPS),
             },
             PhoneMsg::AltTab { a } => {
                 let mut alt = self.alt.lock().unwrap();

@@ -2,6 +2,9 @@
 
 mod autostart;
 mod commands;
+mod fs;
+mod media;
+mod prefs;
 mod settings;
 mod tv;
 
@@ -18,6 +21,7 @@ pub struct TvState {
 }
 
 pub struct Shell {
+    pub media: Arc<media::Media>,
     pub core: Arc<Core>,
     pub settings: Mutex<settings::Settings>,
     pub tv: Mutex<TvState>,
@@ -48,7 +52,7 @@ fn main() {
     }
 
     let app = tauri::Builder::default()
-        .manage(Shell { core: core.clone(), settings: Mutex::new(settings::Settings::load()), tv: Mutex::new(TvState::default()) })
+        .manage(Shell { media: media::Media::start(), core: core.clone(), settings: Mutex::new(settings::Settings::load()), tv: Mutex::new(TvState::default()) })
         .invoke_handler(tauri::generate_handler![
             commands::get_state,
             commands::tv_start,
@@ -56,6 +60,15 @@ fn main() {
             commands::picker_move,
             commands::picker_choose,
             commands::launch_tile,
+            commands::launch_custom,
+            commands::prefs_get,
+            commands::prefs_set,
+            commands::media_url,
+            commands::folder_images,
+            commands::fs_roots,
+            commands::fs_list,
+            commands::windows_apps,
+            commands::app_icon,
             commands::go_home,
             commands::pairing_start,
             commands::pairing_cancel,

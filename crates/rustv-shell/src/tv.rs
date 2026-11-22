@@ -198,9 +198,16 @@ fn find_vlc() -> Option<String> {
     None
 }
 
-/// Renvoie "ok", "needs_url" ou une erreur lisible.
+/// Lance une tuile du catalogue. Renvoie "ok", "needs_url" ou une erreur lisible.
 pub fn launch(app: &AppHandle, id: &str, url: Option<String>) -> Result<String, String> {
+    let tile = catalog().into_iter().find(|t| t["id"] == id).ok_or("Application inconnue")?;
+    launch_value(app, &tile, url)
+}
+
+/// Lance une tuile décrite par un objet JSON (catalogue ou tuile personnalisée de l'utilisateur).
+pub fn launch_value(app: &AppHandle, tile: &Value, url: Option<String>) -> Result<String, String> {
     let shell = app.state::<Shell>();
+    let id = tile["id"].as_str().filter(|i| i.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_' || c == ':')).ok_or("Tuile invalide")?;
     if let Some(u) = url.filter(|u| !u.trim().is_empty()) {
         let u = if u.contains("://") { u } else { format!("http://{u}") };
         u.parse::<Url>().map_err(|_| "Adresse invalide".to_string())?;
@@ -208,7 +215,7 @@ pub fn launch(app: &AppHandle, id: &str, url: Option<String>) -> Result<String, 
         s.urls.insert(id.to_string(), u);
         s.save();
     }
-    let tile = catalog().into_iter().find(|t| t["id"] == id).ok_or("Application inconnue")?;
+    let tile = tile.clone();
     match tile["kind"].as_str().unwrap_or("") {
         "native" => {
             let target = match id {
@@ -219,9 +226,12 @@ pub fn launch(app: &AppHandle, id: &str, url: Option<String>) -> Result<String, 
             Ok("ok".into())
         }
         _ => {
-            let url = tile["url"].as_str().map(str::to_string).or_else(|| shell.settings.lock().unwrap().urls.get(id).cloned());
+            let url = tile["url"].as_str().filter(|u| !u.is_empty()).map(str::to_string).or_else(|| shell.settings.lock().unwrap().urls.get(id).cloned());
             let Some(url) = url else { return Ok("needs_url".into()) };
             let parsed: Url = url.parse().map_err(|_| "Adresse invalide")?;
+            if !matches!(parsed.scheme(), "http" | "https") {
+                return Err("Seules les adresses http(s) sont autorisées".into());
+            }
             open_web(app, id, &tile, parsed).map_err(|e| e.to_string())?;
             Ok("ok".into())
         }
