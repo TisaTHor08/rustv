@@ -9,6 +9,7 @@ pub mod input;
 pub mod server;
 pub mod smtc;
 pub mod uia;
+pub mod vault;
 
 pub use crate::core::{Core, DeviceInfo, Event, NowPlaying, PlayerInfo};
 

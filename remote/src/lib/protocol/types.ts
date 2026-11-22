@@ -12,7 +12,24 @@ export type PhoneMsg =
   | { t: 'home' }
   | { t: 'tv'; on: boolean }
   | { t: 'media'; a: MediaAction }
+  | { t: 'vaultStatus' }
+  | { t: 'vaultUnlock'; password: string }
+  | { t: 'vaultLogin'; email: string; password: string; code?: string; method?: 0 | 1 | 3 }
+  | { t: 'vaultLock' }
+  | { t: 'vaultSearch'; q: string }
+  | { t: 'vaultFill'; id: string; what: VaultFill; enter?: boolean }
   | { t: 'ping' };
+
+export type VaultFill = 'both' | 'username' | 'password' | 'totp';
+export type VaultStatus = 'unknown' | 'notInstalled' | 'loggedOut' | 'locked' | 'unlocked';
+/** Métadonnées non secrètes : les mots de passe ne quittent jamais le PC. */
+export interface VaultItem {
+  id: string;
+  name: string;
+  username: string;
+  host: string;
+  hasTotp: boolean;
+}
 
 export type MediaAction = 'playPause' | 'next' | 'prev' | 'stop' | 'volUp' | 'volDown' | 'mute';
 
@@ -27,6 +44,9 @@ export type PcMsg =
   | { t: 'icons'; icons: { id: string; icon: string }[] }
   | { t: 'state'; pinned: boolean; textFocus: boolean; tvMode: boolean }
   | { t: 'nowPlaying'; active: boolean; title: string; artist: string; playing: boolean; position: number; duration: number; source: string }
+  | { t: 'vaultState'; status: VaultStatus; email: string; autolockMin: number }
+  | { t: 'vaultItems'; items: VaultItem[] }
+  | { t: 'vaultResult'; op: string; ok: boolean; code: string }
   | { t: 'pong' };
 
 /** Contenu du QR code affiché par le PC. */

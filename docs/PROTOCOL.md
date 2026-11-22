@@ -37,6 +37,18 @@ PC → phone: `apps{apps[{id,name,icon}]}`, `icons{icons[{id,icon}]}` (PNG base6
 
 `search` is injected as F3 (it opens the TV home screen's universal search).
 
+### Bitwarden vault messages (see [BITWARDEN.md](BITWARDEN.md))
+Phone → PC: `vaultStatus`, `vaultUnlock{password}`, `vaultLogin{email, password, code?, method?: 0|1|3}`, `vaultLock`,
+`vaultSearch{q}` (empty `q` = suggestions from the foreground window title),
+`vaultFill{id, what: both|username|password|totp, enter?}`.
+`password` is the master password: it is only ever sent inside the encrypted session and is never echoed back.
+
+PC → phone: `vaultState{status: unknown|notInstalled|loggedOut|locked|unlocked, email, autolockMin}` (broadcast on every change),
+`vaultItems{items[{id, name, username, host, hasTotp}]}` (non-secret metadata only),
+`vaultResult{op, ok, code}` where `code` is a stable error code (`badPassword`, `need2fa`, `locked`, `loggedOut`, `notInstalled`,
+`timeout`, `noFocus`, `focusChanged`, `invalid`, `empty`, `failed`), never a raw message. Secrets are never sent to the phone:
+`vaultFill` makes the PC type them into the focused field.
+
 ## Discovery
 UDP broadcast every 2 s on port 47821: `{"app":"rustv","id","name","port"}`. Unauthenticated hint only;
 the handshake is what establishes trust.

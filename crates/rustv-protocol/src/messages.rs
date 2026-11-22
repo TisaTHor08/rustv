@@ -41,6 +41,32 @@ pub enum PhoneMsg {
     /// Démarre / arrête le mode TV sur le PC.
     Tv { on: bool },
     Media { a: MediaAction },
+    /// Coffre Bitwarden : interroge l'état (CLI présente, connecté, verrouillé).
+    VaultStatus,
+    /// Déverrouille avec le mot de passe maître (jamais conservé côté PC).
+    VaultUnlock { password: Secret },
+    /// Première connexion : e-mail, mot de passe maître, code 2FA et méthode (0 appli, 1 e-mail, 3 YubiKey) facultatifs.
+    VaultLogin {
+        email: String,
+        password: Secret,
+        #[serde(default)]
+        code: Option<String>,
+        #[serde(default)]
+        method: Option<u8>,
+    },
+    VaultLock,
+    /// Recherche : renvoie uniquement des métadonnées. `q` vide = suggestions d'après la fenêtre au premier plan.
+    VaultSearch {
+        #[serde(default)]
+        q: String,
+    },
+    /// Saisit un secret dans le champ qui a le focus sur le PC (le secret ne revient jamais au téléphone).
+    VaultFill {
+        id: String,
+        what: VaultFill,
+        #[serde(default)]
+        enter: bool,
+    },
     Ping,
 }
 
@@ -83,4 +109,143 @@ pub enum PcMsg {
     /// Média en cours de lecture sur le PC (lecteur RusTV ou n'importe quelle appli via les contrôles média Windows).
     NowPlaying { active: bool, title: String, artist: String, playing: bool, position: f64, duration: f64, source: String },
     Pong,
+    #[serde(rename_all = "camelCase")]
+    VaultState { status: VaultStatus, email: String, autolock_min: u32 },
+    VaultItems { items: Vec<VaultItem> },
+    /// Résultat d'une opération du coffre : `code` est un code d'erreur stable (vide si `ok`), jamais un message brut de `bw`.
+    VaultResult { op: String, ok: bool, code: String },
+}
+
+/// Chaîne secrète : Debug masqué, mise à zéro à la libération (au mieux), sérialisée comme une chaîne simple.
+/// Utilisée pour le mot de passe maître et les secrets du coffre ; ne doit jamais être journalisée.
+#[derive(Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct Secret(String);
+
+impl Secret {
+    pub fn new(s: String) -> Self {
+        Secret(s)
+    }
+    pub fn expose(&self) -> &str {
+        &self.0
+    }
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
+impl From<String> for Secret {
+    fn from(s: String) -> Self {
+        Secret(s)
+    }
+}
+
+impl std::fmt::Debug for Secret {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("Secret(***)")
+    }
+}
+
+impl Drop for Secret {
+    fn drop(&mut self) {
+        // SAFETY: on n'écrit que des octets nuls (UTF-8 valide) dans le tampon propre de la chaîne.
+        unsafe {
+            for b in self.0.as_bytes_mut() {
+                std::ptr::write_volatile(b, 0);
+            }
+        }
+        std::sync::atomic::compiler_fence(std::sync::atomic::Ordering::SeqCst);
+    }
+}
+
+/// Ce que « remplir » doit saisir dans le champ qui a le focus.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum VaultFill {
+    /// Identifiant, Tab, mot de passe.
+    Both,
+    Username,
+    Password,
+    Totp,
+}
+
+/// État du coffre Bitwarden côté PC.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum VaultStatus {
+    /// Pas encore interrogé.
+    Unknown,
+    /// La CLI officielle `bw` est introuvable.
+    NotInstalled,
+    /// `bw` est installé mais aucun compte n'est connecté.
+    LoggedOut,
+    Locked,
+    Unlocked,
+}
+
+/// Métadonnées non secrètes d'un identifiant du coffre.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct VaultItem {
+    pub id: String,
+    pub name: String,
+    pub username: String,
+    /// Hôte de la première URI (vide si aucune).
+    pub host: String,
+    pub has_totp: bool,
+}
+
+/// Messages du coffre envoyés par le téléphone (`PhoneMsg::Vault*`) : voir docs/PROTOCOL.md.
+#[cfg(test)]
+mod vault_tests {
+    use super::*;
+    use serde_json::json;
+
+    fn parse(v: serde_json::Value) -> PhoneMsg {
+        serde_json::from_value(v).unwrap()
+    }
+
+    #[test]
+    fn phone_vault_messages() {
+        assert_eq!(parse(json!({"t":"vaultStatus"})), PhoneMsg::VaultStatus);
+        assert_eq!(parse(json!({"t":"vaultLock"})), PhoneMsg::VaultLock);
+        assert_eq!(parse(json!({"t":"vaultUnlock","password":"pw"})), PhoneMsg::VaultUnlock { password: "pw".to_string().into() });
+        assert_eq!(
+            parse(json!({"t":"vaultLogin","email":"a@b.c","password":"pw"})),
+            PhoneMsg::VaultLogin { email: "a@b.c".into(), password: "pw".to_string().into(), code: None, method: None }
+        );
+        assert_eq!(
+            parse(json!({"t":"vaultLogin","email":"a@b.c","password":"pw","code":"123456","method":0})),
+            PhoneMsg::VaultLogin { email: "a@b.c".into(), password: "pw".to_string().into(), code: Some("123456".into()), method: Some(0) }
+        );
+        assert_eq!(parse(json!({"t":"vaultSearch","q":"git"})), PhoneMsg::VaultSearch { q: "git".into() });
+        assert_eq!(parse(json!({"t":"vaultSearch"})), PhoneMsg::VaultSearch { q: String::new() });
+        assert_eq!(
+            parse(json!({"t":"vaultFill","id":"abc","what":"both","enter":true})),
+            PhoneMsg::VaultFill { id: "abc".into(), what: VaultFill::Both, enter: true }
+        );
+        assert_eq!(
+            parse(json!({"t":"vaultFill","id":"abc","what":"totp"})),
+            PhoneMsg::VaultFill { id: "abc".into(), what: VaultFill::Totp, enter: false }
+        );
+    }
+
+    #[test]
+    fn pc_vault_messages() {
+        let s = serde_json::to_value(PcMsg::VaultState { status: VaultStatus::NotInstalled, email: String::new(), autolock_min: 5 }).unwrap();
+        assert_eq!(s, json!({"t":"vaultState","status":"notInstalled","email":"","autolockMin":5}));
+        let i = serde_json::to_value(PcMsg::VaultItems {
+            items: vec![VaultItem { id: "1".into(), name: "GitHub".into(), username: "me".into(), host: "github.com".into(), has_totp: true }],
+        })
+        .unwrap();
+        assert_eq!(i, json!({"t":"vaultItems","items":[{"id":"1","name":"GitHub","username":"me","host":"github.com","hasTotp":true}]}));
+        let r = serde_json::to_value(PcMsg::VaultResult { op: "unlock".into(), ok: false, code: "badPassword".into() }).unwrap();
+        assert_eq!(r, json!({"t":"vaultResult","op":"unlock","ok":false,"code":"badPassword"}));
+    }
+
+    #[test]
+    fn secret_is_redacted_in_debug() {
+        let m = PhoneMsg::VaultUnlock { password: "hunter2".to_string().into() };
+        assert!(!format!("{m:?}").contains("hunter2"));
+    }
 }

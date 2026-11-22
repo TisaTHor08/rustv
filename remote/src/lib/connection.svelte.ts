@@ -2,7 +2,7 @@
 import { btConnect, isNative, listenBeacon, tcpConnect } from './native.ts';
 import { unb64 } from './protocol/crypto.ts';
 import { Session } from './protocol/session.ts';
-import { BEACON_PORT, type AppEntry, type PairingInfo, type PhoneMsg } from './protocol/types.ts';
+import { BEACON_PORT, type AppEntry, type PairingInfo, type PhoneMsg, type VaultItem, type VaultStatus } from './protocol/types.ts';
 
 const RFCOMM_UUID = '7c1d3a52-5b0e-4f8a-9d63-2e41c0a8b9f7';
 const BT_DELAY_MS = 1500; // le Wi-Fi est plus rapide : le Bluetooth ne prend le relais que s'il tarde
@@ -22,7 +22,12 @@ export const app = $state({
   tvMode: false,
   now: { active: false, title: '', artist: '', playing: false, position: 0, duration: 0, source: '' },
   apps: [] as AppEntry[],
+  vault: { status: 'unknown' as VaultStatus, email: '', autolockMin: 5, items: [] as VaultItem[], seq: 0, op: '', ok: true, code: '' },
 });
+
+function resetVault() {
+  app.vault = { status: 'unknown', email: '', autolockMin: 5, items: [], seq: 0, op: '', ok: true, code: '' };
+}
 
 function loadPairing(): PairingInfo | null {
   try {
@@ -209,6 +214,16 @@ async function serve(s: Session, active: () => boolean) {
         app.tvMode = m.tvMode;
       } else if (m.t === 'nowPlaying') {
         app.now = { active: m.active, title: m.title, artist: m.artist, playing: m.playing, position: m.position, duration: m.duration, source: m.source };
+      } else if (m.t === 'vaultState') {
+        app.vault.status = m.status;
+        app.vault.email = m.email;
+        app.vault.autolockMin = m.autolockMin;
+      } else if (m.t === 'vaultItems') app.vault.items = m.items;
+      else if (m.t === 'vaultResult') {
+        app.vault.op = m.op;
+        app.vault.ok = m.ok;
+        app.vault.code = m.code;
+        app.vault.seq++;
       } else if (m.t === 'apps') app.apps = m.apps;
       else if (m.t === 'icons') {
         // Les icônes arrivent par lots après la liste : on les rattache aux apps.
@@ -220,6 +235,7 @@ async function serve(s: Session, active: () => boolean) {
     clearInterval(ping);
     s.close();
     app.textFocus = false;
+    resetVault();
   }
 }
 

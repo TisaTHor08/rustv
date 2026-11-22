@@ -1,7 +1,7 @@
 <script lang="ts">
   import { cubicOut } from 'svelte/easing';
   import { fly } from 'svelte/transition';
-  import { api, type ShellState } from './api';
+  import { api, type ShellState, type VaultInfo } from './api';
   import { t } from './i18n';
   import { askConfirm, askText, overlay, pickApp, pickFile } from './overlays.svelte';
   import { ACCENTS, TILE_COLORS, prefs, resetTiles, savePrefs, type Category, type CustomTile } from './prefs.svelte';
@@ -19,7 +19,7 @@
     note,
   }: { st: ShellState | null; refresh: () => Promise<void>; onclose: () => void; onpairing: () => void; onmods: () => void; note: (m: string) => void } = $props();
 
-  type Page = 'root' | 'appearance' | 'wallpaper' | 'tiles' | 'weather' | 'live' | 'library' | 'apps' | 'system';
+  type Page = 'root' | 'appearance' | 'wallpaper' | 'tiles' | 'weather' | 'live' | 'library' | 'apps' | 'vault' | 'system';
   interface Row {
     label: string;
     value?: string;
@@ -35,6 +35,24 @@
   let newCat = $state<Category>('video');
   let confirmReset = $state(false);
   let detected = $state('');
+  let vault = $state<VaultInfo | null>(null);
+
+  async function vaultRefresh() {
+    try {
+      vault = await api.vaultStatus();
+    } catch {
+      vault = null;
+    }
+  }
+  async function vaultDo(fn: () => Promise<void>) {
+    try {
+      await fn();
+      note(t('vault.done'));
+    } catch (e) {
+      note(t(`vault.err.${String(e)}`) === `vault.err.${String(e)}` ? t('vault.err.failed') : t(`vault.err.${String(e)}`));
+    }
+    await vaultRefresh();
+  }
 
   const CATS: Category[] = ['video', 'tv', 'music', 'library', 'games'];
 
@@ -180,6 +198,7 @@
           { label: t('settings.weather'), enter: () => go('weather') },
           { label: t('settings.live'), enter: () => go('live') },
           { label: t('settings.library'), enter: () => go('library') },
+          { label: t('settings.vault'), enter: () => go('vault') },
           { label: t('settings.mods'), enter: onmods },
           { label: t('settings.phones'), enter: onpairing },
           { label: t('settings.apps'), enter: () => go('apps') },
@@ -277,6 +296,32 @@
           choice(t('apps.browser'), ['auto', 'builtin', 'brave', 'vivaldi'] as const, () => prefs.youtubeBrowser, (v) => set('youtubeBrowser', v), (v) => t(`apps.opt.${v}`)),
           { label: t('apps.note') },
         ];
+      case 'vault': {
+        const v = vault;
+        const r: Row[] = [{ label: t('vault.status'), value: v ? t(`vault.st.${v.status}`) : '…', enter: vaultRefresh }];
+        if (v && !v.installed) return [...r, { label: t('vault.install'), value: 'winget install Bitwarden.CLI' }];
+        if (v?.email) r.push({ label: t('vault.account'), value: v.email });
+        return [
+          ...r,
+          { label: t('vault.lock'), enter: () => vaultDo(() => api.vaultLock()) },
+          {
+            label: t('vault.autolock'),
+            value: `${v?.autolockMin ?? 5} min`,
+            arrows: true,
+            left: () => vaultDo(() => api.vaultSetAutolock(Math.max(1, (v?.autolockMin ?? 5) - 1))),
+            right: () => vaultDo(() => api.vaultSetAutolock(Math.min(30, (v?.autolockMin ?? 5) + 1))),
+          },
+          {
+            label: t('vault.server'),
+            value: v?.server || t('vault.server.default'),
+            enter: async () => {
+              const u = await askText(t('vault.server.ask'), v?.server ?? 'https://', t('vault.server.hint'));
+              if (u !== null) await vaultDo(() => api.vaultSetServer(u));
+            },
+          },
+          { label: t('vault.logout'), enter: () => vaultDo(() => api.vaultLogout()) },
+        ];
+      }
       case 'system':
         return [
           choice(t('sys.blackout'), ['yes', 'no'] as const, () => (st?.settings.blackout ? 'yes' : 'no'), async (v) => {
@@ -296,12 +341,13 @@
     }
   });
 
-  const titles: Record<Page, string> = { root: 'settings.title', appearance: 'settings.appearance', wallpaper: 'settings.wallpaper', tiles: 'settings.tiles', weather: 'settings.weather', live: 'settings.live', library: 'settings.library', apps: 'settings.apps', system: 'settings.screens' };
+  const titles: Record<Page, string> = { root: 'settings.title', appearance: 'settings.appearance', wallpaper: 'settings.wallpaper', tiles: 'settings.tiles', weather: 'settings.weather', live: 'settings.live', library: 'settings.library', apps: 'settings.apps', vault: 'settings.vault', system: 'settings.screens' };
 
   function go(p: Page) {
     page = p;
     idx = 0;
     if (p === 'apps') void api.browsersDetected().then((l) => (detected = l.map((b) => (b.kind === 'brave' ? 'Brave' : 'Vivaldi')).join(', '))).catch(() => {});
+    if (p === 'vault') void vaultRefresh();
     confirmReset = false;
   }
 

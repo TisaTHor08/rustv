@@ -38,6 +38,7 @@ Français : [README.fr.md](README.fr.md)
   (long-press OK on the phone: rename, recolor, set an icon, move, hide; add websites and Windows apps).
   Preferences live in `%APPDATA%\RusTV\prefs.json`.
 - **Live TV and media**: your own M3U playlists and XMLTV guides (now/next, zapping with the remote), a local library of movies, shows, photos and music, a file explorer, Windows settings shortcuts and a universal search. Playback uses mpv, installed on demand after you agree (checksum verified). No channel list is bundled.
+- **Bitwarden** ([docs/BITWARDEN.md](docs/BITWARDEN.md)): fill logins from your vault with one tap on the phone, using the official `bw` CLI (also works with Vaultwarden). Passwords never leave the PC except as injected keystrokes; auto-lock included.
 - **Mods** ([docs/MODS.md](docs/MODS.md)): themes, tiles, full-screen pages, top-bar widgets and site adapters, with declared and user-approved permissions, sandboxed execution and an in-app catalog installing pinned GitHub commits.
 - **Phone remote** (Svelte + Capacitor, Android): QR pairing, Siri-Remote-like swipe surface with haptic
   ticks and inertia, classic D-pad, Back/Home, tab switching, media keys + volume, touchpad,
