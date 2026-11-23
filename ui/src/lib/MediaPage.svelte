@@ -93,7 +93,7 @@
         title: m.title,
         sub: m.year ? String(m.year) : '',
         art: m.poster ?? undefined,
-        open: () => playMedia('video', [{ name: m.title, url: m.path }], 0, note),
+        open: () => playMedia('video', [{ name: m.title, url: m.path, poster: m.poster ?? undefined }], 0, note),
       }));
       return { title: t('media.movies'), kind: 'grid', cards: [...cards, addCard()] };
     }
@@ -106,7 +106,7 @@
           sub: `${t('media.seasons', { n: s.seasons.length })} · ${t('media.episodes', { n: eps.length })}`,
           art: s.poster ?? undefined,
           open: () => {
-            const items = eps.map((e: any) => ({ name: `${s.show} ${e.title}`, url: e.path }));
+            const items = eps.map((e: any) => ({ name: `${s.show} ${e.title}`, url: e.path, poster: s.poster ?? undefined }));
             const lvl: Level = {
               title: s.show,
               kind: 'list',

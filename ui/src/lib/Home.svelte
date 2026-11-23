@@ -9,6 +9,9 @@
   import OverlayHost from './OverlayHost.svelte';
   import LivePage from './LivePage.svelte';
   import MediaPage from './MediaPage.svelte';
+  import ContinueRow from './ContinueRow.svelte';
+  import { continueList, continueRemove, playMedia, type ContinueEntry } from './player.svelte';
+  import './continue.strings';
   import Search from './Search.svelte';
   import ModManager from './ModManager.svelte';
   import ModWidgets from './ModWidgets.svelte';
@@ -35,6 +38,9 @@
   let modal = $state<Modal>(null);
   let toast = $state('');
   let recent = $state<string[]>(loadRecent());
+  let cont = $state<ContinueEntry[]>([]);
+  const loadCont = () => continueList().then((l) => (cont = l)).catch(() => {});
+  const contTile = (e: ContinueEntry): DTile => ({ id: `continue:${e.url}`, name: e.title, desc: t('continue.pct', { n: e.duration > 0 ? Math.round((e.position / e.duration) * 100) : 0 }), category: 'video', color: '#2a2f3d', color2: '#12151c', custom: false, source: 'builtin', customized: false, raw: e as any });
 
   function loadRecent(): string[] {
     try {
@@ -50,6 +56,7 @@
     const catalog = st.catalog;
     void prefs.tiles.order, prefs.tiles.hidden, prefs.tiles.names, prefs.tiles.colors, prefs.tiles.icons, prefs.tiles.custom, prefs.lang, mods.list;
     const out: { key: string; title: string; tiles: DTile[] }[] = [];
+    if (cont.length) out.push({ key: 'continue', title: t('continue.title'), tiles: cont.map(contTile) });
     const rec = recent.map((id) => findTile(catalog, id)).filter((x): x is DTile => !!x && !prefs.tiles.hidden.includes(x.id));
     if (rec.length) out.push({ key: 'recent', title: t('row.recent'), tiles: rec });
     for (const c of CATEGORIES) {
@@ -104,7 +111,13 @@
       modal = { kind: 'settings' };
       return;
     }
+    if (focused?.id.startsWith('continue:')) return void (await resume(focused.id.slice(9)));
     if (focused) await openTile(focused);
+  }
+
+  async function resume(url: string) {
+    const e = cont.find((x) => x.url === url);
+    if (e) await playMedia(e.kind === 'audio' ? 'audio' : 'video', [{ name: e.title, url: e.url, poster: e.poster ?? undefined }], 0, note, e.position);
   }
 
   async function openTile(tile: DTile) {
@@ -165,7 +178,8 @@
         modal = { kind: 'search' };
         break;
       case 'ContextMenu':
-        if (focused) modal = { kind: 'tile', id: focused.id };
+        if (focused?.id.startsWith('continue:')) continueRemove(focused.id.slice(9)).then(loadCont);
+        else if (focused) modal = { kind: 'tile', id: focused.id };
         break;
       default: return;
     }
@@ -183,6 +197,8 @@
 
   onMount(() => {
     refresh();
+    loadCont();
+    const unClosed = api.onPlayerClosed(() => loadCont());
     // Vérification quotidienne des mises à jour (désactivable) : un simple GET vers l'API GitHub.
     if (prefs.autoUpdate && Date.now() - prefs.lastUpdateCheck > 24 * 3600 * 1000) {
       api.updateCheck().then((info) => {
@@ -203,6 +219,7 @@
       clearInterval(clock);
       un.then((f) => f());
       unTile.then((f) => f());
+      unClosed.then((f) => f());
     };
   });
 
@@ -270,6 +287,9 @@
         <div class="row" class:active={ri === focus.row}>
           <h2>{r.title}</h2>
           <div class="track" style:--tx="{-Math.max(0, (ri === focus.row ? focus.col : 0) - 2) * TILE_STEP}rem">
+            {#if r.key === 'continue'}
+              <ContinueRow items={cont} focus={ri === focus.row ? focus.col : -1} {tilt} onopen={(i) => resume(cont[i].url)} onfocus={(i) => (focus = { row: ri, col: i })} />
+            {:else}
             {#each r.tiles as tile, ci (tile.id)}
               <button
                 class="tile"
@@ -291,6 +311,7 @@
                 <span class="label">{tile.name}</span>
               </button>
             {/each}
+            {/if}
           </div>
         </div>
       {/each}
