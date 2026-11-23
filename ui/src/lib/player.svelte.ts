@@ -1,13 +1,33 @@
 // Lecture via mpv : installation à la demande (avec accord de l'utilisateur) puis lecture.
+import { invoke } from '@tauri-apps/api/core';
 import { api, type PlayItem } from './api';
+import { prefs } from './prefs.svelte';
 import { t } from './i18n';
 import { askConfirm, overlay } from './overlays.svelte';
 
 export type PlayKind = 'live' | 'video' | 'audio';
 
-export async function playMedia(kind: PlayKind, items: PlayItem[], index = 0, note: (m: string) => void = () => {}): Promise<boolean> {
+export type PlayItemEx = PlayItem & { poster?: string };
+export interface ContinueEntry {
+  url: string;
+  title: string;
+  kind: string;
+  position: number;
+  duration: number;
+  updated: number;
+  poster: string | null;
+  finished: boolean;
+}
+
+export const continueList = () => invoke<ContinueEntry[]>('continue_list');
+export const continueRemove = (url: string) => invoke<void>('continue_remove', { url });
+export const continueClear = () => invoke<void>('continue_clear');
+
+/** `start` : position de reprise en secondes (rangée « Reprendre la lecture »). */
+export async function playMedia(kind: PlayKind, items: PlayItemEx[], index = 0, note: (m: string) => void = () => {}, start?: number): Promise<boolean> {
+  const go = () => invoke<void>('player_play', { req: { kind, items, index, start, lang: prefs.lang } });
   try {
-    await api.playerPlay({ kind, items, index });
+    await go();
     return true;
   } catch (e) {
     if (!String(e).includes('mpv_missing')) {
@@ -35,7 +55,7 @@ export async function playMedia(kind: PlayKind, items: PlayItem[], index = 0, no
   off();
   overlay.busy = null;
   try {
-    await api.playerPlay({ kind, items, index });
+    await go();
     return true;
   } catch (e) {
     note(String(e));
