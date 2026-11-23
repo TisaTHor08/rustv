@@ -6,7 +6,7 @@ RusTV ships **42 app tiles**. Each one opens the real service in its own window 
 
 Apps you add yourself (custom tiles) and apps provided by mods are not listed here. To add one to the built-in catalog, see [CONTRIBUTING.md](../CONTRIBUTING.md).
 
-**Tested** means someone checked it on a real account or device and the note says what exactly. **Partly tested** means the page was loaded as a guest (no account) and the note says what was visible. Paid services were deliberately not tested and most others need an account, so "Not tested yet" does not mean broken: please report what you find. A cold start of an app window can take 15 to 45 s before the first paint; the window is dark until then.
+**Tested** means someone checked it on a real account or device and the note says what exactly. **Partly tested** means the page was loaded as a guest (no account) and the note says what was visible. Paid services were deliberately not tested and most others need an account, so "Not tested yet" does not mean broken: please report what you find. While an app loads, the home screen shows a launch animation and ignores input (Back cancels).
 
 ## Video and streaming
 
@@ -27,9 +27,9 @@ Apps you add yourself (custom tiles) and apps provided by mods are not listed he
 | Rakuten TV | Films gratuits et location | rakuten.tv | D-pad navigation | Partly tested | Guest load check (2026-11-23, 1080p, no account, sound muted): the catalog loads without an account (free and paid titles). Playback not tried. |
 | Paramount+ | Séries et films | www.paramountplus.com | D-pad navigation | Not tested yet |  |
 | Orange TV / OCS | Séries et cinéma | www.ocs.fr | D-pad navigation | Not tested yet |  |
-| Vimeo | Vidéos indépendantes | vimeo.com | D-pad navigation | Partly tested | Guest load check (2026-11-23, 1080p, no account, sound muted): the home page loads (slow first paint, around 30 s); cookie banner shown. Playback not tried. |
+| Vimeo | Vidéos indépendantes | vimeo.com | D-pad navigation | Partly tested | Guest load check (2026-11-23, 1080p, no account, sound muted): the home page loads in about 3 s on an existing profile and shows content (cookie banner first). Playback not tried. |
 | Dailymotion | Vidéos et actualités | www.dailymotion.com | D-pad navigation | Partly tested | Guest load check (2026-11-23, 1080p, no account, sound muted): loads, but only the privacy dialog was visible after 25 s; accept it with the remote to continue. Playback not tried. |
-| Odysee | Vidéos libres | odysee.com | D-pad navigation | Partly tested | Guest load check (2026-11-23, 1080p, no account, sound muted): loads after about 45 s (cold profile); the Discover page and a consent banner appear. Playback not tried. |
+| Odysee | Vidéos libres | odysee.com | D-pad navigation | Partly tested | Guest load check (2026-11-23, 1080p, no account, sound muted): re-checked on a brand new profile: the Discover page is visible 2 to 4 s after launch (consent banner at the bottom). Playback not tried. |
 | Kick | Streaming en direct | kick.com | D-pad navigation | Partly tested | Guest load check (2026-11-23, 1080p, no account, sound muted): the live directory and a featured stream load without an account. Playback not tried. |
 | ADN | Animés en VOSTFR | animationdigitalnetwork.com | D-pad navigation | Partly tested | Guest load check (2026-11-23, 1080p, no account, sound muted): the anime catalog loads behind a consent dialog; some titles need an account. Playback not tried. |
 

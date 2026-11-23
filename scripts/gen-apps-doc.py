@@ -27,9 +27,9 @@ TESTED = {
     "m6": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): loads behind a consent wall; part of the catalog is paid (M6+ Max). Playback not tried."),
     "rmcbfm": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): home page loads behind a consent banner; catalog visible. Playback not tried."),
     "tubi": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): Tubi answers \"not currently available in your area\" from France: the service is US only."),
-    "vimeo": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the home page loads (slow first paint, around 30 s); cookie banner shown. Playback not tried."),
+    "vimeo": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the home page loads in about 3 s on an existing profile and shows content (cookie banner first). Playback not tried."),
     "dailymotion": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): loads, but only the privacy dialog was visible after 25 s; accept it with the remote to continue. Playback not tried."),
-    "odysee": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): loads after about 45 s (cold profile); the Discover page and a consent banner appear. Playback not tried."),
+    "odysee": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): re-checked on a brand new profile: the Discover page is visible 2 to 4 s after launch (consent banner at the bottom). Playback not tried."),
     "kick": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the live directory and a featured stream load without an account. Playback not tried."),
     "adn": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the anime catalog loads behind a consent dialog; some titles need an account. Playback not tried."),
     "rtlplay": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): loads behind a consent dialog; catalog visible. Playback not tried."),
@@ -93,7 +93,7 @@ def build():
         "**Tested** means someone checked it on a real account or device and the note says what exactly. "
         "**Partly tested** means the page was loaded as a guest (no account) and the note says what was visible. "
         "Paid services were deliberately not tested and most others need an account, so \"Not tested yet\" does not mean broken: please report what you find. "
-        "A cold start of an app window can take 15 to 45 s before the first paint; the window is dark until then.",
+        "While an app loads, the home screen shows a launch animation and ignores input (Back cancels).",
         "",
     ]
     seen = set()

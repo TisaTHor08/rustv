@@ -11,6 +11,7 @@
   import LivePage from './LivePage.svelte';
   import MediaPage from './MediaPage.svelte';
   import ContinueRow from './ContinueRow.svelte';
+  import LaunchOverlay from './LaunchOverlay.svelte';
   import { continueList, continueRemove, playMedia, type ContinueEntry } from './player.svelte';
   import './continue.strings';
   import Search from './Search.svelte';
@@ -126,7 +127,26 @@
     if (e) await playMedia(e.kind === 'audio' ? 'audio' : 'video', [{ name: e.title, url: e.url, poster: e.poster ?? undefined }], 0, note, e.position);
   }
 
+  // Animation de lancement d'une app web : bloque les entrées jusqu'à ce que la fenêtre de l'app soit affichée.
+  let launching = $state<{ id: string; name: string; color: string; color2: string; slow: boolean } | null>(null);
+  let launchTimer: number | undefined;
+  function endLaunch() {
+    clearTimeout(launchTimer);
+    launching = null;
+  }
+  function beginLaunch(tile: DTile) {
+    launching = { id: tile.id, name: tile.name, color: tile.color, color2: tile.color2, slow: false };
+    clearTimeout(launchTimer);
+    launchTimer = window.setTimeout(() => launching && (launching.slow = true), 8000);
+    // Sécurité : l'animation ne reste jamais plus de 40 s.
+    window.setTimeout(() => launching?.id === tile.id && endLaunch(), 40000);
+  }
+  const isWebTile = (tile: DTile) => tile.source !== 'builtin' && (tile.raw as any).kind !== 'native' && (tile.raw as any).kind !== 'page';
+
   async function openTile(tile: DTile) {
+    if (launching) return;
+    const web = isWebTile(tile) && !((tile.raw as any).needs_url && !st?.settings.urls[tile.id]);
+    if (web) beginLaunch(tile);
     try {
       let r: string;
       if (tile.source === 'builtin') {
@@ -154,13 +174,16 @@
         r = await api.launch(tile.id, v);
         await refresh();
       }
+      if (r !== 'ok') endLaunch();
       if (r === 'ok') {
+        if (!web) endLaunch();
         recent = [tile.id, ...recent.filter((x) => x !== tile.id)].slice(0, 8);
         try {
           localStorage.setItem('rustv.recent', JSON.stringify(recent));
         } catch {}
       }
     } catch (e) {
+      endLaunch();
       note(String(e));
     }
   }
@@ -173,6 +196,15 @@
   }
 
   function onKey(e: KeyboardEvent) {
+    if (launching) {
+      // Pendant l'animation de lancement : rien ne passe, sauf Retour qui annule.
+      if (e.key === 'Escape' || e.key === 'Backspace') {
+        void api.launchCancel();
+        endLaunch();
+      }
+      e.preventDefault();
+      return;
+    }
     if (modal || anyOverlay()) return; // chaque fenêtre gère ses propres touches
     switch (e.key) {
       case 'ArrowDown': move(1, 0, 'down'); break;
@@ -220,9 +252,19 @@
       const tile = tileFor(id);
       if (tile) void openTile(tile);
     });
+    // Progression du chargement d'une app : l'animation s'arrête quand sa fenêtre est affichée. Un journal est gardé
+    // (window.__launchLog) pour mesurer les temps de chargement.
+    const unLaunch = api.onAppLaunch((p) => {
+      ((window as any).__launchLog ??= []).push({ ...p, at: Date.now() });
+      // « shown » : la fenêtre vient d'être découverte ; on garde l'animation le temps de son premier rendu pour ne pas laisser
+      // réapparaître l'accueil une fraction de seconde.
+      if (p.phase === 'shown') window.setTimeout(endLaunch, 900);
+      else if (p.phase === 'timeout' || p.phase === 'cancelled') endLaunch();
+    });
     wake();
     return () => {
       clearInterval(clock);
+      unLaunch.then((f) => f());
       un.then((f) => f());
       unTile.then((f) => f());
       unClosed.then((f) => f());
@@ -237,6 +279,8 @@
 </script>
 
 <svelte:window onkeydown={onKey} onmousemove={wake} />
+
+{#if launching}<LaunchOverlay name={launching.name} color={launching.color} color2={launching.color2} slow={launching.slow} />{/if}
 
 <div class="root" style:--c1={tinted ? focused!.color : 'transparent'} style:--c2={tinted ? focused!.color2 : 'transparent'}>
   <Wallpaper />

@@ -304,6 +304,12 @@ pub fn launch_value(app: &AppHandle, tile: &Value, url: Option<String>) -> Resul
                         }
                     }
                     if crate::browser::launch(app, &found, id, &tile, parsed.as_str()).is_ok() {
+                        // Le navigateur (YouTube sans pub) s'ouvre tout seul : on laisse l'animation quelques secondes.
+                        let (h, id2) = (app.clone(), id.to_string());
+                        std::thread::spawn(move || {
+                            std::thread::sleep(std::time::Duration::from_millis(3500));
+                            let _ = h.emit("app-launch", serde_json::json!({ "id": id2, "phase": "shown", "ms": 3500 }));
+                        });
                         return Ok("ok".into());
                     }
                 }
@@ -386,7 +392,27 @@ pub(crate) fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tau
     let mod_scripts = crate::mods::adapters_for(url.as_str());
     // Un profil WebView2 par application : sessions, cookies et comptes isolés.
     let profile = settings::dir().join("profiles").join(id);
+    // La fenêtre reste masquée tant que la page n'a pas fini de charger (ou 25 s au plus) : l'accueil affiche une animation
+    // de lancement qui bloque les entrées pendant ce temps, au lieu d'une fenêtre vide.
+    let t0 = std::time::Instant::now();
+    let shown = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+    let (shown_pl, id_pl) = (shown.clone(), id.to_string());
     let mut b = WebviewWindowBuilder::new(app, &label, WebviewUrl::External(url))
+        .on_page_load(move |w, payload| {
+            let phase = match payload.event() {
+                tauri::webview::PageLoadEvent::Started => "started",
+                tauri::webview::PageLoadEvent::Finished => "finished",
+            };
+            let _ = w.app_handle().emit("app-launch", serde_json::json!({ "id": id_pl, "phase": phase, "ms": t0.elapsed().as_millis() as u64 }));
+            if phase == "finished" && !shown_pl.swap(true, std::sync::atomic::Ordering::SeqCst) {
+                // Petit délai : laisse le temps au premier rendu avant de découvrir la fenêtre.
+                let w2 = w.clone();
+                std::thread::spawn(move || {
+                    std::thread::sleep(std::time::Duration::from_millis(350));
+                    reveal(&w2);
+                });
+            }
+        })
         .title(tile["name"].as_str().unwrap_or("RusTV"))
         .data_directory(profile)
         .decorations(false)
@@ -413,8 +439,36 @@ pub(crate) fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tau
     if let Some(m) = mons.get(idx) {
         place_full(&w, m);
     }
+    // Garde-fou : si la page ne finit jamais de charger, on découvre la fenêtre au bout de 25 s.
+    let w_wd = w.clone();
+    let id_wd = id.to_string();
+    std::thread::spawn(move || {
+        std::thread::sleep(std::time::Duration::from_secs(25));
+        if !shown.swap(true, std::sync::atomic::Ordering::SeqCst) {
+            let _ = w_wd.app_handle().emit("app-launch", serde_json::json!({ "id": id_wd, "phase": "timeout", "ms": 25000 }));
+            reveal(&w_wd);
+        }
+    });
+    Ok(())
+}
+
+/// Découvre une fenêtre d'app (chargée) et prévient l'accueil que l'animation de lancement peut s'arrêter.
+fn reveal(w: &WebviewWindow) {
     let _ = w.show();
-    force_focus(&w);
+    force_focus(w);
+    let id = w.label().strip_prefix("app-").unwrap_or("").to_string();
+    let _ = w.app_handle().emit("app-launch", serde_json::json!({ "id": id, "phase": "shown", "ms": 0 }));
+}
+
+/// Annule un lancement en cours (Retour pendant l'animation) : ferme les fenêtres d'apps pas encore affichées ou lentes.
+#[tauri::command]
+pub async fn launch_cancel(app: AppHandle) -> Result<(), String> {
+    for (label, w) in app.webview_windows() {
+        if label.starts_with("app-") {
+            let _ = w.destroy();
+        }
+    }
+    let _ = app.emit("app-launch", serde_json::json!({ "id": "", "phase": "cancelled", "ms": 0 }));
     Ok(())
 }
 

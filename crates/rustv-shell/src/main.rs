@@ -148,6 +148,7 @@ fn main() {
             commands::set_blackout,
             commands::set_autostart,
             commands::quit_app,
+            tv::launch_cancel,
             guard::guard_get,
             guard::guard_set,
             guard::guard_status,
