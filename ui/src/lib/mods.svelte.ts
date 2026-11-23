@@ -91,6 +91,15 @@ export function modTiles(): ModTile[] {
   );
 }
 
+/** Icônes de tuiles apportées par les mods actifs (id de tuile → URL), pour remplacer la lettre par le vrai logo. */
+export function modIcon(tileId: string): string | undefined {
+  for (const m of enabled()) {
+    const hit = ((m.manifest.contributes?.icons as any[]) ?? []).find((i) => i && i.tile === tileId && typeof i.src === 'string');
+    if (hit) return m.base + String(hit.src).replace(/^\/+/, '');
+  }
+  return undefined;
+}
+
 export interface ModWidget {
   key: string;
   modId: string;

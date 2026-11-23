@@ -1,0 +1,181 @@
+{
+  "id": "real-icons",
+  "name": "Real icons",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "description": "Shows each app's logo on its tile instead of a letter.",
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "contributes": {
+    "icons": [
+      {
+        "tile": "adn",
+        "src": "icons/adn.svg"
+      },
+      {
+        "tile": "applemusic",
+        "src": "icons/applemusic.svg"
+      },
+      {
+        "tile": "appletv",
+        "src": "icons/appletv.svg"
+      },
+      {
+        "tile": "arte",
+        "src": "icons/arte.svg"
+      },
+      {
+        "tile": "canal",
+        "src": "icons/canal.svg"
+      },
+      {
+        "tile": "crunchyroll",
+        "src": "icons/crunchyroll.svg"
+      },
+      {
+        "tile": "dailymotion",
+        "src": "icons/dailymotion.svg"
+      },
+      {
+        "tile": "deezer",
+        "src": "icons/deezer.svg"
+      },
+      {
+        "tile": "disney",
+        "src": "icons/disney.svg"
+      },
+      {
+        "tile": "emby",
+        "src": "icons/emby.svg"
+      },
+      {
+        "tile": "francetv",
+        "src": "icons/francetv.svg"
+      },
+      {
+        "tile": "geforcenow",
+        "src": "icons/geforcenow.svg"
+      },
+      {
+        "tile": "jellyfin",
+        "src": "icons/jellyfin.svg"
+      },
+      {
+        "tile": "kick",
+        "src": "icons/kick.svg"
+      },
+      {
+        "tile": "luna",
+        "src": "icons/luna.svg"
+      },
+      {
+        "tile": "m6",
+        "src": "icons/m6.svg"
+      },
+      {
+        "tile": "max",
+        "src": "icons/max.svg"
+      },
+      {
+        "tile": "molotov",
+        "src": "icons/molotov.svg"
+      },
+      {
+        "tile": "netflix",
+        "src": "icons/netflix.svg"
+      },
+      {
+        "tile": "ocs",
+        "src": "icons/ocs.svg"
+      },
+      {
+        "tile": "odysee",
+        "src": "icons/odysee.svg"
+      },
+      {
+        "tile": "paramount",
+        "src": "icons/paramount.svg"
+      },
+      {
+        "tile": "plex",
+        "src": "icons/plex.svg"
+      },
+      {
+        "tile": "pluto",
+        "src": "icons/pluto.svg"
+      },
+      {
+        "tile": "prime",
+        "src": "icons/prime.svg"
+      },
+      {
+        "tile": "radiofrance",
+        "src": "icons/radiofrance.svg"
+      },
+      {
+        "tile": "rakuten",
+        "src": "icons/rakuten.svg"
+      },
+      {
+        "tile": "rmcbfm",
+        "src": "icons/rmcbfm.svg"
+      },
+      {
+        "tile": "rtlplay",
+        "src": "icons/rtlplay.svg"
+      },
+      {
+        "tile": "soundcloud",
+        "src": "icons/soundcloud.svg"
+      },
+      {
+        "tile": "spotify",
+        "src": "icons/spotify.svg"
+      },
+      {
+        "tile": "steam",
+        "src": "icons/steam.svg"
+      },
+      {
+        "tile": "tf1",
+        "src": "icons/tf1.svg"
+      },
+      {
+        "tile": "tidal",
+        "src": "icons/tidal.svg"
+      },
+      {
+        "tile": "tubi",
+        "src": "icons/tubi.svg"
+      },
+      {
+        "tile": "twitch",
+        "src": "icons/twitch.svg"
+      },
+      {
+        "tile": "ugreen",
+        "src": "icons/ugreen.svg"
+      },
+      {
+        "tile": "vimeo",
+        "src": "icons/vimeo.svg"
+      },
+      {
+        "tile": "vlc",
+        "src": "icons/vlc.svg"
+      },
+      {
+        "tile": "xbox",
+        "src": "icons/xbox.svg"
+      },
+      {
+        "tile": "youtube",
+        "src": "icons/youtube.svg"
+      },
+      {
+        "tile": "ytmusic",
+        "src": "icons/ytmusic.svg"
+      }
+    ]
+  }
+}

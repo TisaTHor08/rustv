@@ -25,6 +25,7 @@ Working examples are in [`mods/`](../mods).
     "pages":    [{ "id": "home", "name": "Dashboard", "entry": "index.html", "category": "library", "color": "#2d6cdf", "color2": "#0e2a63" }],
     "widgets":  [{ "id": "w", "slot": "topbar", "entry": "widget.html", "width": 12 }],
     "adapters": [{ "match": ["*://*.example.org/*"], "js": "adapter.js", "css": "adapter.css", "runAt": "ready" }],
+    "icons":    [{ "tile": "youtube", "src": "icons/youtube.svg" }],
     "strings":  { "fr": { "my.key": "Bonjour" }, "en": { "my.key": "Hello" } }
   }
 }
@@ -45,6 +46,8 @@ needs the `launch` permission) or implied `page` for entries under `pages`.
 - **Adapters**: JS/CSS injected into web apps (Netflix, YouTube, …) whose URL matches a pattern (`*` wildcard).
   `runAt: "ready"` (default) waits for the DOM, `"start"` runs before the page. Adapters run **inside the third-party
   page**, so they can read what that page shows: this is why they require an explicit `inject:<pattern>` approval.
+- **Icons**: replace the letter on an existing tile (catalog, built-in or another mod's, by tile id) with an image from your
+  mod. See [`mods/real-icons`](../mods/real-icons). Icons the user picked themselves still win.
 - **Strings**: translations added to the interface (`registerStrings`).
 
 ## Permissions
