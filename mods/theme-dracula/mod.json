@@ -1,0 +1,54 @@
+{
+  "id": "theme-dracula",
+  "name": "Dracula",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "themes",
+  "description": "The Dracula palette: dark grey-violet with purple and pink accents.",
+  "details": "Built on the Dracula color palette: a dark grey-violet background, off-white text and a purple accent. The focused tile gets a pink ring and a purple glow. Only colors and tile styling change.",
+  "tags": [
+    "dark",
+    "dracula",
+    "purple",
+    "pink",
+    "palette"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#bd93f9",
+    "to": "#282a36",
+    "glyph": "bolt"
+  },
+  "permissions": [],
+  "contributes": {
+    "themes": [
+      {
+        "id": "dracula",
+        "name": "Dracula",
+        "vars": {
+          "--bg": "#282a36",
+          "--bg-rgb": "40, 42, 54",
+          "--text": "#f8f8f2",
+          "--muted": "rgba(248, 248, 242, 0.62)",
+          "--accent": "#bd93f9",
+          "--glass": "rgba(248, 248, 242, 0.08)",
+          "--glass-strong": "rgba(248, 248, 242, 0.17)",
+          "--sheet": "rgba(52, 55, 70, 0.96)",
+          "--field": "rgba(0, 0, 0, 0.35)",
+          "--ring": "#ff79c6"
+        },
+        "css": "theme.css"
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Dracula",
+      "description": "La palette Dracula : gris-violet sombre avec accents violet et rose.",
+      "details": "Base sur la palette Dracula : fond gris-violet sombre, texte blanc casse et accent violet. La tuile selectionnee a un contour rose et une lueur violette. Seuls les couleurs et le style des tuiles changent."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

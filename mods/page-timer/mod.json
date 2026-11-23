@@ -1,0 +1,44 @@
+{
+  "id": "page-timer",
+  "name": "Kitchen timer",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "pages",
+  "description": "A big countdown timer with a progress ring and an end beep.",
+  "details": "Set minutes with Up and Down (Left and Right change by 5), Enter starts or pauses, and a beep sounds when time is up. Large ring and digits readable from across the room. Offline.",
+  "tags": [
+    "timer",
+    "kitchen",
+    "countdown"
+  ],
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "art": {
+    "from": "#f97316",
+    "to": "#7c2d12",
+    "glyph": "timer"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Minuteur de cuisine",
+      "description": "Un grand minuteur avec anneau de progression et bip final.",
+      "details": "Réglez les minutes avec Haut et Bas (Gauche et Droite par pas de 5), Entrée démarre ou met en pause, un bip retentit à la fin. Gros chiffres lisibles de loin. Hors ligne."
+    }
+  },
+  "contributes": {
+    "pages": [
+      {
+        "id": "timer",
+        "name": "Kitchen timer",
+        "desc": "A big countdown timer with a progress ring and an end beep.",
+        "entry": "index.html",
+        "category": "library",
+        "color": "#f97316",
+        "color2": "#7c2d12"
+      }
+    ]
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

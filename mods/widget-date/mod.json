@@ -1,0 +1,41 @@
+{
+  "id": "widget-date",
+  "name": "Date",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "widgets",
+  "description": "Weekday, day, month and ISO week number in the top bar, in your language.",
+  "details": "Displays today's weekday, day and month together with the ISO week number, localized with the system language. Updates itself at midnight. Offline, no permission.",
+  "tags": [
+    "date",
+    "calendar",
+    "week"
+  ],
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "art": {
+    "from": "#f43f5e",
+    "to": "#881337",
+    "glyph": "calendar"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Date",
+      "description": "Jour, date, mois et numéro de semaine dans la barre du haut.",
+      "details": "Affiche le jour de la semaine, la date et le mois avec le numéro de semaine ISO, dans la langue du système. Se met à jour à minuit. Hors ligne, sans permission."
+    }
+  },
+  "contributes": {
+    "widgets": [
+      {
+        "id": "w",
+        "slot": "topbar",
+        "entry": "date.html",
+        "width": 10
+      }
+    ]
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

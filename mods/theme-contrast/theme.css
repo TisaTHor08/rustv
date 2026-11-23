@@ -1,0 +1,12 @@
+/* High contrast: very large ring, bold text, no blur or transparency effects. */
+.tile { border-radius: 0.8rem !important; }
+.tile .label { font-weight: 800 !important; font-size: 1.7rem !important; text-shadow: 0 0 0.4rem #000, 0 0 0.4rem #000 !important; }
+.tile.focus {
+  box-shadow: 0 0 0 0.45rem #fff, 0 0 0 0.8rem #000, 0 0 0 1rem #ffe14d !important;
+}
+.tile .shine { display: none !important; }
+.row h2, .eyebrow { font-weight: 800 !important; color: #fff !important; }
+.pill, .scrim, .sheet { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+.scrim { background: #000 !important; }
+.sheet { box-shadow: inset 0 0 0 0.2rem #fff !important; }
+.cta { color: #000 !important; }

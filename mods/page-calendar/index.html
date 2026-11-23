@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html { font-size: calc(100vh / 54); scrollbar-width: none; }
+      * { box-sizing: border-box; }
+      body { margin: 0; height: 100vh; padding: 3rem 8rem; display: flex; flex-direction: column; font-family: 'Segoe UI', system-ui, sans-serif; background: #0b1511; color: #f1faf6; overflow: hidden; }
+      h1 { margin: 0; text-align: center; font-size: 4.6rem; text-transform: capitalize; }
+      #sub { text-align: center; color: #86b3a2; font-size: 2rem; margin: .4rem 0 1.6rem; text-transform: capitalize; height: 2.6rem; }
+      #grid { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); gap: .8rem; min-height: 0; grid-auto-rows: 1fr; }
+      .dow { text-align: center; font-size: 2rem; color: #6fcaa6; font-weight: 600; text-transform: uppercase; align-self: end; }
+      .d { position: relative; display: flex; align-items: center; justify-content: center; font-size: 3.2rem; border-radius: 1.2rem; background: rgba(255,255,255,.05); }
+      .d.out { color: #4b6a5d; background: transparent; }
+      .d.today { border: .25rem solid #10b981; font-weight: 700; }
+      .d.sel { background: #10b981; color: #04120c; font-weight: 800; transform: scale(1.06); box-shadow: 0 0 0 .3rem #bff5e0; z-index: 1; }
+      .d.mark::after { content: ''; position: absolute; bottom: .9rem; width: 1.1rem; height: 1.1rem; border-radius: 50%; background: #ffcf3f; }
+      .d.sel.mark::after { background: #7a3c00; }
+      footer { text-align: center; font-size: 1.8rem; color: #86b3a2; padding-top: 1.4rem; }
+      kbd { background: #1c3a2e; border-radius: .5rem; padding: .1rem .7rem; color: #fff; }
+    </style>
+  </head>
+  <body>
+    <h1 id="title"></h1>
+    <div id="sub"></div>
+    <div id="grid"></div>
+    <footer><kbd>Arrows</kbd> move &nbsp;&middot;&nbsp; <kbd>Enter</kbd> mark / unmark a day &nbsp;&middot;&nbsp; <kbd>Back</kbd> close</footer>
+    <script src="__rustv.js"></script>
+    <script>
+      var lang = navigator.language || 'en';
+      var sunStart = /^en-(US|CA)$/i.test(lang) || /^(ja|he)/i.test(lang);
+      var today = new Date(); today.setHours(12, 0, 0, 0);
+      var sel = new Date(today), marks = {};
+      var $ = function (id) { return document.getElementById(id); };
+      function key(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+      function render() {
+        var y = sel.getFullYear(), m = sel.getMonth();
+        $('title').textContent = new Intl.DateTimeFormat(lang, { month: 'long', year: 'numeric' }).format(sel);
+        $('sub').textContent = new Intl.DateTimeFormat(lang, { weekday: 'long', day: 'numeric', month: 'long' }).format(sel) + (marks[key(sel)] ? '  •' : '');
+        var h = '', wf = new Intl.DateTimeFormat(lang, { weekday: 'short' });
+        for (var i = 0; i < 7; i++) {
+          // 2023-01-01 is a Sunday
+          h += '<div class="dow">' + wf.format(new Date(2023, 0, 1 + ((i + (sunStart ? 0 : 1)) % 7), 12)) + '</div>';
+        }
+        var first = new Date(y, m, 1, 12), lead = (first.getDay() - (sunStart ? 0 : 1) + 7) % 7;
+        var days = new Date(y, m + 1, 0).getDate(), cells = Math.ceil((lead + days) / 7) * 7;
+        for (var c = 0; c < cells; c++) {
+          var d = new Date(y, m, 1 - lead + c, 12);
+          var cls = 'd' + (d.getMonth() !== m ? ' out' : '') + (key(d) === key(today) ? ' today' : '') + (key(d) === key(sel) ? ' sel' : '') + (marks[key(d)] ? ' mark' : '');
+          h += '<div class="' + cls + '">' + d.getDate() + '</div>';
+        }
+        $('grid').innerHTML = h;
+        $('grid').style.gridTemplateRows = 'auto repeat(' + (cells / 7) + ', 1fr)';
+      }
+      function move(n) { sel = new Date(sel.getFullYear(), sel.getMonth(), sel.getDate() + n, 12); render(); }
+      rustv.onKey(function (k) {
+        if (k === 'ArrowLeft') move(-1);
+        else if (k === 'ArrowRight') move(1);
+        else if (k === 'ArrowUp') move(-7);
+        else if (k === 'ArrowDown') move(7);
+        else if (k === 'Enter') {
+          var s = key(sel);
+          if (marks[s]) delete marks[s]; else marks[s] = 1;
+          rustv.storage.set('marks', Object.keys(marks)).catch(function () {});
+          render();
+        }
+      });
+      render();
+      rustv.storage.get('marks').then(function (v) {
+        if (Array.isArray(v)) v.forEach(function (s) { marks[s] = 1; });
+        render();
+      }).catch(function () {});
+    </script>
+  </body>
+</html>

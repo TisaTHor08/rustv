@@ -1,0 +1,47 @@
+{
+  "id": "page-weather",
+  "name": "Weather",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "pages",
+  "description": "7-day weather forecast for big cities, from the free Open-Meteo service.",
+  "details": "A clean 7-day forecast with temperatures, weather icons, wind and rain. Pick one of about 12 big cities with Left and Right; your choice is remembered. Data comes from Open-Meteo (free, no account or key).",
+  "tags": [
+    "weather",
+    "forecast",
+    "open-meteo"
+  ],
+  "license": "GPL-3.0-or-later",
+  "permissions": [
+    "network:https://api.open-meteo.com",
+    "storage"
+  ],
+  "art": {
+    "from": "#38bdf8",
+    "to": "#1e3a8a",
+    "glyph": "cloud"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Météo",
+      "description": "Prévisions à 7 jours pour les grandes villes, via Open-Meteo.",
+      "details": "Des prévisions à 7 jours claires : températures, icônes, vent et pluie. Choisissez une ville parmi une douzaine avec Gauche et Droite ; le choix est mémorisé. Données Open-Meteo (gratuit, sans compte)."
+    }
+  },
+  "contributes": {
+    "pages": [
+      {
+        "id": "weather",
+        "name": "Weather",
+        "desc": "7-day weather forecast for big cities, from the free Open-Me",
+        "entry": "index.html",
+        "category": "library",
+        "color": "#38bdf8",
+        "color2": "#1e3a8a"
+      }
+    ]
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

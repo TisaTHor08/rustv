@@ -3,7 +3,7 @@
   "name": "Real icons",
   "version": "1.0.0",
   "author": "RusTV",
-  "description": "Shows each app's logo on its tile instead of a letter.",
+  "description": "Shows each built-in app's real logo on its tile instead of a letter.",
   "license": "GPL-3.0-or-later",
   "permissions": [],
   "contributes": {
@@ -177,5 +177,29 @@
         "src": "icons/ytmusic.svg"
       }
     ]
-  }
+  },
+  "category": "icons",
+  "publisher": "RusTV",
+  "art": {
+    "from": "#a855f7",
+    "to": "#3b0764",
+    "glyph": "sparkles"
+  },
+  "dependencies": [],
+  "tags": [
+    "icons",
+    "logos",
+    "tiles",
+    "simple-icons"
+  ],
+  "details": "Replaces the letter on built-in tiles (Netflix, YouTube, Spotify, Twitch, Steam and more) with the service's logo. The logos come from Simple Icons and are released under CC0. Icons you picked yourself on a tile always win. Logos remain trademarks of their owners.",
+  "i18n": {
+    "fr": {
+      "name": "Vraies icônes",
+      "description": "Affiche le vrai logo de chaque appli intégrée sur sa tuile à la place d'une lettre.",
+      "details": "Remplace la lettre des tuiles intégrées (Netflix, YouTube, Spotify, Twitch, Steam et d'autres) par le logo du service. Les logos viennent de Simple Icons et sont publiés sous licence CC0. Les icônes choisies par vous sur une tuile restent prioritaires. Les logos restent des marques de leurs propriétaires."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
 }

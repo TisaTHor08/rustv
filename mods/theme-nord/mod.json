@@ -1,0 +1,54 @@
+{
+  "id": "theme-nord",
+  "name": "Nord",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "themes",
+  "description": "The cool, calm Nord palette: slate blue-grey with a frost-blue accent.",
+  "details": "Built on the Nord color palette: polar-night background, snow-storm text and a frost-blue accent. Tiles are softly rounded and the focus ring is frost blue. Only colors and tile styling change.",
+  "tags": [
+    "dark",
+    "nord",
+    "blue",
+    "calm",
+    "palette"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#5e81ac",
+    "to": "#2e3440",
+    "glyph": "cloud"
+  },
+  "permissions": [],
+  "contributes": {
+    "themes": [
+      {
+        "id": "nord",
+        "name": "Nord",
+        "vars": {
+          "--bg": "#2e3440",
+          "--bg-rgb": "46, 52, 64",
+          "--text": "#eceff4",
+          "--muted": "rgba(216, 222, 233, 0.66)",
+          "--accent": "#88c0d0",
+          "--glass": "rgba(216, 222, 233, 0.09)",
+          "--glass-strong": "rgba(216, 222, 233, 0.18)",
+          "--sheet": "rgba(59, 66, 82, 0.96)",
+          "--field": "rgba(0, 0, 0, 0.35)",
+          "--ring": "#88c0d0"
+        },
+        "css": "theme.css"
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Nord",
+      "description": "La palette Nord, calme et froide : gris-bleu ardoise et accent bleu glace.",
+      "details": "Base sur la palette Nord : fond nuit polaire, texte blanc neige et accent bleu glace. Tuiles legerement arrondies, contour de selection bleu glace. Seuls les couleurs et le style des tuiles changent."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

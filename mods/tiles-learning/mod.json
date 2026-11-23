@@ -1,0 +1,103 @@
+{
+  "id": "tiles-learning",
+  "name": "Learning tiles",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "description": "Free learning on the big screen: Khan Academy, TED, Coursera, edX, Duolingo and Crash Course.",
+  "details": "Adds six learning tiles that open the official sites: Khan Academy, TED, Coursera, edX, Duolingo and Crash Course. Khan Academy and TED are free; Coursera, edX and Duolingo offer free and paid tiers and need an account to track progress.",
+  "category": "apps",
+  "tags": [
+    "learning",
+    "education",
+    "courses",
+    "languages"
+  ],
+  "dependencies": [],
+  "art": {
+    "from": "#2563eb",
+    "to": "#172554",
+    "glyph": "book"
+  },
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "contributes": {
+    "tiles": [
+      {
+        "id": "khanacademy",
+        "name": "Khan Academy",
+        "desc": "Free lessons and exercises",
+        "kind": "web",
+        "url": "https://www.khanacademy.org",
+        "category": "library",
+        "color": "#14bf96",
+        "color2": "#065240",
+        "spatnav": true
+      },
+      {
+        "id": "ted",
+        "name": "TED",
+        "desc": "Ideas worth spreading",
+        "kind": "web",
+        "url": "https://www.ted.com",
+        "category": "library",
+        "color": "#e62b1e",
+        "color2": "#4a0c08",
+        "spatnav": true
+      },
+      {
+        "id": "coursera",
+        "name": "Coursera",
+        "desc": "Online courses from universities",
+        "kind": "web",
+        "url": "https://www.coursera.org",
+        "category": "library",
+        "color": "#0056d2",
+        "color2": "#001f4d",
+        "spatnav": true
+      },
+      {
+        "id": "edx",
+        "name": "edX",
+        "desc": "University courses online",
+        "kind": "web",
+        "url": "https://www.edx.org",
+        "category": "library",
+        "color": "#02262b",
+        "color2": "#000d0f",
+        "spatnav": true
+      },
+      {
+        "id": "duolingo",
+        "name": "Duolingo",
+        "desc": "Learn languages a little each day",
+        "kind": "web",
+        "url": "https://www.duolingo.com",
+        "category": "library",
+        "color": "#58cc02",
+        "color2": "#1d4300",
+        "spatnav": true
+      },
+      {
+        "id": "crashcourse",
+        "name": "Crash Course",
+        "desc": "Educational video series",
+        "kind": "web",
+        "url": "https://thecrashcourse.com",
+        "category": "library",
+        "color": "#1f9d55",
+        "color2": "#093a1f",
+        "spatnav": true
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Tuiles apprentissage",
+      "description": "Apprendre sur grand écran : Khan Academy, TED, Coursera, edX, Duolingo et Crash Course.",
+      "details": "Ajoute six tuiles apprentissage vers les sites officiels : Khan Academy, TED, Coursera, edX, Duolingo et Crash Course. Khan Academy et TED sont gratuits ; Coursera, edX et Duolingo proposent des offres gratuites et payantes et demandent un compte pour suivre la progression."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

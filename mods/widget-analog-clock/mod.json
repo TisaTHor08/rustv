@@ -3,10 +3,39 @@
   "name": "Analog clock",
   "version": "1.0.0",
   "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "widgets",
   "description": "A small analog clock in the top bar. Needs no permission.",
+  "details": "A compact analog clock with hour, minute and second hands for the top bar. Works offline and asks for no permission.",
+  "tags": [
+    "clock",
+    "time",
+    "analog"
+  ],
   "license": "GPL-3.0-or-later",
   "permissions": [],
+  "art": {
+    "from": "#334155",
+    "to": "#0f172a",
+    "glyph": "clock"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Horloge analogique",
+      "description": "Une petite horloge analogique dans la barre du haut.",
+      "details": "Une horloge analogique compacte avec aiguilles des heures, minutes et secondes. Fonctionne hors ligne, sans aucune permission."
+    }
+  },
   "contributes": {
-    "widgets": [{ "id": "clock", "slot": "topbar", "entry": "clock.html", "width": 3.6 }]
-  }
+    "widgets": [
+      {
+        "id": "clock",
+        "slot": "topbar",
+        "entry": "clock.html",
+        "width": 3.6
+      }
+    ]
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
 }

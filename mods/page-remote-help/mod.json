@@ -1,0 +1,45 @@
+{
+  "id": "page-remote-help",
+  "name": "Remote help",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "pages",
+  "description": "An illustrated cheat sheet of the phone remote and keyboard shortcuts.",
+  "details": "A static, offline guide to controlling RusTV: Back, Home, Menu, Search (F3), the tab switcher, volume and the D-pad, for the phone remote and the keyboard.",
+  "tags": [
+    "help",
+    "remote",
+    "shortcuts",
+    "guide"
+  ],
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "art": {
+    "from": "#8b5cf6",
+    "to": "#312e81",
+    "glyph": "book"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Aide télécommande",
+      "description": "Aide-mémoire illustré de la télécommande téléphone et des raccourcis.",
+      "details": "Un guide statique et hors ligne pour piloter RusTV : Retour, Accueil, Menu, Recherche (F3), changement d'onglet, volume et flèches, au téléphone comme au clavier."
+    }
+  },
+  "contributes": {
+    "pages": [
+      {
+        "id": "remote-help",
+        "name": "Remote help",
+        "desc": "An illustrated cheat sheet of the phone remote and keyboard ",
+        "entry": "index.html",
+        "category": "library",
+        "color": "#8b5cf6",
+        "color2": "#312e81"
+      }
+    ]
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

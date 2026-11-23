@@ -3,15 +3,42 @@
   "name": "Skip intro",
   "version": "1.0.0",
   "author": "RusTV",
-  "description": "Automatically presses the \"Skip intro / recap\" buttons on Netflix and Prime Video. Experimental: streaming sites change their pages often.",
+  "description": "Automatically presses the Skip intro and Skip recap buttons on Netflix and Prime Video.",
   "license": "GPL-3.0-or-later",
   "permissions": [],
   "contributes": {
     "adapters": [
       {
-        "match": ["*://www.netflix.com/*", "*://*.primevideo.com/*"],
+        "match": [
+          "*://www.netflix.com/*",
+          "*://*.primevideo.com/*"
+        ],
         "js": "skip.js"
       }
     ]
-  }
+  },
+  "publisher": "RusTV",
+  "category": "enhancements",
+  "details": "Runs only on Netflix and Prime Video pages. It watches the page for the Skip intro / Skip recap button and clicks it for you. It reads nothing else and uses no network or storage. Experimental: streaming sites change their pages often, so it may stop working until updated.",
+  "tags": [
+    "netflix",
+    "prime video",
+    "skip",
+    "intro",
+    "streaming"
+  ],
+  "art": {
+    "from": "#e50914",
+    "to": "#1f0306",
+    "glyph": "play"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Passer l'intro",
+      "description": "Appuie automatiquement sur Passer l'intro et Passer le resume sur Netflix et Prime Video.",
+      "details": "S'execute uniquement sur Netflix et Prime Video. Il surveille la page, repere le bouton Passer l'intro ou Passer le resume et clique dessus. Il ne lit rien d'autre et n'utilise ni reseau ni stockage. Experimental : ces sites changent souvent leurs pages."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
 }

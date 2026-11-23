@@ -1,0 +1,114 @@
+{
+  "id": "tiles-kids",
+  "name": "Kids tiles",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "description": "Child-friendly video: YouTube Kids, Disney Junior, Gulli, Okoo, PBS Kids, Nick Jr and Cartoon Network.",
+  "details": "Adds seven kids tiles that open the official web sites: YouTube Kids, Disney Junior, Gulli, Okoo (France Televisions), PBS Kids, Nick Jr and Cartoon Network. Content and availability depend on your country; check each service's parental controls.",
+  "category": "apps",
+  "tags": [
+    "kids",
+    "cartoons",
+    "family",
+    "children"
+  ],
+  "dependencies": [],
+  "art": {
+    "from": "#f59e0b",
+    "to": "#b91c1c",
+    "glyph": "smile"
+  },
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "contributes": {
+    "tiles": [
+      {
+        "id": "youtubekids",
+        "name": "YouTube Kids",
+        "desc": "Videos made for children",
+        "kind": "web",
+        "url": "https://www.youtubekids.com",
+        "category": "video",
+        "color": "#e11d48",
+        "color2": "#5b0a1f",
+        "spatnav": true
+      },
+      {
+        "id": "disneyjunior",
+        "name": "Disney Junior",
+        "desc": "Disney shows for little ones",
+        "kind": "web",
+        "url": "https://disneyjunior.disney.com",
+        "category": "video",
+        "color": "#1d6fd1",
+        "color2": "#08264d",
+        "spatnav": true
+      },
+      {
+        "id": "gulli",
+        "name": "Gulli",
+        "desc": "Gulli replay and live",
+        "kind": "web",
+        "url": "https://replay.gulli.fr",
+        "category": "video",
+        "color": "#7a1fa2",
+        "color2": "#2b0a3a",
+        "spatnav": true
+      },
+      {
+        "id": "okoo",
+        "name": "Okoo",
+        "desc": "France Televisions kids platform",
+        "kind": "web",
+        "url": "https://www.okoo.fr",
+        "category": "video",
+        "color": "#ff6a3d",
+        "color2": "#5a1d0b",
+        "spatnav": true
+      },
+      {
+        "id": "pbskids",
+        "name": "PBS Kids",
+        "desc": "Free games and videos for kids",
+        "kind": "web",
+        "url": "https://pbskids.org",
+        "category": "video",
+        "color": "#2f9e44",
+        "color2": "#0d3a17",
+        "spatnav": true
+      },
+      {
+        "id": "nickjr",
+        "name": "Nick Jr.",
+        "desc": "Nick Jr. shows and games",
+        "kind": "web",
+        "url": "https://www.nickjr.com",
+        "category": "video",
+        "color": "#f58220",
+        "color2": "#5a2c04",
+        "spatnav": true
+      },
+      {
+        "id": "cartoonnetwork",
+        "name": "Cartoon Network",
+        "desc": "Cartoon Network shows and games",
+        "kind": "web",
+        "url": "https://www.cartoonnetwork.com",
+        "category": "video",
+        "color": "#222222",
+        "color2": "#000000",
+        "spatnav": true
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Tuiles enfants",
+      "description": "Vidéos pour enfants : YouTube Kids, Disney Junior, Gulli, Okoo, PBS Kids, Nick Jr et Cartoon Network.",
+      "details": "Ajoute sept tuiles enfants vers les sites officiels : YouTube Kids, Disney Junior, Gulli, Okoo (France Télévisions), PBS Kids, Nick Jr et Cartoon Network. Contenus et disponibilité selon votre pays ; vérifiez le contrôle parental de chaque service."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

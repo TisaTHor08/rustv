@@ -1,0 +1,53 @@
+{
+  "id": "theme-aurora",
+  "name": "Aurora",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "themes",
+  "description": "Deep green and teal theme with a cyan-green glow around the focused tile.",
+  "details": "A dark forest-green background with teal depth and a luminous cyan-green accent. The focused tile is ringed in mint and glows like a northern light. Only colors and tile styling change.",
+  "tags": [
+    "dark",
+    "green",
+    "teal",
+    "glow"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#0f766e",
+    "to": "#04201c",
+    "glyph": "sparkles"
+  },
+  "permissions": [],
+  "contributes": {
+    "themes": [
+      {
+        "id": "aurora",
+        "name": "Aurora",
+        "vars": {
+          "--bg": "#04140f",
+          "--bg-rgb": "4, 20, 15",
+          "--text": "#ecfdf5",
+          "--muted": "rgba(236, 253, 245, 0.64)",
+          "--accent": "#2dd4bf",
+          "--glass": "rgba(110, 255, 220, 0.09)",
+          "--glass-strong": "rgba(110, 255, 220, 0.18)",
+          "--sheet": "rgba(8, 36, 32, 0.95)",
+          "--field": "rgba(0, 0, 0, 0.35)",
+          "--ring": "#8bffd8"
+        },
+        "css": "theme.css"
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Aurore",
+      "description": "Theme vert profond et turquoise avec une lueur cyan-vert autour de la tuile active.",
+      "details": "Fond vert foret sombre, accent turquoise lumineux. La tuile selectionnee est cerclee de menthe et brille comme une aurore boreale. Seuls les couleurs et le style des tuiles changent."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

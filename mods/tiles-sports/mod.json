@@ -1,0 +1,114 @@
+{
+  "id": "tiles-sports",
+  "name": "Sports tiles",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "description": "Sports streaming and live scores: Eurosport, DAZN, beIN SPORTS CONNECT, RMC Sport, OneFootball, NBA and UEFA.tv.",
+  "details": "Adds seven sports tiles that open the official web players: Eurosport, DAZN, beIN SPORTS CONNECT, RMC Sport, OneFootball, NBA and UEFA.tv. Most of them need a subscription or an account; availability depends on your country.",
+  "category": "apps",
+  "tags": [
+    "sports",
+    "football",
+    "live",
+    "streaming"
+  ],
+  "dependencies": [],
+  "art": {
+    "from": "#15803d",
+    "to": "#052e16",
+    "glyph": "trophy"
+  },
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "contributes": {
+    "tiles": [
+      {
+        "id": "eurosport",
+        "name": "Eurosport",
+        "desc": "Live sport and replays",
+        "kind": "web",
+        "url": "https://www.eurosport.fr",
+        "category": "tv",
+        "color": "#0a2a6b",
+        "color2": "#020d26",
+        "spatnav": true
+      },
+      {
+        "id": "dazn",
+        "name": "DAZN",
+        "desc": "Live sport streaming",
+        "kind": "web",
+        "url": "https://www.dazn.com",
+        "category": "tv",
+        "color": "#1b1b1b",
+        "color2": "#000000",
+        "spatnav": true
+      },
+      {
+        "id": "beinconnect",
+        "name": "beIN SPORTS CONNECT",
+        "desc": "beIN SPORTS live and replays",
+        "kind": "web",
+        "url": "https://connect.beinsports.com",
+        "category": "tv",
+        "color": "#5b2a86",
+        "color2": "#1d0b30",
+        "spatnav": true
+      },
+      {
+        "id": "rmcsport",
+        "name": "RMC Sport",
+        "desc": "Live sport and magazines",
+        "kind": "web",
+        "url": "https://rmcsport.bfmtv.com",
+        "category": "tv",
+        "color": "#c8102e",
+        "color2": "#4a0510",
+        "spatnav": true
+      },
+      {
+        "id": "onefootball",
+        "name": "OneFootball",
+        "desc": "Football news, scores and videos",
+        "kind": "web",
+        "url": "https://onefootball.com",
+        "category": "tv",
+        "color": "#00d26a",
+        "color2": "#043d1f",
+        "spatnav": true
+      },
+      {
+        "id": "nba",
+        "name": "NBA",
+        "desc": "Basketball scores and League Pass",
+        "kind": "web",
+        "url": "https://www.nba.com",
+        "category": "tv",
+        "color": "#1d428a",
+        "color2": "#08142e",
+        "spatnav": true
+      },
+      {
+        "id": "uefatv",
+        "name": "UEFA.tv",
+        "desc": "UEFA competitions and highlights",
+        "kind": "web",
+        "url": "https://www.uefa.tv",
+        "category": "tv",
+        "color": "#0b2a5c",
+        "color2": "#030d20",
+        "spatnav": true
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Tuiles sport",
+      "description": "Streaming sportif et scores en direct : Eurosport, DAZN, beIN SPORTS CONNECT, RMC Sport, OneFootball, NBA et UEFA.tv.",
+      "details": "Ajoute sept tuiles sport qui ouvrent les lecteurs web officiels : Eurosport, DAZN, beIN SPORTS CONNECT, RMC Sport, OneFootball, NBA et UEFA.tv. La plupart demandent un abonnement ou un compte ; la disponibilité dépend de votre pays."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

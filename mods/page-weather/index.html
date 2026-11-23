@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html { font-size: calc(100vh / 54); scrollbar-width: none; }
+      * { box-sizing: border-box; }
+      body { margin: 0; height: 100vh; padding: 3rem 5rem; display: flex; flex-direction: column; font-family: 'Segoe UI', system-ui, sans-serif; background: radial-gradient(120% 90% at 20% 0%, #1d3f78 0%, #0b1224 70%); color: #f4f7ff; overflow: hidden; }
+      header { display: flex; align-items: center; justify-content: center; gap: 2.5rem; }
+      .arrow { font-size: 3.4rem; color: #7ea6ff; width: 4rem; text-align: center; }
+      #city { font-size: 4.6rem; font-weight: 700; min-width: 26rem; text-align: center; }
+      #dots { display: flex; justify-content: center; gap: .6rem; margin: 1rem 0 0; }
+      #dots i { width: .9rem; height: .9rem; border-radius: 50%; background: #3a4a72; }
+      #dots i.on { background: #7ea6ff; }
+      #status { text-align: center; font-size: 1.8rem; color: #9fb0d6; height: 2.4rem; margin: 1rem 0; }
+      #now { display: flex; align-items: center; justify-content: center; gap: 3rem; margin-bottom: 2rem; }
+      #now svg { width: 11rem; height: 11rem; }
+      #now .big { font-size: 8rem; font-weight: 300; line-height: 1; }
+      #now .desc { font-size: 2.2rem; color: #b8c6e6; }
+      #cards { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 1.4rem; min-height: 0; }
+      .card { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: 1.6rem; padding: 1.6rem 1rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
+      .card.today { background: rgba(126,166,255,.22); border-color: #7ea6ff; }
+      .card .dow { font-size: 2rem; font-weight: 600; text-transform: capitalize; }
+      .card svg { width: 7rem; height: 7rem; }
+      .card .hi { font-size: 3.2rem; font-weight: 700; }
+      .card .lo { font-size: 2.2rem; color: #9fb0d6; }
+      .card .meta { font-size: 1.7rem; color: #c9d6f2; margin-top: auto; text-align: center; line-height: 1.5; }
+      footer { text-align: center; font-size: 1.7rem; color: #8fa0c8; padding-top: 1.4rem; }
+      kbd { background: #243256; border-radius: .5rem; padding: .1rem .7rem; color: #fff; }
+    </style>
+  </head>
+  <body>
+    <header><span class="arrow">&#9664;</span><div id="city"></div><span class="arrow">&#9654;</span></header>
+    <div id="dots"></div>
+    <div id="status"></div>
+    <div id="now"></div>
+    <div id="cards"></div>
+    <footer><kbd>Left</kbd> <kbd>Right</kbd> change city &nbsp;&middot;&nbsp; <kbd>Enter</kbd> refresh &nbsp;&middot;&nbsp; <kbd>Back</kbd> close &nbsp;&middot;&nbsp; Data: Open-Meteo</footer>
+    <script src="__rustv.js"></script>
+    <script>
+      var CITIES = [
+        ['Paris', 48.8566, 2.3522], ['London', 51.5072, -0.1276], ['New York', 40.7128, -74.006],
+        ['Tokyo', 35.6762, 139.6503], ['Berlin', 52.52, 13.405], ['Madrid', 40.4168, -3.7038],
+        ['Rome', 41.9028, 12.4964], ['Montreal', 45.5019, -73.5674], ['Dubai', 25.2048, 55.2708],
+        ['Sydney', -33.8688, 151.2093], ['Casablanca', 33.5731, -7.5898], ['Los Angeles', 34.0522, -118.2437]
+      ];
+      var lang = navigator.language || 'en', fr = /^fr/i.test(lang);
+      var idx = 0, token = 0;
+      var $ = function (id) { return document.getElementById(id); };
+
+      var SUN = '<circle cx="32" cy="32" r="11" fill="#ffc83d"/><g stroke="#ffc83d" stroke-width="4" stroke-linecap="round"><path d="M32 8v6M32 50v6M8 32h6M50 32h6M15 15l4 4M45 45l4 4M15 49l4-4M45 19l4-4"/></g>';
+      var CLOUD = function (fill, dx, dy) { return '<path transform="translate(' + (dx || 0) + ' ' + (dy || 0) + ')" fill="' + fill + '" d="M20 48a10 10 0 010-20 14 14 0 0126.5 3A8.5 8.5 0 0146 48z"/>'; };
+      function icon(code) {
+        var s;
+        if (code <= 1) s = SUN;
+        else if (code === 2) s = '<g transform="translate(-6 -6) scale(.8)">' + SUN + '</g>' + CLOUD('#dfe7f7', 2, 6);
+        else if (code === 3) s = CLOUD('#aab6d3', 0, 2);
+        else if (code === 45 || code === 48) s = CLOUD('#aab6d3', 0, -4) + '<g stroke="#cfd8ee" stroke-width="3.5" stroke-linecap="round"><path d="M14 46h36M20 53h28"/></g>';
+        else if (code >= 71 && code <= 77 || code === 85 || code === 86) s = CLOUD('#c3cde6', 0, -4) + '<g fill="#fff"><circle cx="22" cy="50" r="3"/><circle cx="33" cy="55" r="3"/><circle cx="44" cy="50" r="3"/></g>';
+        else if (code >= 95) s = CLOUD('#7d89a8', 0, -6) + '<path fill="#ffd23d" d="M34 38l-9 12h7l-3 9 11-14h-7z"/>';
+        else s = CLOUD('#9aa7c7', 0, -6) + '<g stroke="#5fb0ff" stroke-width="3.5" stroke-linecap="round"><path d="M22 46l-3 8M33 46l-3 8M44 46l-3 8"/></g>';
+        return '<svg viewBox="0 0 64 64">' + s + '</svg>';
+      }
+      var TXT = {
+        en: { 0: 'Clear sky', 1: 'Mostly clear', 2: 'Partly cloudy', 3: 'Overcast', 45: 'Fog', 48: 'Fog', 51: 'Light drizzle', 53: 'Drizzle', 55: 'Heavy drizzle', 61: 'Light rain', 63: 'Rain', 65: 'Heavy rain', 71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 80: 'Showers', 81: 'Showers', 82: 'Violent showers', 95: 'Thunderstorm', 96: 'Thunderstorm', 99: 'Thunderstorm' },
+        fr: { 0: 'Ciel dégagé', 1: 'Plutôt dégagé', 2: 'Partiellement nuageux', 3: 'Couvert', 45: 'Brouillard', 48: 'Brouillard', 51: 'Bruine légère', 53: 'Bruine', 55: 'Bruine forte', 61: 'Pluie légère', 63: 'Pluie', 65: 'Forte pluie', 71: 'Neige légère', 73: 'Neige', 75: 'Forte neige', 80: 'Averses', 81: 'Averses', 82: 'Averses violentes', 95: 'Orage', 96: 'Orage', 99: 'Orage' }
+      };
+      function text(code) { var t = TXT[fr ? 'fr' : 'en']; return t[code] || t[Math.floor(code / 10) * 10] || t[3]; }
+
+      function drawHeader() {
+        $('city').textContent = CITIES[idx][0];
+        $('dots').innerHTML = CITIES.map(function (c, i) { return '<i class="' + (i === idx ? 'on' : '') + '"></i>'; }).join('');
+      }
+      function render(d) {
+        var D = d.daily, df = new Intl.DateTimeFormat(lang, { weekday: 'short' });
+        $('now').innerHTML = icon(D.weather_code[0]) +
+          '<div class="big">' + Math.round(D.temperature_2m_max[0]) + '&deg;</div><div class="desc">' + text(D.weather_code[0]) + '</div>';
+        $('cards').innerHTML = D.time.map(function (t, i) {
+          var day = i === 0 ? (fr ? "Auj." : 'Today') : df.format(new Date(t + 'T12:00:00'));
+          return '<div class="card' + (i === 0 ? ' today' : '') + '"><div class="dow">' + day + '</div>' + icon(D.weather_code[i]) +
+            '<div class="hi">' + Math.round(D.temperature_2m_max[i]) + '&deg;</div><div class="lo">' + Math.round(D.temperature_2m_min[i]) + '&deg;</div>' +
+            '<div class="meta">' + (fr ? 'Pluie ' : 'Rain ') + (D.precipitation_probability_max[i] || 0) + '%<br>' +
+            (D.precipitation_sum[i] || 0).toFixed(1) + ' mm<br>' + Math.round(D.wind_speed_10m_max[i]) + ' km/h</div></div>';
+        }).join('');
+      }
+      function load() {
+        var my = ++token, c = CITIES[idx];
+        drawHeader();
+        $('status').textContent = fr ? 'Chargement...' : 'Loading...';
+        var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + c[1] + '&longitude=' + c[2] +
+          '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max' +
+          '&timezone=auto&forecast_days=7';
+        rustv.fetchJson(url).then(function (d) {
+          if (my !== token) return;
+          $('status').textContent = '';
+          render(d);
+        }).catch(function (e) {
+          if (my !== token) return;
+          $('status').textContent = (fr ? 'Erreur : ' : 'Error: ') + (e.message || e) + (fr ? ' (Entrée pour réessayer)' : ' (press Enter to retry)');
+        });
+      }
+      function go(n) {
+        idx = (idx + n + CITIES.length) % CITIES.length;
+        rustv.storage.set('city', idx).catch(function () {});
+        load();
+      }
+      rustv.onKey(function (k) {
+        if (k === 'ArrowRight' || k === 'ArrowDown') go(1);
+        else if (k === 'ArrowLeft' || k === 'ArrowUp') go(-1);
+        else if (k === 'Enter') load();
+      });
+      rustv.storage.get('city').then(function (v) { if (typeof v === 'number' && v >= 0 && v < CITIES.length) idx = v; }).catch(function () {}).then(load);
+    </script>
+  </body>
+</html>

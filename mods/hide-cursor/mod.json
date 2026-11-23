@@ -1,0 +1,42 @@
+{
+  "id": "hide-cursor",
+  "name": "Hide cursor",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "enhancements",
+  "description": "Hides the mouse cursor in web apps after a few seconds of inactivity.",
+  "details": "After 3 seconds without mouse movement, hides the cursor; moving the mouse shows it again. It only creates one style element and listens to mouse events; it does not read page content, use the network or store anything. This adapter matches every website, so it runs inside every web app you open in RusTV.",
+  "tags": [
+    "cursor",
+    "mouse",
+    "tv",
+    "web"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#475569",
+    "to": "#0f172a",
+    "glyph": "cursor-off"
+  },
+  "permissions": [],
+  "contributes": {
+    "adapters": [
+      {
+        "match": [
+          "*://*/*"
+        ],
+        "js": "hide-cursor.js"
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Masquer le curseur",
+      "description": "Masque le curseur de la souris dans les applications web apres quelques secondes d'inactivite.",
+      "details": "Apres 3 secondes sans mouvement de souris, masque le curseur ; il reapparait au moindre mouvement. Il ne cree qu'un element de style et ecoute les evenements souris ; il ne lit pas le contenu, n'utilise pas le reseau et ne stocke rien. Ce module s'applique a tous les sites : il s'execute dans chaque application web ouverte dans RusTV."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

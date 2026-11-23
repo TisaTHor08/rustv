@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html { font-size: calc(100vh / 54); scrollbar-width: none; }
+      * { box-sizing: border-box; }
+      body { margin: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Segoe UI', system-ui, sans-serif; background: #140b06; color: #fff4ec; overflow: hidden; transition: background .3s; }
+      body.done { animation: flash 1s steps(2) infinite; }
+      @keyframes flash { 0% { background: #140b06; } 50% { background: #7c2d12; } }
+      h1 { margin: 0 0 2rem; font-size: 3rem; color: #fdba74; font-weight: 600; }
+      #wrap { position: relative; width: 34rem; height: 34rem; }
+      svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+      .track { fill: none; stroke: #3a2216; stroke-width: 1.6; }
+      #arc { fill: none; stroke: #f97316; stroke-width: 1.6; stroke-linecap: round; transition: stroke-dashoffset .4s linear; }
+      body.paused #arc { stroke: #fbbf24; }
+      body.done #arc { stroke: #ef4444; }
+      #center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      #time { font-size: 8.4rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+      #state { font-size: 2.4rem; color: #fdba74; margin-top: 1rem; text-transform: uppercase; letter-spacing: .15em; }
+      footer { margin-top: 3rem; font-size: 2rem; color: #c9a58d; text-align: center; line-height: 1.7; }
+      kbd { background: #3a2216; border-radius: .5rem; padding: .1rem .8rem; color: #fff; }
+    </style>
+  </head>
+  <body>
+    <h1 id="title">Kitchen timer</h1>
+    <div id="wrap">
+      <svg viewBox="0 0 40 40"><circle class="track" cx="20" cy="20" r="17.5" /><circle id="arc" cx="20" cy="20" r="17.5" /></svg>
+      <div id="center"><div id="time">05:00</div><div id="state"></div></div>
+    </div>
+    <footer id="help"></footer>
+    <script src="__rustv.js"></script>
+    <script>
+      var fr = /^fr/i.test(navigator.language || '');
+      var L = fr
+        ? { title: 'Minuteur de cuisine', set: 'Réglage', run: 'En cours', pause: 'Pause', done: 'Terminé !',
+            h1: '<kbd>Haut</kbd> <kbd>Bas</kbd> minutes &nbsp;&middot;&nbsp; <kbd>Gauche</kbd> <kbd>Droite</kbd> 5 min &nbsp;&middot;&nbsp; <kbd>Entrée</kbd> démarrer / pause',
+            h2: '<kbd>Entrée</kbd> arrêter l\'alarme', h3: '<kbd>Retour</kbd> fermer' }
+        : { title: 'Kitchen timer', set: 'Set time', run: 'Running', pause: 'Paused', done: 'Time is up!',
+            h1: '<kbd>Up</kbd> <kbd>Down</kbd> minutes &nbsp;&middot;&nbsp; <kbd>Left</kbd> <kbd>Right</kbd> 5 min &nbsp;&middot;&nbsp; <kbd>Enter</kbd> start / pause',
+            h2: '<kbd>Enter</kbd> stop the alarm', h3: '<kbd>Back</kbd> close' };
+      var $ = function (id) { return document.getElementById(id); };
+      var C = 2 * Math.PI * 17.5;
+      var mode = 'set';            // set | run | pause | done
+      var minutes = 5, total = 300, remaining = 300, endAt = 0, timer = 0, beepTimer = 0, ctx = null;
+      $('arc').style.strokeDasharray = C;
+      $('title').textContent = L.title;
+
+      function fmt(s) {
+        s = Math.max(0, Math.ceil(s));
+        var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+        var p = function (n) { return ('0' + n).slice(-2); };
+        return (h ? h + ':' : '') + p(m) + ':' + p(x);
+      }
+      function draw() {
+        $('time').textContent = fmt(remaining);
+        $('arc').style.strokeDashoffset = C * (1 - (mode === 'set' || mode === 'done' ? (mode === 'set' ? 1 : 0) : remaining / total));
+        $('state').textContent = L[mode === 'set' ? 'set' : mode === 'run' ? 'run' : mode === 'pause' ? 'pause' : 'done'];
+        document.body.className = mode === 'pause' ? 'paused' : mode === 'done' ? 'done' : '';
+        $('help').innerHTML = (mode === 'done' ? L.h2 : L.h1) + '<br>' + L.h3;
+      }
+      function beepOnce() {
+        try {
+          if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+          if (ctx.state === 'suspended') ctx.resume();
+          for (var i = 0; i < 3; i++) {
+            var o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + i * 0.28;
+            o.type = 'sine'; o.frequency.value = 880;
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(0.35, t + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+            o.connect(g); g.connect(ctx.destination);
+            o.start(t); o.stop(t + 0.22);
+          }
+        } catch (e) {}
+      }
+      function stopAll() { clearInterval(timer); clearInterval(beepTimer); timer = beepTimer = 0; }
+      function finish() {
+        stopAll();
+        mode = 'done'; remaining = 0;
+        beepOnce();
+        var n = 0;
+        beepTimer = setInterval(function () { if (++n > 12) { clearInterval(beepTimer); beepTimer = 0; } else beepOnce(); }, 2000);
+        draw();
+      }
+      function tick() {
+        remaining = (endAt - Date.now()) / 1000;
+        if (remaining <= 0) finish(); else draw();
+      }
+      function start() {
+        if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); ctx.resume(); } catch (e) {} }
+        if (mode === 'set') { total = remaining = minutes * 60; }
+        endAt = Date.now() + remaining * 1000;
+        mode = 'run';
+        clearInterval(timer); timer = setInterval(tick, 250);
+        draw();
+      }
+      function reset() { stopAll(); mode = 'set'; total = remaining = minutes * 60; draw(); }
+      function adjust(d) {
+        if (mode === 'pause') reset();   // changing the time while paused starts over
+        if (mode !== 'set') return;
+        minutes = Math.min(180, Math.max(1, minutes + d));
+        remaining = total = minutes * 60;
+        draw();
+      }
+      rustv.onKey(function (k) {
+        if (k === 'Enter') {
+          if (mode === 'set') start();
+          else if (mode === 'run') { clearInterval(timer); timer = 0; remaining = (endAt - Date.now()) / 1000; mode = 'pause'; draw(); }
+          else if (mode === 'pause') start();
+          else reset();
+        } else if (k === 'ArrowUp') adjust(1);
+        else if (k === 'ArrowDown') adjust(-1);
+        else if (k === 'ArrowRight') adjust(5);
+        else if (k === 'ArrowLeft') adjust(-5);
+      });
+      reset();
+    </script>
+  </body>
+</html>

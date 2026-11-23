@@ -3,8 +3,22 @@
   "name": "Midnight",
   "version": "1.0.0",
   "author": "RusTV",
-  "description": "Deep blue theme with a cyan accent and rounder tiles.",
+  "publisher": "RusTV",
+  "category": "themes",
+  "description": "Deep blue theme with a cyan accent, rounder tiles and a soft blue glow.",
+  "details": "A deep navy background with a cyan accent. Tiles get larger rounded corners and the focused tile glows with a soft blue halo. Only colors and tile styling change; layout and behavior stay the same.",
+  "tags": [
+    "dark",
+    "blue",
+    "cyan",
+    "rounded"
+  ],
   "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#0b1a45",
+    "to": "#050a18",
+    "glyph": "moon"
+  },
   "permissions": [],
   "contributes": {
     "themes": [
@@ -20,5 +34,14 @@
         "css": "theme.css"
       }
     ]
-  }
+  },
+  "i18n": {
+    "fr": {
+      "name": "Minuit",
+      "description": "Theme bleu profond, accent cyan, tuiles arrondies et halo bleu doux.",
+      "details": "Fond bleu nuit et accent cyan. Les tuiles ont des coins plus arrondis et la tuile selectionnee brille d'un halo bleu. Seuls les couleurs et le style des tuiles changent."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
 }

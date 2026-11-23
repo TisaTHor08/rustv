@@ -1,0 +1,43 @@
+{
+  "id": "tv-zoom",
+  "name": "TV zoom",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "enhancements",
+  "description": "Slightly enlarges text and interface of web apps so they read better from the couch.",
+  "details": "Applies a CSS zoom of 125% to the page so text and buttons are bigger from a distance. It only injects one stylesheet (html { zoom: 1.25 }); no script, no network, nothing stored. Sites with fixed layouts or custom video players may look slightly off; disable the mod if so. This adapter matches every website, so it runs inside every web app you open in RusTV.",
+  "tags": [
+    "zoom",
+    "text",
+    "accessibility",
+    "tv",
+    "web"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#0ea5e9",
+    "to": "#1e3a8a",
+    "glyph": "type"
+  },
+  "permissions": [],
+  "contributes": {
+    "adapters": [
+      {
+        "match": [
+          "*://*/*"
+        ],
+        "css": "tv-zoom.css"
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Zoom TV",
+      "description": "Agrandit legerement le texte et l'interface des applications web pour mieux lire depuis le canape.",
+      "details": "Applique un zoom CSS de 125 % a la page pour des textes et boutons plus grands a distance. Il n'injecte qu'une feuille de style (html { zoom: 1.25 }) ; pas de script, pas de reseau, rien n'est stocke. Les sites a mise en page fixe ou a lecteur video personnalise peuvent etre un peu decales ; desactivez le module dans ce cas. Ce module s'applique a tous les sites : il s'execute dans chaque application web ouverte dans RusTV."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

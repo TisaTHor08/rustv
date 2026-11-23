@@ -1,0 +1,41 @@
+{
+  "id": "widget-moon-phase",
+  "name": "Moon phase",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "widgets",
+  "description": "The current moon phase, computed offline and drawn as a small icon.",
+  "details": "Computes the current phase of the moon with the synodic month (29.53 days) and draws it as a small SVG next to its name and illumination. Offline, no permission. The result is an approximation, accurate to about a day.",
+  "tags": [
+    "moon",
+    "astronomy",
+    "night"
+  ],
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "art": {
+    "from": "#6366f1",
+    "to": "#1e1b4b",
+    "glyph": "moon"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Phase de lune",
+      "description": "La phase de lune actuelle, calculée hors ligne.",
+      "details": "Calcule la phase de la lune avec le mois synodique (29,53 jours) et la dessine en SVG avec son nom et son éclairement. Hors ligne, sans permission. Approximation à environ un jour près."
+    }
+  },
+  "contributes": {
+    "widgets": [
+      {
+        "id": "w",
+        "slot": "topbar",
+        "entry": "moon.html",
+        "width": 8
+      }
+    ]
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

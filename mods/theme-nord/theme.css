@@ -1,0 +1,9 @@
+/* Nord: frost-blue ring on softly rounded tiles. */
+.tile { border-radius: 1rem !important; }
+.tile.focus {
+  box-shadow:
+    0 0 0 0.2rem #88c0d0,
+    0 1.6rem 3rem -0.8rem rgba(129, 161, 193, 0.5),
+    0 1rem 2rem rgba(0, 0, 0, 0.4) !important;
+}
+.cta { color: #2e3440 !important; }

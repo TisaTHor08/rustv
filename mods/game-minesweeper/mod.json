@@ -1,0 +1,44 @@
+{
+  "id": "game-minesweeper",
+  "name": "Minesweeper",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "games",
+  "description": "Minesweeper for the D-pad: reveal cells, flag mines with a toggle.",
+  "details": "Clear the board without hitting a mine. Arrows move the cursor, Enter reveals; switch to Flag mode with the button below the grid (or Down on the last row) to plant flags. Offline.",
+  "tags": [
+    "minesweeper",
+    "puzzle",
+    "logic"
+  ],
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "art": {
+    "from": "#64748b",
+    "to": "#0f172a",
+    "glyph": "shield"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Démineur",
+      "description": "Le démineur à la télécommande : révélez, posez des drapeaux.",
+      "details": "Videz la grille sans toucher de mine. Flèches pour déplacer, Entrée pour révéler ; passez en mode Drapeau avec le bouton sous la grille (ou Bas sur la dernière ligne). Hors ligne."
+    }
+  },
+  "contributes": {
+    "pages": [
+      {
+        "id": "minesweeper",
+        "name": "Minesweeper",
+        "desc": "Minesweeper for the D-pad: reveal cells, flag mines with a t",
+        "entry": "index.html",
+        "category": "games",
+        "color": "#64748b",
+        "color2": "#0f172a"
+      }
+    ]
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

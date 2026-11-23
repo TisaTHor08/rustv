@@ -1,0 +1,54 @@
+{
+  "id": "theme-paper",
+  "name": "Paper",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "themes",
+  "description": "A light theme: soft off-white background with dark text and an indigo accent.",
+  "details": "A bright paper-like background with dark text and an indigo accent. Tiles keep their own colors with white labels, and the focused tile gets a dark ring. Only colors and tile styling change.",
+  "tags": [
+    "light",
+    "white",
+    "paper",
+    "bright",
+    "indigo"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#6366f1",
+    "to": "#e0e7ff",
+    "glyph": "book"
+  },
+  "permissions": [],
+  "contributes": {
+    "themes": [
+      {
+        "id": "paper",
+        "name": "Paper",
+        "vars": {
+          "--bg": "#f3f1ea",
+          "--bg-rgb": "243, 241, 234",
+          "--text": "#1c1b22",
+          "--muted": "rgba(28, 27, 34, 0.66)",
+          "--accent": "#4f46e5",
+          "--glass": "rgba(0, 0, 0, 0.07)",
+          "--glass-strong": "rgba(0, 0, 0, 0.14)",
+          "--sheet": "rgba(255, 255, 255, 0.97)",
+          "--field": "rgba(0, 0, 0, 0.06)",
+          "--ring": "#1c1b22"
+        },
+        "css": "theme.css"
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Papier",
+      "description": "Theme clair : fond blanc casse, texte sombre et accent indigo.",
+      "details": "Fond clair facon papier, texte sombre et accent indigo. Les tuiles gardent leurs couleurs avec des libelles blancs et la tuile selectionnee a un contour sombre. Seuls les couleurs et le style des tuiles changent."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

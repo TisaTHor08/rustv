@@ -1,0 +1,45 @@
+{
+  "id": "game-memory",
+  "name": "Memory",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "games",
+  "description": "Find all the matching pairs of symbols with the D-pad.",
+  "details": "Flip cards with Enter and find all pairs in as few moves as possible. Choose the grid size and symbol theme before you start. Offline.",
+  "tags": [
+    "memory",
+    "pairs",
+    "cards",
+    "kids"
+  ],
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "art": {
+    "from": "#ec4899",
+    "to": "#701a75",
+    "glyph": "smile"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Memory",
+      "description": "Retrouvez toutes les paires de symboles à la télécommande.",
+      "details": "Retournez les cartes avec Entrée et trouvez toutes les paires en un minimum de coups. Choisissez la grille et le thème avant de commencer. Hors ligne."
+    }
+  },
+  "contributes": {
+    "pages": [
+      {
+        "id": "memory",
+        "name": "Memory",
+        "desc": "Find all the matching pairs of symbols with the D-pad.",
+        "entry": "index.html",
+        "category": "games",
+        "color": "#ec4899",
+        "color2": "#701a75"
+      }
+    ]
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

@@ -1,0 +1,72 @@
+{
+  "id": "tiles-media-tools",
+  "name": "Media tools tiles",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "description": "Launch local media programs from RusTV: the Kodi media center and the Spotify desktop app.",
+  "details": "Adds native tiles for Kodi and the Spotify desktop app. Both programs must be installed on the PC. VLC and the Spotify web player are already built into RusTV. Needs the launch permission.",
+  "category": "apps",
+  "tags": [
+    "media",
+    "kodi",
+    "spotify",
+    "desktop"
+  ],
+  "dependencies": [
+    {
+      "type": "external",
+      "name": "Kodi",
+      "url": "https://kodi.tv/download/windows",
+      "note": "Required for the Kodi tile"
+    },
+    {
+      "type": "external",
+      "name": "Spotify desktop app",
+      "url": "https://www.spotify.com/download/windows/",
+      "note": "Required for the Spotify desktop tile"
+    }
+  ],
+  "art": {
+    "from": "#0891b2",
+    "to": "#083344",
+    "glyph": "film"
+  },
+  "license": "GPL-3.0-or-later",
+  "permissions": [
+    "launch"
+  ],
+  "contributes": {
+    "tiles": [
+      {
+        "id": "kodi",
+        "name": "Kodi",
+        "desc": "Open source media center",
+        "kind": "native",
+        "target": "kodi",
+        "category": "library",
+        "color": "#17b2e7",
+        "color2": "#053a4d"
+      },
+      {
+        "id": "spotify-desktop",
+        "name": "Spotify desktop",
+        "desc": "Spotify desktop app",
+        "kind": "native",
+        "target": "spotify:",
+        "category": "music",
+        "color": "#1db954",
+        "color2": "#073d1a"
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Outils multimédia",
+      "description": "Lancez des programmes multimédia locaux depuis RusTV : Kodi et Spotify de bureau.",
+      "details": "Ajoute des tuiles natives pour Kodi et l'application Spotify de bureau. Les deux programmes doivent être installés sur le PC. VLC et le lecteur web Spotify sont déjà intégrés à RusTV. Nécessite la permission launch."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

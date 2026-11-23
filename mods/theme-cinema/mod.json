@@ -1,0 +1,54 @@
+{
+  "id": "theme-cinema",
+  "name": "Cinema",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "themes",
+  "description": "Warm near-black with a gold accent and a classic movie-theater feel.",
+  "details": "A warm, almost black background with a gold accent, like a movie theater. Tiles have small corners, uppercase spaced labels and a thin gold ring when focused. Only colors and tile styling change.",
+  "tags": [
+    "dark",
+    "gold",
+    "cinema",
+    "warm",
+    "elegant"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#b8860b",
+    "to": "#120d07",
+    "glyph": "film"
+  },
+  "permissions": [],
+  "contributes": {
+    "themes": [
+      {
+        "id": "cinema",
+        "name": "Cinema",
+        "vars": {
+          "--bg": "#0d0a07",
+          "--bg-rgb": "13, 10, 7",
+          "--text": "#f7efe2",
+          "--muted": "rgba(247, 239, 226, 0.6)",
+          "--accent": "#e6b34a",
+          "--glass": "rgba(255, 220, 150, 0.08)",
+          "--glass-strong": "rgba(255, 220, 150, 0.17)",
+          "--sheet": "rgba(28, 21, 14, 0.96)",
+          "--field": "rgba(0, 0, 0, 0.35)",
+          "--ring": "#f0c868"
+        },
+        "css": "theme.css"
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Cinema",
+      "description": "Quasi-noir chaud avec accent dore, pour une ambiance de salle de cinema.",
+      "details": "Fond presque noir et chaud, accent dore comme au cinema. Tuiles aux petits coins, libelles en majuscules espacees et fin contour dore a la selection. Seuls les couleurs et le style des tuiles changent."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

@@ -1,0 +1,7 @@
+/* Mono: flat tiles, thin white ring, no colored glow. */
+.tile { border-radius: 0.5rem !important; box-shadow: none !important; }
+.tile.focus {
+  box-shadow: 0 0 0 0.1rem #fff, 0 0.8rem 1.6rem rgba(0, 0, 0, 0.8) !important;
+}
+.tile .shine { display: none !important; }
+.cta { color: #000 !important; box-shadow: none !important; }

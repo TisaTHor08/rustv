@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; color: #fff; }
+      #box { height: 100%; display: flex; flex-direction: column; justify-content: center; line-height: 1.12; padding: 0 2%; box-sizing: border-box; }
+      #q { font-size: 33vh; font-style: italic; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+      #a { font-size: 24vh; opacity: 0.65; margin-top: 3vh; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    </style>
+  </head>
+  <body>
+    <div id="box"><div id="q"></div><div id="a"></div></div>
+    <script src="__rustv.js"></script>
+    <script>
+      // [text, author, language]. Public domain proverbs / classics, or original lines.
+      var Q = [
+        ['Rien ne sert de courir ; il faut partir à point.', 'La Fontaine'],
+        ['Patience et longueur de temps font plus que force ni que rage.', 'La Fontaine'],
+        ['On a souvent besoin d\'un plus petit que soi.', 'La Fontaine'],
+        ['Je pense, donc je suis.', 'Descartes'],
+        ['Le cœur a ses raisons que la raison ne connaît point.', 'Pascal'],
+        ['L\'homme est un roseau pensant.', 'Pascal'],
+        ['Il faut cultiver notre jardin.', 'Voltaire'],
+        ['Le mieux est l\'ennemi du bien.', 'Voltaire'],
+        ['La liberté consiste à pouvoir faire tout ce qui ne nuit pas à autrui.', 'Déclaration de 1789'],
+        ['Il n\'est point de bonheur sans courage.', 'Proverbe'],
+        ['Petit à petit, l\'oiseau fait son nid.', 'Proverbe'],
+        ['Qui va piano va sano.', 'Proverbe'],
+        ['À cœur vaillant rien d\'impossible.', 'Jacques Cœur'],
+        ['Les petits ruisseaux font les grandes rivières.', 'Proverbe'],
+        ['Aide-toi, le ciel t\'aidera.', 'Proverbe'],
+        ['Tout vient à point à qui sait attendre.', 'Proverbe'],
+        ['Chaque jour est une page blanche.', 'RusTV'],
+        ['Un bon film vaut mieux qu\'un long discours.', 'RusTV'],
+        ['Prenez le temps, le canapé ne va nulle part.', 'RusTV'],
+        ['Demain commence ce soir, avec un bon sommeil.', 'RusTV'],
+        ['The only thing we have to fear is fear itself.', 'F. D. Roosevelt'],
+        ['A journey of a thousand miles begins with a single step.', 'Lao Tzu'],
+        ['The unexamined life is not worth living.', 'Socrates'],
+        ['To be, or not to be, that is the question.', 'Shakespeare'],
+        ['All that glitters is not gold.', 'Shakespeare'],
+        ['We are such stuff as dreams are made on.', 'Shakespeare'],
+        ['Well begun is half done.', 'Aristotle'],
+        ['Knowledge is power.', 'Francis Bacon'],
+        ['Fortune favors the bold.', 'Virgil'],
+        ['I think, therefore I am.', 'Descartes'],
+        ['The best way out is always through.', 'Robert Frost'],
+        ['Where there is a will, there is a way.', 'Proverb'],
+        ['Genius is one percent inspiration, ninety-nine percent perspiration.', 'Thomas Edison'],
+        ['Do what you can, with what you have, where you are.', 'Theodore Roosevelt'],
+        ['Whether you think you can or you think you can\'t, you are right.', 'Henry Ford'],
+        ['Every day is a small beginning.', 'RusTV'],
+        ['Good things come to those who wait.', 'Proverb'],
+        ['A rolling stone gathers no moss.', 'Proverb'],
+        ['The early bird catches the worm.', 'Proverb'],
+        ['Slow and steady wins the race.', 'Aesop']
+      ];
+      function dayOfYear(d) {
+        return Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(d.getFullYear(), 0, 0)) / 86400000);
+      }
+      function render() {
+        var d = new Date(), q = Q[(dayOfYear(d) + d.getFullYear()) % Q.length];
+        document.getElementById('q').textContent = '“' + q[0] + '”';
+        document.getElementById('a').textContent = '— ' + q[1];
+      }
+      render();
+      setInterval(render, 600000);
+    </script>
+  </body>
+</html>

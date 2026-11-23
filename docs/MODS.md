@@ -82,6 +82,30 @@ internals. Include the SDK and talk to the host:
 
 The remote's **Back** always closes a page; every other key is forwarded to `rustv.onKey`.
 
+## Catalog metadata
+
+Every mod that is listed in the online catalog describes itself with these top-level fields of `mod.json` (the catalog
+entry in `registry/index.json` is generated from them by `python scripts/mods-tool.py registry`):
+
+| Field | Required | Meaning |
+| --- | --- | --- |
+| `category` | yes | `themes`, `widgets`, `pages`, `games`, `apps` (tile packs), `enhancements` (site adapters) or `icons` |
+| `publisher` | yes | Name shown as the mod's publisher (individual, team or organization) |
+| `description` | yes | One sentence, 10 to 140 characters |
+| `details` | no | A longer text, up to 700 characters |
+| `tags` | no | Search keywords, lowercase |
+| `dependencies` | no | What the mod needs: `{ "type": "mod", "id": "other-mod" }` or `{ "type": "external", "name": "mpv", "url": "https://...", "note": "why" }` |
+| `art` | yes | `{ "from": "#rrggbb", "to": "#rrggbb", "glyph": "<name>" }`: colors and glyph used to draw the icon and banner |
+| `icon`, `banner` | generated | `icon.svg` (256x256) and `banner.svg` (640x320), written by `python scripts/mods-tool.py art`; you may ship your own PNG/SVG instead |
+| `i18n` | no | `{ "fr": { "name": "", "description": "", "details": "" } }` translations shown in the interface language |
+
+Glyph names are listed in `GLYPHS` in [`scripts/mods-tool.py`](../scripts/mods-tool.py). Run `python scripts/mods-tool.py check`
+before opening a pull request: it validates the manifest, the referenced files and the metadata.
+
+In the app, each catalog entry shows its icon, banner, description, publisher, category, dependencies and the permissions
+it will ask for. You can search by name, publisher, tag or description, install and uninstall it, and give it a personal
+star rating. Ratings are stored only on your PC (RusTV has no server and no telemetry).
+
 ## Install from the catalog
 
 *Settings → Mods → Online catalog* lists mods from [`registry/index.json`](../registry/index.json). Installing downloads a

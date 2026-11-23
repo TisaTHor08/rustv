@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html { font-size: calc(100vh / 54); scrollbar-width: none; }
+      * { box-sizing: border-box; }
+      body { margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; gap: 8rem; font-family: 'Segoe UI', system-ui, sans-serif; background: radial-gradient(100% 90% at 30% 0%, #5a3a12 0%, #17110a 70%); color: #fff7e8; overflow: hidden; }
+      aside { width: 30rem; }
+      h1 { margin: 0; font-size: 9rem; color: #f6b93b; line-height: 1; }
+      .box { background: rgba(255,255,255,.08); border-radius: 1.2rem; padding: 1rem 1.6rem; margin-top: 1.6rem; }
+      .box small { display: block; font-size: 1.5rem; letter-spacing: .12em; color: #d9b980; }
+      .box b { font-size: 3.6rem; }
+      .hint { margin-top: 2.4rem; font-size: 1.9rem; color: #d2bd96; line-height: 1.7; }
+      kbd { background: #3b2a10; border-radius: .5rem; padding: .1rem .7rem; color: #fff; }
+      #board { position: relative; width: 44rem; height: 44rem; background: #3a2c1a; border-radius: 1.6rem; padding: 1rem; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 1rem; }
+      .c { background: rgba(255,255,255,.07); border-radius: .9rem; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 4.4rem; color: #3b2a10; }
+      .c.pop { animation: pop .18s ease-out; }
+      @keyframes pop { from { transform: scale(.6); } to { transform: scale(1); } }
+      .v2 { background: #f1e6d2; } .v4 { background: #efdcb4; } .v8 { background: #f5a65b; color: #fff; }
+      .v16 { background: #f58b4c; color: #fff; } .v32 { background: #f46a45; color: #fff; } .v64 { background: #f04a2a; color: #fff; }
+      .v128 { background: #edcf72; color: #fff; font-size: 3.8rem; } .v256 { background: #edcc61; color: #fff; font-size: 3.8rem; }
+      .v512 { background: #edc850; color: #fff; font-size: 3.8rem; } .v1024 { background: #edc53f; color: #fff; font-size: 3.1rem; }
+      .v2048 { background: #edc22e; color: #fff; font-size: 3.1rem; box-shadow: 0 0 2rem #edc22e; } .vbig { background: #3c3a32; color: #fff; font-size: 2.8rem; }
+      #over { position: absolute; inset: 0; border-radius: 1.6rem; background: rgba(23,17,10,.82); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+      #over.on { display: flex; }
+      #over b { font-size: 5rem; color: #f6b93b; } #over span { font-size: 2.2rem; margin-top: 1rem; }
+    </style>
+  </head>
+  <body>
+    <aside>
+      <h1>2048</h1>
+      <div class="box"><small>SCORE</small><b id="score">0</b></div>
+      <div class="box"><small>BEST</small><b id="best">0</b></div>
+      <div class="hint"><kbd>Arrows</kbd> slide the tiles<br>Equal numbers merge<br><kbd>Enter</kbd> restart after game over<br><kbd>Back</kbd> close</div>
+    </aside>
+    <div id="board"><div id="over"><b id="otitle"></b><span id="otext"></span></div></div>
+    <script src="__rustv.js"></script>
+    <script>
+      var N = 4, g, score, best = 0, over, won, spawned = -1;
+      var board = document.getElementById('board');
+      var cells = [];
+      for (var i = 0; i < 16; i++) { var c = document.createElement('div'); c.className = 'c'; board.insertBefore(c, document.getElementById('over')); cells.push(c); }
+
+      function empty() { var e = []; g.forEach(function (v, i) { if (!v) e.push(i); }); return e; }
+      function spawn() {
+        var e = empty(); if (!e.length) return;
+        spawned = e[Math.floor(Math.random() * e.length)];
+        g[spawned] = Math.random() < 0.9 ? 2 : 4;
+      }
+      function newGame() { g = new Array(16).fill(0); score = 0; over = false; won = false; spawned = -1; spawn(); spawn(); draw(); }
+      // Slide one line toward index 0; returns {line, gained}.
+      function slide(line) {
+        var a = line.filter(Boolean), out = [], gain = 0;
+        for (var i = 0; i < a.length; i++) {
+          if (a[i] === a[i + 1]) { out.push(a[i] * 2); gain += a[i] * 2; i++; } else out.push(a[i]);
+        }
+        while (out.length < N) out.push(0);
+        return { line: out, gained: gain };
+      }
+      function move(dir) {   // 0 left, 1 right, 2 up, 3 down
+        var moved = false, ng = g.slice(), gained = 0;
+        for (var r = 0; r < N; r++) {
+          var idx = [];
+          for (var k = 0; k < N; k++) idx.push(dir < 2 ? r * N + k : k * N + r);
+          if (dir === 1 || dir === 3) idx.reverse();
+          var res = slide(idx.map(function (i) { return g[i]; }));
+          gained += res.gained;
+          idx.forEach(function (i, k) { if (ng[i] !== res.line[k]) moved = true; ng[i] = res.line[k]; });
+        }
+        if (!moved) return;
+        g = ng; score += gained;
+        spawn();
+        if (g.indexOf(2048) >= 0) won = true;
+        if (!canMove()) over = true;
+        if (score > best) { best = score; try { rustv.storage.set('best', best).catch(function () {}); } catch (e) {} }
+        draw();
+      }
+      function canMove() {
+        if (empty().length) return true;
+        for (var i = 0; i < 16; i++) {
+          var x = i % N, y = (i / N) | 0;
+          if (x < N - 1 && g[i] === g[i + 1]) return true;
+          if (y < N - 1 && g[i] === g[i + N]) return true;
+        }
+        return false;
+      }
+      function draw() {
+        cells.forEach(function (c, i) {
+          var v = g[i];
+          c.className = 'c' + (v ? ' v' + (v > 2048 ? 'big' : v) : '') + (i === spawned ? ' pop' : '');
+          c.textContent = v || '';
+        });
+        document.getElementById('score').textContent = score;
+        document.getElementById('best').textContent = best;
+        var o = document.getElementById('over');
+        o.className = over ? 'on' : '';
+        document.getElementById('otitle').textContent = won ? 'You made 2048!' : 'Game over';
+        document.getElementById('otext').textContent = 'Press Enter to play again';
+      }
+      rustv.onKey(function (k) {
+        if (over) { if (k === 'Enter') newGame(); return; }
+        var d = { ArrowLeft: 0, ArrowRight: 1, ArrowUp: 2, ArrowDown: 3 }[k];
+        if (d !== undefined) move(d);
+      });
+      newGame();
+      rustv.storage.get('best').then(function (v) { if (typeof v === 'number') { best = Math.max(best, v); draw(); } }).catch(function () {});
+    </script>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; color: #fff; }
+      #box { height: 100%; display: flex; align-items: center; justify-content: center; gap: 6%; }
+      .col { display: flex; flex-direction: column; line-height: 1.05; }
+      #day { font-size: 40vh; font-weight: 700; text-transform: capitalize; }
+      #month { font-size: 28vh; opacity: 0.75; text-transform: capitalize; }
+      #wk { font-size: 30vh; padding: 6vh 14%; border-radius: 99px; background: rgba(255, 255, 255, 0.16); font-weight: 600; white-space: nowrap; }
+    </style>
+  </head>
+  <body>
+    <div id="box">
+      <div class="col"><div id="day"></div><div id="month"></div></div>
+      <div id="wk"></div>
+    </div>
+    <script src="__rustv.js"></script>
+    <script>
+      function isoWeek(d) {
+        var t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        var n = t.getUTCDay() || 7;
+        t.setUTCDate(t.getUTCDate() + 4 - n);
+        var y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+        return Math.ceil(((t - y0) / 86400000 + 1) / 7);
+      }
+      function render() {
+        var d = new Date(), lang = navigator.language || 'en';
+        document.getElementById('day').textContent = new Intl.DateTimeFormat(lang, { weekday: 'long' }).format(d);
+        document.getElementById('month').textContent = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'long' }).format(d);
+        document.getElementById('wk').textContent = (/^fr/i.test(lang) ? 'Sem. ' : 'Wk ') + isoWeek(d);
+      }
+      render();
+      setInterval(render, 60000);
+    </script>
+  </body>
+</html>

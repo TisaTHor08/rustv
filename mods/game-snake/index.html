@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html { font-size: calc(100vh / 54); scrollbar-width: none; }
+      * { box-sizing: border-box; }
+      body { margin: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Segoe UI', system-ui, sans-serif; background: radial-gradient(100% 100% at 50% 0%, #0f3d22 0%, #06140c 75%); color: #eafff1; overflow: hidden; }
+      #top { width: 78rem; display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2rem; font-size: 2.6rem; }
+      #top h1 { margin: 0; font-size: 4rem; color: #4ade80; }
+      #top b { color: #fff; }
+      #stage { position: relative; width: 78rem; height: 41.6rem; border-radius: 1.2rem; overflow: hidden; border: .3rem solid #1f6b3c; }
+      canvas { width: 100%; height: 100%; display: block; background: #0a1f13; }
+      #msg { position: absolute; inset: 0; background: rgba(6,20,12,.78); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+      #msg.off { display: none; }
+      #msg b { font-size: 5.4rem; color: #4ade80; } #msg span { font-size: 2.4rem; margin-top: 1rem; color: #cfeedd; }
+      #hint { margin-top: 1.2rem; font-size: 2rem; color: #8dc4a2; }
+      kbd { background: #14452a; border-radius: .5rem; padding: .1rem .7rem; color: #fff; }
+    </style>
+  </head>
+  <body>
+    <div id="top"><h1>Snake</h1><div>Score <b id="score">0</b> &nbsp;&nbsp; Best <b id="best">0</b></div></div>
+    <div id="stage"><canvas id="cv" width="780" height="416"></canvas><div id="msg"><b id="mt"></b><span id="ms"></span></div></div>
+    <div id="hint"><kbd>Arrows</kbd> steer &nbsp;&middot;&nbsp; <kbd>Enter</kbd> start / pause / restart &nbsp;&middot;&nbsp; <kbd>Back</kbd> close</div>
+    <script src="__rustv.js"></script>
+    <script>
+      var W = 30, H = 16, S = 26;
+      var cv = document.getElementById('cv'), x = cv.getContext('2d');
+      var snake, dir, queue, food, score = 0, best = 0, state = 'ready', timer = 0, delay;
+      var DIRS = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+      var $ = function (id) { return document.getElementById(id); };
+
+      function reset() {
+        snake = [[8, 8], [7, 8], [6, 8]]; dir = [1, 0]; queue = []; score = 0; delay = 150;
+        placeFood(); draw();
+      }
+      function placeFood() {
+        var free = [];
+        for (var i = 0; i < W; i++) for (var j = 0; j < H; j++) if (!snake.some(function (s) { return s[0] === i && s[1] === j; })) free.push([i, j]);
+        food = free.length ? free[Math.floor(Math.random() * free.length)] : null;
+      }
+      function schedule() { clearTimeout(timer); timer = setTimeout(step, delay); }
+      function step() {
+        if (state !== 'play') return;
+        if (queue.length) dir = queue.shift();
+        var h = [snake[0][0] + dir[0], snake[0][1] + dir[1]];
+        var ate = food && h[0] === food[0] && h[1] === food[1];
+        var body = ate ? snake : snake.slice(0, -1);   // the tail moves away unless we grow
+        if (h[0] < 0 || h[1] < 0 || h[0] >= W || h[1] >= H || body.some(function (s) { return s[0] === h[0] && s[1] === h[1]; })) return end(false);
+        snake.unshift(h);
+        if (ate) {
+          score++; delay = Math.max(55, 150 - score * 4);
+          placeFood();
+          if (!food) return end(true);
+        } else snake.pop();
+        draw(); schedule();
+      }
+      function end(win) {
+        state = 'over'; clearTimeout(timer);
+        if (score > best) { best = score; rustv.storage.set('best', best).catch(function () {}); }
+        draw();
+        show(win ? 'You filled the board!' : 'Game over', 'Score ' + score + ' - press Enter to play again');
+      }
+      function show(t, s) { $('mt').textContent = t; $('ms').textContent = s; $('msg').className = ''; }
+      function hide() { $('msg').className = 'off'; }
+      function rect(c, color, pad) { x.fillStyle = color; x.beginPath(); x.roundRect ? x.roundRect(c[0] * S + pad, c[1] * S + pad, S - 2 * pad, S - 2 * pad, 7) : x.rect(c[0] * S + pad, c[1] * S + pad, S - 2 * pad, S - 2 * pad); x.fill(); }
+      function draw() {
+        x.fillStyle = '#0a1f13'; x.fillRect(0, 0, 780, 416);
+        x.fillStyle = '#0d2918';
+        for (var i = 0; i < W; i++) for (var j = 0; j < H; j++) if ((i + j) % 2) x.fillRect(i * S, j * S, S, S);
+        if (food) { x.fillStyle = '#ff5a5f'; x.beginPath(); x.arc(food[0] * S + S / 2, food[1] * S + S / 2, S * 0.38, 0, 7); x.fill(); }
+        snake.forEach(function (c, k) { rect(c, k === 0 ? '#b6ffcf' : (k % 2 ? '#34c46a' : '#2fb860'), 1.5); });
+        $('score').textContent = score; $('best').textContent = best;
+      }
+      rustv.onKey(function (k) {
+        if (k === 'Enter') {
+          if (state === 'ready') { state = 'play'; hide(); schedule(); }
+          else if (state === 'play') { state = 'pause'; clearTimeout(timer); show('Paused', 'Press Enter to resume'); }
+          else if (state === 'pause') { state = 'play'; hide(); schedule(); }
+          else { reset(); state = 'play'; hide(); schedule(); }
+          return;
+        }
+        var d = DIRS[k];
+        if (!d || state !== 'play') return;
+        var last = queue.length ? queue[queue.length - 1] : dir;
+        if (d[0] === -last[0] && d[1] === -last[1]) return;   // no U-turn
+        if (d[0] === last[0] && d[1] === last[1]) return;
+        if (queue.length < 2) queue.push(d);
+      });
+      reset();
+      show('Snake', 'Press Enter to start');
+      rustv.storage.get('best').then(function (v) { if (typeof v === 'number') { best = v; draw(); } }).catch(function () {});
+    </script>
+  </body>
+</html>

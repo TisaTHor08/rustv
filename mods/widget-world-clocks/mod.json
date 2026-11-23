@@ -1,0 +1,42 @@
+{
+  "id": "widget-world-clocks",
+  "name": "World clocks",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "widgets",
+  "description": "Three city clocks in the top bar, using time zones. Fully offline.",
+  "details": "Shows the local time of three cities (Paris, New York and Tokyo by default) side by side in the top bar. Uses the time zone database of the system, so it works offline and needs no permission. Edit the CITIES list in clocks.html to change cities.",
+  "tags": [
+    "clock",
+    "time zone",
+    "world",
+    "travel"
+  ],
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "art": {
+    "from": "#0ea5e9",
+    "to": "#1e3a8a",
+    "glyph": "globe"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Horloges du monde",
+      "description": "Trois horloges de villes dans la barre du haut, hors ligne.",
+      "details": "Affiche l'heure de trois villes (Paris, New York et Tokyo par défaut) côte à côte. Utilise les fuseaux horaires du système, donc hors ligne et sans permission. Modifiez la liste CITIES dans clocks.html pour changer de villes."
+    }
+  },
+  "contributes": {
+    "widgets": [
+      {
+        "id": "w",
+        "slot": "topbar",
+        "entry": "clocks.html",
+        "width": 16
+      }
+    ]
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

@@ -1,0 +1,106 @@
+{
+  "id": "tiles-pc-gaming",
+  "name": "PC gaming launchers",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "description": "Open your PC game launchers from the couch: Epic Games, GOG Galaxy, Xbox app and Battle.net.",
+  "details": "Adds native tiles for four Windows game launchers through their URI schemes: Epic Games Launcher, GOG Galaxy, the Xbox app and Battle.net. Each launcher must already be installed; the tile only opens it. Steam Big Picture is already built into RusTV. Needs the launch permission.",
+  "category": "apps",
+  "tags": [
+    "games",
+    "pc",
+    "launcher",
+    "epic",
+    "gog",
+    "xbox"
+  ],
+  "dependencies": [
+    {
+      "type": "external",
+      "name": "Epic Games Launcher",
+      "url": "https://store.epicgames.com/download",
+      "note": "Required for the Epic Games tile"
+    },
+    {
+      "type": "external",
+      "name": "GOG Galaxy",
+      "url": "https://www.gog.com/galaxy",
+      "note": "Required for the GOG Galaxy tile"
+    },
+    {
+      "type": "external",
+      "name": "Xbox app",
+      "url": "https://www.xbox.com/xbox-app",
+      "note": "Required for the Xbox app tile"
+    },
+    {
+      "type": "external",
+      "name": "Battle.net",
+      "url": "https://download.battle.net",
+      "note": "Required for the Battle.net tile"
+    }
+  ],
+  "art": {
+    "from": "#475569",
+    "to": "#0f172a",
+    "glyph": "gamepad"
+  },
+  "license": "GPL-3.0-or-later",
+  "permissions": [
+    "launch"
+  ],
+  "contributes": {
+    "tiles": [
+      {
+        "id": "epicgames",
+        "name": "Epic Games",
+        "desc": "Epic Games Launcher",
+        "kind": "native",
+        "target": "com.epicgames.launcher://apps",
+        "category": "games",
+        "color": "#2a2a2a",
+        "color2": "#0a0a0a"
+      },
+      {
+        "id": "goggalaxy",
+        "name": "GOG Galaxy",
+        "desc": "GOG Galaxy library",
+        "kind": "native",
+        "target": "goggalaxy://",
+        "category": "games",
+        "color": "#7b2cbf",
+        "color2": "#25093d"
+      },
+      {
+        "id": "xboxapp",
+        "name": "Xbox app",
+        "desc": "Xbox app for Windows",
+        "kind": "native",
+        "target": "xbox://",
+        "category": "games",
+        "color": "#107c10",
+        "color2": "#042e04"
+      },
+      {
+        "id": "battlenet",
+        "name": "Battle.net",
+        "desc": "Blizzard launcher",
+        "kind": "native",
+        "target": "battlenet://",
+        "category": "games",
+        "color": "#148eff",
+        "color2": "#042a4d"
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Lanceurs de jeux PC",
+      "description": "Ouvrez vos lanceurs de jeux PC depuis le canapé : Epic Games, GOG Galaxy, app Xbox et Battle.net.",
+      "details": "Ajoute des tuiles natives pour quatre lanceurs Windows via leurs schémas d'URI : Epic Games Launcher, GOG Galaxy, l'app Xbox et Battle.net. Chaque lanceur doit déjà être installé ; la tuile ne fait que l'ouvrir. Steam Big Picture est déjà intégré à RusTV. Nécessite la permission launch."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

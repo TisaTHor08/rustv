@@ -1,0 +1,92 @@
+{
+  "id": "tiles-anime",
+  "name": "Anime tiles",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "description": "Anime and Asian pop culture sites: HIDIVE, Anime Onegai, Bilibili, MyAnimeList and AniList.",
+  "details": "Adds five tiles for anime fans: HIDIVE and Anime Onegai (streaming, account needed), Bilibili (video platform), plus MyAnimeList and AniList to track and discover series. Crunchyroll and ADN are already built into RusTV.",
+  "category": "apps",
+  "tags": [
+    "anime",
+    "manga",
+    "streaming",
+    "japan"
+  ],
+  "dependencies": [],
+  "art": {
+    "from": "#ec4899",
+    "to": "#500724",
+    "glyph": "star"
+  },
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "contributes": {
+    "tiles": [
+      {
+        "id": "hidive",
+        "name": "HIDIVE",
+        "desc": "Anime streaming service",
+        "kind": "web",
+        "url": "https://www.hidive.com",
+        "category": "video",
+        "color": "#00aeef",
+        "color2": "#003a52",
+        "spatnav": true
+      },
+      {
+        "id": "animeonegai",
+        "name": "Anime Onegai",
+        "desc": "Anime streaming service",
+        "kind": "web",
+        "url": "https://www.animeonegai.com",
+        "category": "video",
+        "color": "#f2542d",
+        "color2": "#4a1608",
+        "spatnav": true
+      },
+      {
+        "id": "bilibili",
+        "name": "Bilibili",
+        "desc": "Video platform for anime and more",
+        "kind": "web",
+        "url": "https://www.bilibili.com",
+        "category": "video",
+        "color": "#00a1d6",
+        "color2": "#00364a",
+        "spatnav": true
+      },
+      {
+        "id": "myanimelist",
+        "name": "MyAnimeList",
+        "desc": "Anime and manga database",
+        "kind": "web",
+        "url": "https://myanimelist.net",
+        "category": "library",
+        "color": "#2e51a2",
+        "color2": "#0d1a38",
+        "spatnav": true
+      },
+      {
+        "id": "anilist",
+        "name": "AniList",
+        "desc": "Track and discover anime",
+        "kind": "web",
+        "url": "https://anilist.co",
+        "category": "library",
+        "color": "#3db4f2",
+        "color2": "#0f3a52",
+        "spatnav": true
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Tuiles anime",
+      "description": "Sites d'anime : HIDIVE, Anime Onegai, Bilibili, MyAnimeList et AniList.",
+      "details": "Ajoute cinq tuiles pour les fans d'anime : HIDIVE et Anime Onegai (streaming, compte requis), Bilibili (plateforme vidéo), ainsi que MyAnimeList et AniList pour suivre et découvrir des séries. Crunchyroll et ADN sont déjà intégrés à RusTV."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

@@ -1,0 +1,43 @@
+{
+  "id": "focus-ring",
+  "name": "Focus ring",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "enhancements",
+  "description": "Adds a strong, always visible keyboard focus outline to web apps that lack one.",
+  "details": "Gives every focused link, button, input and focusable element a thick yellow outline with a dark halo, so you can see where the remote's arrow keys are. It only adds CSS (:focus-visible); no script, no network, nothing stored. Sites that already draw their own focus may show both. This adapter matches every website, so it runs inside every web app you open in RusTV.",
+  "tags": [
+    "focus",
+    "keyboard",
+    "remote",
+    "accessibility",
+    "web"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#facc15",
+    "to": "#78350f",
+    "glyph": "eye"
+  },
+  "permissions": [],
+  "contributes": {
+    "adapters": [
+      {
+        "match": [
+          "*://*/*"
+        ],
+        "css": "focus-ring.css"
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Contour de focus",
+      "description": "Ajoute un contour de focus clavier bien visible aux applications web qui n'en ont pas.",
+      "details": "Donne a chaque lien, bouton, champ et element focalisable un epais contour jaune avec un halo sombre, pour voir ou se trouvent les fleches de la telecommande. Il n'ajoute que du CSS (:focus-visible) ; pas de script, pas de reseau, rien n'est stocke. Les sites qui dessinent deja leur focus peuvent afficher les deux. Ce module s'applique a tous les sites : il s'execute dans chaque application web ouverte dans RusTV."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

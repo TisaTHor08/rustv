@@ -1,0 +1,9 @@
+/* Sunset: very round tiles, amber ring and a warm halo. */
+.tile { border-radius: 2rem !important; }
+.tile.focus {
+  box-shadow:
+    0 0 0 0.2rem #ffd0a0,
+    0 2rem 3.6rem -0.6rem rgba(251, 146, 60, 0.6),
+    0 1rem 2rem rgba(20, 5, 40, 0.55) !important;
+}
+.cta { color: #2a0f00 !important; }

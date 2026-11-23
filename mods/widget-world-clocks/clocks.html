@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; color: #fff; }
+      #row { height: 100%; display: flex; align-items: center; justify-content: space-around; gap: 4%; }
+      .c { display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
+      .t { font-size: 46vh; font-weight: 700; font-variant-numeric: tabular-nums; }
+      .n { font-size: 26vh; opacity: 0.7; letter-spacing: 0.06em; text-transform: uppercase; }
+    </style>
+  </head>
+  <body>
+    <div id="row"></div>
+    <script src="__rustv.js"></script>
+    <script>
+      // Edit this list to change the cities (any IANA time zone name).
+      var CITIES = [
+        { name: 'Paris', tz: 'Europe/Paris' },
+        { name: 'New York', tz: 'America/New_York' },
+        { name: 'Tokyo', tz: 'Asia/Tokyo' }
+      ];
+      var row = document.getElementById('row');
+      var fmts = CITIES.map(function (c) {
+        var f = null;
+        try { f = new Intl.DateTimeFormat(navigator.language, { timeZone: c.tz, hour: '2-digit', minute: '2-digit', hour12: false }); } catch (e) {}
+        var el = document.createElement('div');
+        el.className = 'c';
+        el.innerHTML = '<div class="t">--:--</div><div class="n"></div>';
+        el.lastChild.textContent = c.name;
+        row.appendChild(el);
+        return { f: f, t: el.firstChild };
+      });
+      function tick() {
+        var now = new Date();
+        fmts.forEach(function (x) { if (x.f) x.t.textContent = x.f.format(now); });
+      }
+      tick();
+      setInterval(tick, 5000);
+    </script>
+  </body>
+</html>

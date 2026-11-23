@@ -1,0 +1,54 @@
+{
+  "id": "theme-sunset",
+  "name": "Sunset",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "themes",
+  "description": "Warm dark purple fading to orange, with generously rounded tiles.",
+  "details": "A dusky purple background with an orange accent and extra-round tile corners. The focused tile gets a warm amber halo. Only colors and tile styling change.",
+  "tags": [
+    "dark",
+    "purple",
+    "orange",
+    "warm",
+    "rounded"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#f97316",
+    "to": "#4c1d95",
+    "glyph": "sun"
+  },
+  "permissions": [],
+  "contributes": {
+    "themes": [
+      {
+        "id": "sunset",
+        "name": "Sunset",
+        "vars": {
+          "--bg": "#150a24",
+          "--bg-rgb": "21, 10, 36",
+          "--text": "#fff4ea",
+          "--muted": "rgba(255, 244, 234, 0.64)",
+          "--accent": "#fb923c",
+          "--glass": "rgba(255, 190, 140, 0.10)",
+          "--glass-strong": "rgba(255, 190, 140, 0.20)",
+          "--sheet": "rgba(40, 18, 60, 0.95)",
+          "--field": "rgba(0, 0, 0, 0.35)",
+          "--ring": "#ffd0a0"
+        },
+        "css": "theme.css"
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Coucher de soleil",
+      "description": "Violet sombre vers orange chaud, avec des tuiles tres arrondies.",
+      "details": "Fond violet crepusculaire, accent orange et coins de tuiles tres arrondis. La tuile selectionnee a un halo ambre. Seuls les couleurs et le style des tuiles changent."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

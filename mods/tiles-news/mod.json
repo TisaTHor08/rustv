@@ -1,0 +1,125 @@
+{
+  "id": "tiles-news",
+  "name": "News tiles",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "description": "Live news and web players: franceinfo, Euronews, France 24, BBC News, Al Jazeera, DW, Arte Info and LCI.",
+  "details": "Adds eight news tiles that open the official web sites and live players: franceinfo, Euronews, France 24, BBC News, Al Jazeera English, DW (Deutsche Welle), Arte Info and LCI. Most are free to watch.",
+  "category": "apps",
+  "tags": [
+    "news",
+    "live",
+    "info",
+    "journalism"
+  ],
+  "dependencies": [],
+  "art": {
+    "from": "#dc2626",
+    "to": "#450a0a",
+    "glyph": "newspaper"
+  },
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "contributes": {
+    "tiles": [
+      {
+        "id": "franceinfo",
+        "name": "franceinfo",
+        "desc": "Continuous news and live TV",
+        "kind": "web",
+        "url": "https://www.francetvinfo.fr",
+        "category": "tv",
+        "color": "#d9272e",
+        "color2": "#4a0a0d",
+        "spatnav": true
+      },
+      {
+        "id": "euronews",
+        "name": "Euronews",
+        "desc": "European news channel live",
+        "kind": "web",
+        "url": "https://www.euronews.com",
+        "category": "tv",
+        "color": "#0a4a8a",
+        "color2": "#03182d",
+        "spatnav": true
+      },
+      {
+        "id": "france24",
+        "name": "France 24",
+        "desc": "International news live",
+        "kind": "web",
+        "url": "https://www.france24.com",
+        "category": "tv",
+        "color": "#1c4ea1",
+        "color2": "#071a3a",
+        "spatnav": true
+      },
+      {
+        "id": "bbcnews",
+        "name": "BBC News",
+        "desc": "World news and live channel",
+        "kind": "web",
+        "url": "https://www.bbc.com/news",
+        "category": "tv",
+        "color": "#bb1919",
+        "color2": "#3d0808",
+        "spatnav": true
+      },
+      {
+        "id": "aljazeera",
+        "name": "Al Jazeera",
+        "desc": "Al Jazeera English live",
+        "kind": "web",
+        "url": "https://www.aljazeera.com",
+        "category": "tv",
+        "color": "#c9902a",
+        "color2": "#4a3209",
+        "spatnav": true
+      },
+      {
+        "id": "dw",
+        "name": "DW",
+        "desc": "Deutsche Welle news and documentaries",
+        "kind": "web",
+        "url": "https://www.dw.com",
+        "category": "tv",
+        "color": "#05a6e6",
+        "color2": "#023449",
+        "spatnav": true
+      },
+      {
+        "id": "arteinfo",
+        "name": "Arte Info",
+        "desc": "Arte news and reports",
+        "kind": "web",
+        "url": "https://www.arte.tv/fr/arte-info/",
+        "category": "tv",
+        "color": "#ff5a1f",
+        "color2": "#4a1a08",
+        "spatnav": true
+      },
+      {
+        "id": "lci",
+        "name": "LCI",
+        "desc": "LCI live news channel",
+        "kind": "web",
+        "url": "https://www.tf1info.fr",
+        "category": "tv",
+        "color": "#1f4fd8",
+        "color2": "#0a1d52",
+        "spatnav": true
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Tuiles actualités",
+      "description": "Info en direct : franceinfo, Euronews, France 24, BBC News, Al Jazeera, DW, Arte Info et LCI.",
+      "details": "Ajoute huit tuiles info vers les sites et directs officiels : franceinfo, Euronews, France 24, BBC News, Al Jazeera English, DW (Deutsche Welle), Arte Info et LCI. La plupart sont gratuits."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

@@ -1,0 +1,10 @@
+/* Aurora: mint ring and a green-cyan glow on the focused tile. */
+.tile { border-radius: 1.4rem !important; }
+.tile.focus {
+  box-shadow:
+    0 0 0 0.2rem #8bffd8,
+    0 0 2.6rem 0.2rem rgba(45, 212, 191, 0.55),
+    0 2rem 3.4rem -0.8rem rgba(16, 185, 129, 0.55),
+    0 1rem 2rem rgba(0, 0, 0, 0.5) !important;
+}
+.cta { color: #03221c !important; }

@@ -1,0 +1,9 @@
+/* Dracula: pink ring with a purple glow. */
+.tile { border-radius: 1.1rem !important; }
+.tile.focus {
+  box-shadow:
+    0 0 0 0.2rem #ff79c6,
+    0 1.8rem 3.2rem -0.8rem rgba(189, 147, 249, 0.6),
+    0 1rem 2rem rgba(0, 0, 0, 0.5) !important;
+}
+.cta { color: #282a36 !important; }

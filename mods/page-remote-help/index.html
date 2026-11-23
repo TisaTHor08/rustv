@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html { font-size: calc(100vh / 54); scrollbar-width: none; }
+      * { box-sizing: border-box; }
+      body { margin: 0; height: 100vh; padding: 3rem 5rem; display: flex; flex-direction: column; font-family: 'Segoe UI', system-ui, sans-serif; background: radial-gradient(110% 90% at 80% 0%, #3b2a8f 0%, #0d0b1f 65%); color: #f3f1ff; overflow: hidden; }
+      h1 { margin: 0 0 .4rem; font-size: 4.2rem; }
+      .lead { font-size: 2rem; color: #b9b3e6; margin-bottom: 2rem; }
+      main { flex: 1; display: grid; grid-template-columns: 24rem 1fr; gap: 4rem; min-height: 0; }
+      #phone { width: 100%; height: 100%; }
+      #list { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem 1.6rem; align-content: start; }
+      .item { display: flex; gap: 1.4rem; align-items: center; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); border-radius: 1.4rem; padding: 1.2rem 1.6rem; }
+      .item svg { width: 5rem; height: 5rem; flex: none; }
+      .item b { display: block; font-size: 2.4rem; }
+      .item span { font-size: 1.8rem; color: #c9c4ee; }
+      kbd { background: #2c2566; border: 1px solid #5a4fc4; border-radius: .5rem; padding: 0 .6rem; font-family: inherit; font-size: .9em; color: #fff; white-space: nowrap; }
+      footer { text-align: center; font-size: 1.8rem; color: #9b94d6; padding-top: 1.2rem; }
+    </style>
+  </head>
+  <body>
+    <h1 id="h1">Remote and shortcuts</h1>
+    <div class="lead" id="lead"></div>
+    <main>
+      <svg id="phone" viewBox="0 0 240 480">
+        <rect x="8" y="8" width="224" height="464" rx="34" fill="#17143a" stroke="#6a5ff0" stroke-width="4" />
+        <rect x="70" y="22" width="100" height="8" rx="4" fill="#2c2566" />
+        <circle cx="120" cy="150" r="82" fill="#221d57" stroke="#5a4fc4" stroke-width="3" />
+        <circle cx="120" cy="150" r="30" fill="#6a5ff0" />
+        <text x="120" y="157" text-anchor="middle" font-size="20" font-weight="700" fill="#fff" font-family="Segoe UI, sans-serif">OK</text>
+        <path d="M120 78l12 16h-24z M120 222l12-16h-24z M48 150l16-12v24z M192 150l-16-12v24z" fill="#cfc8ff" />
+        <g font-family="Segoe UI, sans-serif" font-size="15" font-weight="600" fill="#fff" text-anchor="middle">
+          <rect x="30" y="262" width="80" height="44" rx="14" fill="#2c2566" /><text x="70" y="290">Back</text>
+          <rect x="130" y="262" width="80" height="44" rx="14" fill="#2c2566" /><text x="170" y="290">Home</text>
+          <rect x="30" y="318" width="80" height="44" rx="14" fill="#2c2566" /><text x="70" y="346">Menu</text>
+          <rect x="130" y="318" width="80" height="44" rx="14" fill="#2c2566" /><text x="170" y="346">Search</text>
+          <rect x="30" y="374" width="80" height="44" rx="14" fill="#2c2566" /><text x="70" y="402">Tabs</text>
+          <rect x="130" y="374" width="80" height="44" rx="14" fill="#2c2566" /><text x="170" y="402">Vol +/-</text>
+        </g>
+        <rect x="90" y="446" width="60" height="6" rx="3" fill="#2c2566" />
+      </svg>
+      <div id="list"></div>
+    </main>
+    <footer id="foot"></footer>
+    <script src="__rustv.js"></script>
+    <script>
+      var fr = /^fr/i.test(navigator.language || '');
+      var I = {
+        pad: '<circle cx="24" cy="24" r="20" fill="#2c2566" stroke="#6a5ff0" stroke-width="2"/><circle cx="24" cy="24" r="6" fill="#8f86ff"/><path d="M24 7l4 5h-8zM24 41l4-5h-8zM7 24l5-4v8zM41 24l-5-4v8z" fill="#cfc8ff"/>',
+        back: '<circle cx="24" cy="24" r="20" fill="#2c2566" stroke="#6a5ff0" stroke-width="2"/><path d="M28 14l-12 10 12 10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+        home: '<circle cx="24" cy="24" r="20" fill="#2c2566" stroke="#6a5ff0" stroke-width="2"/><path d="M12 25l12-10 12 10v10H28v-7h-8v7H12z" fill="#fff"/>',
+        menu: '<circle cx="24" cy="24" r="20" fill="#2c2566" stroke="#6a5ff0" stroke-width="2"/><path d="M14 17h20M14 24h20M14 31h20" stroke="#fff" stroke-width="4" stroke-linecap="round"/>',
+        search: '<circle cx="24" cy="24" r="20" fill="#2c2566" stroke="#6a5ff0" stroke-width="2"/><circle cx="22" cy="22" r="7" fill="none" stroke="#fff" stroke-width="4"/><path d="M28 28l8 8" stroke="#fff" stroke-width="4" stroke-linecap="round"/>',
+        tabs: '<circle cx="24" cy="24" r="20" fill="#2c2566" stroke="#6a5ff0" stroke-width="2"/><rect x="12" y="15" width="18" height="14" rx="3" fill="none" stroke="#fff" stroke-width="3"/><path d="M18 33h18V21" fill="none" stroke="#fff" stroke-width="3"/>',
+        vol: '<circle cx="24" cy="24" r="20" fill="#2c2566" stroke="#6a5ff0" stroke-width="2"/><path d="M12 20h6l7-6v20l-7-6h-6z" fill="#fff"/><path d="M30 18c3 3 3 9 0 12M34 14c5 5 5 15 0 20" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>',
+        mouse: '<circle cx="24" cy="24" r="20" fill="#2c2566" stroke="#6a5ff0" stroke-width="2"/><rect x="16" y="11" width="16" height="26" rx="8" fill="none" stroke="#fff" stroke-width="3"/><path d="M24 11v10M16 21h16" stroke="#fff" stroke-width="3"/>'
+      };
+      var T = fr ? {
+        h1: 'Télécommande et raccourcis', lead: 'Le téléphone est un clavier pour la TV. Tout se fait aussi au clavier du PC.',
+        foot: 'Retour ferme cette page.',
+        rows: [
+          ['pad', 'Flèches + OK', 'Naviguer et valider. <kbd>Flèches</kbd> + <kbd>Entrée</kbd>'],
+          ['back', 'Retour', 'Revient en arrière ou ferme. <kbd>Échap</kbd> / <kbd>Retour arr.</kbd>'],
+          ['home', 'Accueil', 'Revient à l\'écran d\'accueil de RusTV.'],
+          ['menu', 'Menu', 'Options de la tuile sélectionnée. <kbd>Menu contextuel</kbd>'],
+          ['search', 'Recherche', 'Recherche universelle. <kbd>F3</kbd>'],
+          ['tabs', 'Onglets', 'Change de fenêtre (Alt+Tab). <kbd>Alt</kbd> + <kbd>Tab</kbd>'],
+          ['vol', 'Volume', 'Volume + / - et muet du PC, depuis le téléphone.'],
+          ['mouse', 'Souris', 'Le pavé tactile du téléphone déplace le curseur et clique, pour les sites sans navigation aux flèches.']
+        ]
+      } : {
+        h1: 'Remote and shortcuts', lead: 'The phone is a keyboard for the TV. Everything also works from the PC keyboard.',
+        foot: 'Back closes this page.',
+        rows: [
+          ['pad', 'D-pad + OK', 'Navigate and confirm. <kbd>Arrows</kbd> + <kbd>Enter</kbd>'],
+          ['back', 'Back', 'Goes back or closes. <kbd>Esc</kbd> / <kbd>Backspace</kbd>'],
+          ['home', 'Home', 'Returns to the RusTV home screen.'],
+          ['menu', 'Menu', 'Options of the selected tile. <kbd>Context menu</kbd> key'],
+          ['search', 'Search', 'Universal search. <kbd>F3</kbd>'],
+          ['tabs', 'Tab switcher', 'Switch between windows (Alt+Tab). <kbd>Alt</kbd> + <kbd>Tab</kbd>'],
+          ['vol', 'Volume', 'PC volume up / down and mute, from the phone.'],
+          ['mouse', 'Touchpad', 'The phone touchpad moves the pointer and clicks, for sites that do not work with arrows.']
+        ]
+      };
+      document.getElementById('h1').textContent = T.h1;
+      document.getElementById('lead').textContent = T.lead;
+      document.getElementById('foot').textContent = T.foot;
+      document.getElementById('list').innerHTML = T.rows.map(function (r) {
+        return '<div class="item"><svg viewBox="0 0 48 48">' + I[r[0]] + '</svg><div><b>' + r[1] + '</b><span>' + r[2] + '</span></div></div>';
+      }).join('');
+      rustv.onKey(function () {});
+    </script>
+  </body>
+</html>

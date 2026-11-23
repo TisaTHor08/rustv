@@ -1,0 +1,46 @@
+{
+  "id": "page-calendar",
+  "name": "Calendar",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "pages",
+  "description": "A month calendar you drive with the D-pad. Mark days with a dot.",
+  "details": "A localized month view. Arrows move the selected day, Enter marks or unmarks it with a dot (saved on your PC), today is highlighted. Fully offline.",
+  "tags": [
+    "calendar",
+    "month",
+    "planner"
+  ],
+  "license": "GPL-3.0-or-later",
+  "permissions": [
+    "storage"
+  ],
+  "art": {
+    "from": "#10b981",
+    "to": "#064e3b",
+    "glyph": "calendar"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Calendrier",
+      "description": "Un calendrier mensuel piloté à la télécommande. Marquez des jours.",
+      "details": "Une vue mensuelle localisée. Les flèches déplacent le jour, Entrée le marque ou le démarque d'un point (enregistré sur le PC), aujourd'hui est mis en évidence. Hors ligne."
+    }
+  },
+  "contributes": {
+    "pages": [
+      {
+        "id": "calendar",
+        "name": "Calendar",
+        "desc": "A month calendar you drive with the D-pad. Mark days with a ",
+        "entry": "index.html",
+        "category": "library",
+        "color": "#10b981",
+        "color2": "#064e3b"
+      }
+    ]
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

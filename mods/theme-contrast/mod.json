@@ -1,0 +1,54 @@
+{
+  "id": "theme-contrast",
+  "name": "High contrast",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "themes",
+  "description": "High-contrast accessibility theme: huge white focus ring, bold labels, no blur.",
+  "details": "Designed for readability from far away or with low vision: pure black and white, a very large white focus ring with a yellow outer edge, bold labels and no blurred or translucent backgrounds. Only colors and tile styling change.",
+  "tags": [
+    "accessibility",
+    "contrast",
+    "black",
+    "white",
+    "bold"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#000000",
+    "to": "#404040",
+    "glyph": "eye"
+  },
+  "permissions": [],
+  "contributes": {
+    "themes": [
+      {
+        "id": "contrast",
+        "name": "High contrast",
+        "vars": {
+          "--bg": "#000000",
+          "--bg-rgb": "0, 0, 0",
+          "--text": "#ffffff",
+          "--muted": "rgba(255, 255, 255, 0.85)",
+          "--accent": "#ffe14d",
+          "--glass": "rgba(255, 255, 255, 0.16)",
+          "--glass-strong": "rgba(255, 255, 255, 0.35)",
+          "--sheet": "#000000",
+          "--field": "#1a1a1a",
+          "--ring": "#ffffff"
+        },
+        "css": "theme.css"
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Contraste eleve",
+      "description": "Theme d'accessibilite a fort contraste : tres grand contour blanc, libelles gras, sans flou.",
+      "details": "Concu pour bien lire de loin ou avec une vue reduite : noir et blanc purs, tres grand contour blanc a bord jaune, libelles gras, aucun fond flou ni translucide. Seuls les couleurs et le style des tuiles changent."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

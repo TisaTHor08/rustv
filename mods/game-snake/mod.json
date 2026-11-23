@@ -1,0 +1,46 @@
+{
+  "id": "game-snake",
+  "name": "Snake",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "games",
+  "description": "The classic snake game with growing speed, controlled with the D-pad.",
+  "details": "Eat to grow, avoid walls and your own tail. The snake speeds up as you score and your best score is saved. Enter starts and restarts. Offline.",
+  "tags": [
+    "snake",
+    "arcade",
+    "classic"
+  ],
+  "license": "GPL-3.0-or-later",
+  "permissions": [
+    "storage"
+  ],
+  "art": {
+    "from": "#22c55e",
+    "to": "#14532d",
+    "glyph": "gamepad"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Snake",
+      "description": "Le jeu du serpent classique, de plus en plus rapide.",
+      "details": "Mangez pour grandir, évitez les murs et votre queue. Le serpent accélère avec le score, meilleur score mémorisé. Entrée lance et relance. Hors ligne."
+    }
+  },
+  "contributes": {
+    "pages": [
+      {
+        "id": "snake",
+        "name": "Snake",
+        "desc": "The classic snake game with growing speed, controlled with t",
+        "entry": "index.html",
+        "category": "games",
+        "color": "#22c55e",
+        "color2": "#14532d"
+      }
+    ]
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

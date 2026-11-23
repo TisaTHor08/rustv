@@ -3,20 +3,46 @@
   "name": "Hacker News",
   "version": "1.0.0",
   "author": "RusTV",
-  "description": "A full-screen page listing the top Hacker News stories. Shows how pages use the network and launch permissions.",
+  "publisher": "RusTV",
+  "category": "pages",
+  "description": "Browse the top Hacker News stories full screen and open them with the remote.",
+  "details": "A full-screen list of the current top Hacker News stories. Move with Up and Down, press Enter to open the story in the browser. Also a small example of a page that uses the network and launch permissions.",
+  "tags": [
+    "news",
+    "tech",
+    "hacker news",
+    "reader"
+  ],
   "license": "GPL-3.0-or-later",
-  "permissions": ["network:https://hacker-news.firebaseio.com", "launch"],
+  "permissions": [
+    "network:https://hacker-news.firebaseio.com",
+    "launch"
+  ],
+  "art": {
+    "from": "#ff6600",
+    "to": "#7a2f00",
+    "glyph": "newspaper"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Hacker News",
+      "description": "Parcourez les meilleurs articles de Hacker News en plein écran.",
+      "details": "Une liste plein écran des meilleurs articles du moment sur Hacker News. Haut et Bas pour naviguer, Entrée pour ouvrir l'article dans le navigateur."
+    }
+  },
   "contributes": {
     "pages": [
       {
         "id": "news",
         "name": "Hacker News",
-        "desc": "Top stories",
+        "desc": "Browse the top Hacker News stories full screen and open them",
         "entry": "index.html",
         "category": "library",
         "color": "#ff6600",
         "color2": "#7a2f00"
       }
     ]
-  }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
 }

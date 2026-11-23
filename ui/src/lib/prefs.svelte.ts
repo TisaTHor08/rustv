@@ -22,6 +22,8 @@ export interface Prefs {
   accent: string;
   /** Thème apporté par un mod, au format « idDuMod/idDuThème » (vide = aucun). */
   modTheme: string;
+  /** Notes personnelles des mods (1 à 5 étoiles), stockées uniquement sur ce PC. */
+  modRatings: Record<string, number>;
   tint: boolean;
   clock24: boolean;
   /** Sons de navigation synthétisés. */
@@ -75,6 +77,7 @@ function defaults(): Prefs {
     theme: 'dark',
     accent: ACCENTS[0],
     modTheme: '',
+    modRatings: {},
     tint: true,
     clock24: true,
     sounds: true,

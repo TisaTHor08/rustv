@@ -1,0 +1,125 @@
+{
+  "id": "tiles-music-radio",
+  "name": "Radio and music tiles",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "description": "Radio and listening sites: RTL, Europe 1, NRJ, Fip, Mixcloud, Bandcamp, TuneIn and Radio Garden.",
+  "details": "Adds eight audio tiles that open the official web players: RTL, Europe 1, NRJ, Fip (Radio France), Mixcloud, Bandcamp, TuneIn and Radio Garden. Spotify, Deezer, SoundCloud, Tidal and Radio France are already built into RusTV and are not repeated here.",
+  "category": "apps",
+  "tags": [
+    "radio",
+    "music",
+    "podcasts",
+    "live"
+  ],
+  "dependencies": [],
+  "art": {
+    "from": "#7c3aed",
+    "to": "#2e1065",
+    "glyph": "radio"
+  },
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "contributes": {
+    "tiles": [
+      {
+        "id": "rtl",
+        "name": "RTL",
+        "desc": "RTL live radio and podcasts",
+        "kind": "web",
+        "url": "https://www.rtl.fr",
+        "category": "music",
+        "color": "#e30613",
+        "color2": "#4a0206",
+        "spatnav": true
+      },
+      {
+        "id": "europe1",
+        "name": "Europe 1",
+        "desc": "Europe 1 live radio",
+        "kind": "web",
+        "url": "https://www.europe1.fr",
+        "category": "music",
+        "color": "#0a73c6",
+        "color2": "#042a49",
+        "spatnav": true
+      },
+      {
+        "id": "nrj",
+        "name": "NRJ",
+        "desc": "NRJ hits radio",
+        "kind": "web",
+        "url": "https://www.nrj.fr",
+        "category": "music",
+        "color": "#e6007e",
+        "color2": "#4a0028",
+        "spatnav": true
+      },
+      {
+        "id": "fip",
+        "name": "Fip",
+        "desc": "Fip eclectic radio",
+        "kind": "web",
+        "url": "https://www.radiofrance.fr/fip",
+        "category": "music",
+        "color": "#e5007d",
+        "color2": "#47002a",
+        "spatnav": true
+      },
+      {
+        "id": "mixcloud",
+        "name": "Mixcloud",
+        "desc": "DJ mixes and radio shows",
+        "kind": "web",
+        "url": "https://www.mixcloud.com",
+        "category": "music",
+        "color": "#314359",
+        "color2": "#10161d",
+        "spatnav": true
+      },
+      {
+        "id": "bandcamp",
+        "name": "Bandcamp",
+        "desc": "Discover and buy independent music",
+        "kind": "web",
+        "url": "https://bandcamp.com",
+        "category": "music",
+        "color": "#1da0c3",
+        "color2": "#093846",
+        "spatnav": true
+      },
+      {
+        "id": "tunein",
+        "name": "TuneIn",
+        "desc": "Radio stations from everywhere",
+        "kind": "web",
+        "url": "https://tunein.com",
+        "category": "music",
+        "color": "#14d8cc",
+        "color2": "#05403c",
+        "spatnav": true
+      },
+      {
+        "id": "radiogarden",
+        "name": "Radio Garden",
+        "desc": "Tune radios around the globe",
+        "kind": "web",
+        "url": "https://radio.garden",
+        "category": "music",
+        "color": "#2f9e6a",
+        "color2": "#0b3322",
+        "spatnav": true
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Tuiles radio et musique",
+      "description": "Radio et écoute : RTL, Europe 1, NRJ, Fip, Mixcloud, Bandcamp, TuneIn et Radio Garden.",
+      "details": "Ajoute huit tuiles audio vers les lecteurs web officiels : RTL, Europe 1, NRJ, Fip (Radio France), Mixcloud, Bandcamp, TuneIn et Radio Garden. Spotify, Deezer, SoundCloud, Tidal et Radio France sont déjà intégrés à RusTV."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

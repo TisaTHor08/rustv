@@ -1,0 +1,54 @@
+{
+  "id": "theme-mono",
+  "name": "Mono",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "themes",
+  "description": "Pure black OLED theme with a white accent, flat tiles and a thin focus ring.",
+  "details": "True black background (OLED friendly), white accent and no glow. Tiles are flat with small corners, and the focused tile is marked by a thin white ring only. Only colors and tile styling change.",
+  "tags": [
+    "dark",
+    "oled",
+    "black",
+    "flat",
+    "minimal"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#3f3f46",
+    "to": "#000000",
+    "glyph": "contrast"
+  },
+  "permissions": [],
+  "contributes": {
+    "themes": [
+      {
+        "id": "mono",
+        "name": "Mono",
+        "vars": {
+          "--bg": "#000000",
+          "--bg-rgb": "0, 0, 0",
+          "--text": "#ffffff",
+          "--muted": "rgba(255, 255, 255, 0.6)",
+          "--accent": "#ffffff",
+          "--glass": "rgba(255, 255, 255, 0.08)",
+          "--glass-strong": "rgba(255, 255, 255, 0.18)",
+          "--sheet": "rgba(12, 12, 12, 0.98)",
+          "--field": "rgba(0, 0, 0, 0.35)",
+          "--ring": "#ffffff"
+        },
+        "css": "theme.css"
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Mono",
+      "description": "Theme noir OLED pur, accent blanc, tuiles plates et fin contour de selection.",
+      "details": "Fond noir absolu (ideal OLED), accent blanc et aucune lueur. Les tuiles sont plates, la tuile selectionnee n'a qu'un fin contour blanc. Seuls les couleurs et le style des tuiles changent."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

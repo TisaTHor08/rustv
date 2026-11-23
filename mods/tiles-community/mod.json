@@ -8,9 +8,60 @@
   "permissions": [],
   "contributes": {
     "tiles": [
-      { "id": "wikipedia", "name": "Wikipedia", "desc": "The free encyclopedia", "kind": "web", "url": "https://www.wikipedia.org", "category": "library", "color": "#3a3a3a", "color2": "#111111" },
-      { "id": "radioparadise", "name": "Radio Paradise", "desc": "Eclectic listener-supported radio", "kind": "web", "url": "https://radioparadise.com/player", "category": "music", "color": "#2d6cdf", "color2": "#0e2a63" },
-      { "id": "nasa", "name": "NASA Live", "desc": "NASA TV and live streams", "kind": "web", "url": "https://www.nasa.gov/nasa-live/", "category": "tv", "color": "#0b3d91", "color2": "#04163a" }
+      {
+        "id": "wikipedia",
+        "name": "Wikipedia",
+        "desc": "The free encyclopedia",
+        "kind": "web",
+        "url": "https://www.wikipedia.org",
+        "category": "library",
+        "color": "#3a3a3a",
+        "color2": "#111111"
+      },
+      {
+        "id": "radioparadise",
+        "name": "Radio Paradise",
+        "desc": "Eclectic listener-supported radio",
+        "kind": "web",
+        "url": "https://radioparadise.com/player",
+        "category": "music",
+        "color": "#2d6cdf",
+        "color2": "#0e2a63"
+      },
+      {
+        "id": "nasa",
+        "name": "NASA Live",
+        "desc": "NASA TV and live streams",
+        "kind": "web",
+        "url": "https://www.nasa.gov/nasa-live/",
+        "category": "tv",
+        "color": "#0b3d91",
+        "color2": "#04163a"
+      }
     ]
-  }
+  },
+  "category": "apps",
+  "publisher": "RusTV",
+  "art": {
+    "from": "#475569",
+    "to": "#0f172a",
+    "glyph": "grid"
+  },
+  "dependencies": [],
+  "tags": [
+    "wikipedia",
+    "radio",
+    "nasa",
+    "space"
+  ],
+  "details": "Adds three extra website tiles: Wikipedia (the free encyclopedia), Radio Paradise (eclectic listener-supported radio) and NASA Live (NASA TV and live streams). All are free to use and need no account.",
+  "i18n": {
+    "fr": {
+      "name": "Tuiles communautaires",
+      "description": "Quelques tuiles de sites en plus : Wikipedia, Radio Paradise et NASA Live.",
+      "details": "Ajoute trois tuiles de sites : Wikipedia (l'encyclopédie libre), Radio Paradise (radio éclectique financée par ses auditeurs) et NASA Live (NASA TV et directs). Gratuit, sans compte."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
 }

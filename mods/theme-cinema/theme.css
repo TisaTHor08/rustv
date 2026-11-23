@@ -1,0 +1,10 @@
+/* Cinema: gold ring, small corners, spaced uppercase labels. */
+.tile { border-radius: 0.6rem !important; }
+.tile .label { text-transform: uppercase; letter-spacing: 0.08em !important; font-size: 1.25rem !important; }
+.tile.focus {
+  box-shadow:
+    0 0 0 0.16rem #f0c868,
+    0 1.8rem 3.4rem -0.8rem rgba(230, 179, 74, 0.5),
+    0 1rem 2rem rgba(0, 0, 0, 0.6) !important;
+}
+.cta { color: #1a1206 !important; }

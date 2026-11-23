@@ -1,0 +1,41 @@
+{
+  "id": "widget-daily-quote",
+  "name": "Daily quote",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "widgets",
+  "description": "A short quote that changes every day, shown in the top bar.",
+  "details": "Shows one short quote per day, picked from a built-in list of about 40 French and English quotes (public domain or original) with the author. Offline, no permission.",
+  "tags": [
+    "quote",
+    "daily",
+    "inspiration"
+  ],
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "art": {
+    "from": "#f59e0b",
+    "to": "#78350f",
+    "glyph": "note"
+  },
+  "i18n": {
+    "fr": {
+      "name": "Citation du jour",
+      "description": "Une courte citation qui change chaque jour dans la barre du haut.",
+      "details": "Affiche une citation par jour choisie dans une liste d'environ 40 citations françaises et anglaises (domaine public ou originales), avec l'auteur. Hors ligne, sans permission."
+    }
+  },
+  "contributes": {
+    "widgets": [
+      {
+        "id": "w",
+        "slot": "topbar",
+        "entry": "quote.html",
+        "width": 26
+      }
+    ]
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

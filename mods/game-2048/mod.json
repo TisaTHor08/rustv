@@ -1,0 +1,46 @@
+{
+  "id": "game-2048",
+  "name": "2048",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "games",
+  "description": "Slide and merge tiles to reach 2048, played with the D-pad.",
+  "details": "The classic 2048 puzzle. Arrows slide the tiles, equal numbers merge. Your best score is saved. When no move is left, press Enter to restart. Offline.",
+  "tags": [
+    "puzzle",
+    "2048",
+    "arcade"
+  ],
+  "license": "GPL-3.0-or-later",
+  "permissions": [
+    "storage"
+  ],
+  "art": {
+    "from": "#f59e0b",
+    "to": "#92400e",
+    "glyph": "grid"
+  },
+  "i18n": {
+    "fr": {
+      "name": "2048",
+      "description": "Faites glisser et fusionnez les tuiles pour atteindre 2048.",
+      "details": "Le puzzle 2048 classique. Les flèches font glisser les tuiles, les nombres identiques fusionnent. Meilleur score mémorisé. Quand plus aucun coup n'est possible, Entrée relance. Hors ligne."
+    }
+  },
+  "contributes": {
+    "pages": [
+      {
+        "id": "2048",
+        "name": "2048",
+        "desc": "Slide and merge tiles to reach 2048, played with the D-pad.",
+        "entry": "index.html",
+        "category": "games",
+        "color": "#f59e0b",
+        "color2": "#92400e"
+      }
+    ]
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

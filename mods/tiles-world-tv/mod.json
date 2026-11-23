@@ -1,0 +1,114 @@
+{
+  "id": "tiles-world-tv",
+  "name": "World TV tiles",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "description": "Catch-up TV from abroad: BBC iPlayer, ARD Mediathek, ZDF, RTVE Play, NHK World, CBC Gem and SBS On Demand.",
+  "details": "Adds seven international TV tiles that open the official players: BBC iPlayer (UK), ARD Mediathek and ZDF (Germany), RTVE Play (Spain), NHK WORLD-JAPAN, CBC Gem (Canada) and SBS On Demand (Australia). Many are geo-restricted to their home country; Arte is already built into RusTV.",
+  "category": "apps",
+  "tags": [
+    "tv",
+    "world",
+    "international",
+    "catch-up"
+  ],
+  "dependencies": [],
+  "art": {
+    "from": "#0ea5e9",
+    "to": "#082f49",
+    "glyph": "globe"
+  },
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "contributes": {
+    "tiles": [
+      {
+        "id": "bbciplayer",
+        "name": "BBC iPlayer",
+        "desc": "BBC live TV and catch-up (UK)",
+        "kind": "web",
+        "url": "https://www.bbc.co.uk/iplayer",
+        "category": "tv",
+        "color": "#ff4a8d",
+        "color2": "#4a0a24",
+        "spatnav": true
+      },
+      {
+        "id": "ardmediathek",
+        "name": "ARD Mediathek",
+        "desc": "German public TV catch-up",
+        "kind": "web",
+        "url": "https://www.ardmediathek.de",
+        "category": "tv",
+        "color": "#00509e",
+        "color2": "#001d3a",
+        "spatnav": true
+      },
+      {
+        "id": "zdf",
+        "name": "ZDF",
+        "desc": "ZDF mediathek (Germany)",
+        "kind": "web",
+        "url": "https://www.zdf.de",
+        "category": "tv",
+        "color": "#fa7d19",
+        "color2": "#4a2504",
+        "spatnav": true
+      },
+      {
+        "id": "rtveplay",
+        "name": "RTVE Play",
+        "desc": "Spanish public TV catch-up",
+        "kind": "web",
+        "url": "https://www.rtve.es/play/",
+        "category": "tv",
+        "color": "#c8102e",
+        "color2": "#4a0510",
+        "spatnav": true
+      },
+      {
+        "id": "nhkworld",
+        "name": "NHK WORLD-JAPAN",
+        "desc": "Japanese news and culture live",
+        "kind": "web",
+        "url": "https://www3.nhk.or.jp/nhkworld/",
+        "category": "tv",
+        "color": "#e60012",
+        "color2": "#450005",
+        "spatnav": true
+      },
+      {
+        "id": "cbcgem",
+        "name": "CBC Gem",
+        "desc": "Canadian streaming from CBC",
+        "kind": "web",
+        "url": "https://gem.cbc.ca",
+        "category": "tv",
+        "color": "#e8112d",
+        "color2": "#470410",
+        "spatnav": true
+      },
+      {
+        "id": "sbsondemand",
+        "name": "SBS On Demand",
+        "desc": "Australian world TV streaming",
+        "kind": "web",
+        "url": "https://www.sbs.com.au/ondemand",
+        "category": "tv",
+        "color": "#0f2f5e",
+        "color2": "#040f20",
+        "spatnav": true
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Tuiles TV du monde",
+      "description": "Replay de TV étrangères : BBC iPlayer, ARD Mediathek, ZDF, RTVE Play, NHK World, CBC Gem et SBS On Demand.",
+      "details": "Ajoute sept tuiles TV internationales vers les lecteurs officiels : BBC iPlayer (Royaume-Uni), ARD Mediathek et ZDF (Allemagne), RTVE Play (Espagne), NHK WORLD-JAPAN, CBC Gem (Canada) et SBS On Demand (Australie). Beaucoup sont limités géographiquement ; Arte est déjà intégré à RusTV."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}
