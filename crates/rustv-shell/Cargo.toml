@@ -55,3 +55,5 @@ features = [
     "Win32_UI_Input_XboxController",
     "Win32_UI_WindowsAndMessaging",
 ]
+socket2 = { version = "0.6", features = ["all"] }
+if-addrs = "0.15"

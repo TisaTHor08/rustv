@@ -2,6 +2,7 @@
 
 mod autostart;
 mod browser;
+mod cast;
 mod commands;
 mod display;
 mod dvr;

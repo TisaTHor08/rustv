@@ -227,6 +227,12 @@ fn write_support(kind: &str) -> (PathBuf, PathBuf) {
     (conf, lua)
 }
 
+/// Envoie une commande JSON brute à mpv (module cast : pause, reprise, déplacement).
+pub fn ipc(app: &AppHandle, v: Value) {
+    let p = app.state::<Shell>().player.clone();
+    send(&p, v);
+}
+
 pub fn stop(app: &AppHandle) {
     let p = app.state::<Shell>().player.clone();
     let child = p.child.lock().unwrap().take();
