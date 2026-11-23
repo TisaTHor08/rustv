@@ -1,6 +1,8 @@
 //! Protection des jetons (TMDB, Plex, Jellyfin) : DPAPI (clé liée au compte Windows), derrière un trait pour
 //! tester l'aller-retour sans Windows. Les jetons ne sont jamais journalisés ni renvoyés à l'interface.
+#[cfg(windows)]
 use windows::Win32::Foundation::{LocalFree, HLOCAL};
+#[cfg(windows)]
 use windows::Win32::Security::Cryptography::{CryptProtectData, CryptUnprotectData, CRYPT_INTEGER_BLOB};
 
 pub trait Protector {
@@ -9,10 +11,12 @@ pub trait Protector {
 }
 
 /// Entropie propre à ce module : un autre programme du même compte ne déchiffre pas par accident.
+#[cfg(windows)]
 const ENTROPY: &[u8] = b"RusTV-UniversalSearch-v1";
 
 pub struct Dpapi;
 
+#[cfg(windows)]
 fn blob(b: &[u8]) -> CRYPT_INTEGER_BLOB {
     CRYPT_INTEGER_BLOB {
         cbData: b.len() as u32,
@@ -21,6 +25,7 @@ fn blob(b: &[u8]) -> CRYPT_INTEGER_BLOB {
 }
 
 /// Copie le résultat DPAPI puis libère le tampon alloué par Windows.
+#[cfg(windows)]
 unsafe fn take(out: CRYPT_INTEGER_BLOB) -> Vec<u8> {
     let v = if out.pbData.is_null() {
         Vec::new()
@@ -33,6 +38,19 @@ unsafe fn take(out: CRYPT_INTEGER_BLOB) -> Vec<u8> {
     v
 }
 
+/// Hors Windows : pas de protection disponible. On échoue (jamais de repli en clair) ; le vrai backend sera
+/// libsecret/Secret Service (Linux) ou le Trousseau (macOS), voir docs/PORTING.md.
+#[cfg(not(windows))]
+impl Protector for Dpapi {
+    fn protect(&self, _plain: &[u8]) -> Result<Vec<u8>, String> {
+        Err(rustv_core::platform::UNSUPPORTED.to_string())
+    }
+    fn unprotect(&self, _sealed: &[u8]) -> Result<Vec<u8>, String> {
+        Err(rustv_core::platform::UNSUPPORTED.to_string())
+    }
+}
+
+#[cfg(windows)]
 impl Protector for Dpapi {
     fn protect(&self, plain: &[u8]) -> Result<Vec<u8>, String> {
         let input = blob(plain);

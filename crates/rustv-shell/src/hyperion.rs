@@ -120,7 +120,8 @@ pub fn sanitize(mut c: Config) -> Result<Config, String> {
     c.effect.truncate(100);
     c.path = c.path.trim().to_string();
     if !c.path.is_empty() {
-        let name = Path::new(&c.path).file_name().map(|n| n.to_string_lossy().to_ascii_lowercase()).unwrap_or_default();
+        // Dernier composant, quel que soit le séparateur (chemin Windows saisi ou lu sur un autre OS).
+        let name = c.path.rsplit(['/', '\\']).next().unwrap_or_default().to_ascii_lowercase();
         if name != "hyperiond.exe" && name != "hyperiond" {
             return Err("invalid_path".into());
         }
@@ -597,7 +598,7 @@ fn app_dir() -> PathBuf {
 
 /// Cherche `hyperiond.exe` sous `dir` (profondeur limitée : le zip peut contenir un dossier racine).
 fn find_in(dir: &Path, depth: u32) -> Option<PathBuf> {
-    let direct = dir.join("hyperiond.exe");
+    let direct = dir.join(rustv_core::platform::exe_name("hyperiond"));
     if direct.is_file() {
         return Some(direct);
     }
@@ -613,6 +614,12 @@ pub fn candidate_paths(cfg_path: &str, env: &dyn Fn(&str) -> Option<String>) -> 
     if !cfg_path.is_empty() {
         v.push(PathBuf::from(cfg_path));
     }
+    if !cfg!(windows) {
+        // Linux/macOS : paquet de la distribution, /usr/local, Homebrew, puis PATH.
+        for d in ["/usr/bin", "/usr/local/bin", "/opt/homebrew/bin", "/snap/bin"] {
+            v.push(PathBuf::from(d).join("hyperiond"));
+        }
+    }
     for k in ["ProgramFiles", "ProgramFiles(x86)", "LOCALAPPDATA"] {
         if let Some(b) = env(k).map(PathBuf::from) {
             let b = if k == "LOCALAPPDATA" { b.join("Programs") } else { b };
@@ -621,7 +628,7 @@ pub fn candidate_paths(cfg_path: &str, env: &dyn Fn(&str) -> Option<String>) -> 
         }
     }
     if let Some(p) = env("PATH") {
-        v.extend(std::env::split_paths(&p).map(|d| d.join("hyperiond.exe")));
+        v.extend(std::env::split_paths(&p).map(|d| d.join(rustv_core::platform::exe_name("hyperiond"))));
     }
     v
 }
@@ -716,8 +723,20 @@ pub fn stop_process() {
     drop_conn();
     let m = MANAGED.lock().unwrap_or_else(|e| e.into_inner()).take();
     if let Some(m) = m {
-        let mut c = Command::new("taskkill");
-        c.args(["/PID", &m.pid.to_string(), "/T", "/F"]).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
+        #[cfg(windows)]
+        let mut c = {
+            let mut c = Command::new("taskkill");
+            c.args(["/PID", &m.pid.to_string(), "/T", "/F"]);
+            c
+        };
+        // Unix : SIGTERM au processus lancé par nous (le backend Linux/macOS affinera : groupe de processus).
+        #[cfg(not(windows))]
+        let mut c = {
+            let mut c = Command::new("kill");
+            c.args(["-TERM", &m.pid.to_string()]);
+            c
+        };
+        c.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
         let _ = no_window(&mut c).status();
     }
 }
@@ -861,6 +880,11 @@ fn unzip(archive: &Path, to: &Path) -> Result<(), String> {
 /// Résultat de l'installation : "ready" (portable installé) ou "installer" (installeur téléchargé et vérifié,
 /// à ouvrir par l'utilisateur : on ne l'exécute jamais en silence).
 pub fn install(app: &AppHandle) -> Result<Value, String> {
+    // Les archives publiées sont des paquets Windows : sous Linux/macOS, Hyperion s'installe avec le gestionnaire
+    // de paquets du système (docs/PORTING.md) ; on ne télécharge jamais une archive d'un autre OS.
+    if !cfg!(windows) {
+        return Err(rustv_core::platform::UNSUPPORTED.into());
+    }
     let agent = ureq::AgentBuilder::new().timeout_connect(Duration::from_secs(15)).timeout_read(Duration::from_secs(60)).user_agent("RusTV").build();
     let mut body = String::new();
     agent.get(RELEASES_API).set("Accept", "application/vnd.github+json").call().map_err(|_| "github_unreachable".to_string())?.into_reader().take(4 * 1024 * 1024).read_to_string(&mut body).map_err(|e| e.to_string())?;
@@ -1453,6 +1477,7 @@ mod tests {
         assert_eq!(pick_asset(&r).unwrap_err(), "bad_size");
     }
 
+    #[cfg(windows)]
     #[test]
     fn install_candidates() {
         let env = |k: &str| match k {
@@ -1464,6 +1489,18 @@ mod tests {
         assert_eq!(c[0], PathBuf::from(r"D:\x\hyperiond.exe"));
         assert!(c.contains(&PathBuf::from(r"C:\Program Files").join("Hyperion").join("bin").join("hyperiond.exe")));
         assert!(c.iter().any(|p| p.to_string_lossy().contains("Programs")));
+        assert_eq!(safe_file_name("a b/../c.exe"), "a_b_.._c.exe");
+    }
+
+    #[cfg(not(windows))]
+    #[test]
+    fn install_candidates_unix() {
+        let env = |k: &str| (k == "PATH").then(|| "/x/bin".to_string());
+        let c = candidate_paths("/opt/h/hyperiond", &env);
+        assert_eq!(c[0], PathBuf::from("/opt/h/hyperiond"));
+        assert!(c.contains(&PathBuf::from("/usr/bin").join("hyperiond")));
+        assert!(c.contains(&PathBuf::from("/x/bin").join("hyperiond")));
+        assert!(!c.iter().any(|p| p.to_string_lossy().ends_with(".exe")));
         assert_eq!(safe_file_name("a b/../c.exe"), "a_b_.._c.exe");
     }
 }

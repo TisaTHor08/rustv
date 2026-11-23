@@ -58,6 +58,22 @@ pub trait Runner: Send + Sync {
 /// Liste (pure) des emplacements usuels de `bw`, d'après l'environnement.
 pub fn candidates(env: &dyn Fn(&str) -> Option<String>) -> Vec<PathBuf> {
     let mut v = Vec::new();
+    if !cfg!(windows) {
+        // Linux/macOS : `bw` (npm, snap, Homebrew) sur le PATH puis emplacements usuels.
+        if let Some(p) = env("PATH") {
+            for d in std::env::split_paths(&p) {
+                v.push(d.join("bw"));
+            }
+        }
+        for d in ["/usr/local/bin", "/opt/homebrew/bin", "/usr/bin", "/snap/bin"] {
+            v.push(PathBuf::from(d).join("bw"));
+        }
+        if let Some(h) = env("HOME") {
+            v.push(PathBuf::from(&h).join(".local").join("bin").join("bw"));
+            v.push(PathBuf::from(&h).join(".npm-global").join("bin").join("bw"));
+        }
+        return v;
+    }
     if let Some(p) = env("PATH") {
         for d in std::env::split_paths(&p) {
             v.push(d.join("bw.exe"));
@@ -206,20 +222,16 @@ impl Typer for WinTyper {
         crate::input::foreground().0 as isize
     }
     fn foreground_title(&self) -> String {
-        use windows::Win32::UI::WindowsAndMessaging::GetWindowTextW;
-        let h = crate::input::foreground();
-        let mut buf = [0u16; 256];
-        let n = unsafe { GetWindowTextW(h, &mut buf) };
-        String::from_utf16_lossy(&buf[..n.max(0) as usize])
+        crate::input::foreground_title()
     }
     fn type_text(&self, text: &str) {
         crate::input::type_text(text);
     }
     fn tab(&self) {
-        crate::input::tap(windows::Win32::UI::Input::KeyboardAndMouse::VK_TAB);
+        crate::input::tap(crate::input::keys::VK_TAB);
     }
     fn enter(&self) {
-        crate::input::tap(windows::Win32::UI::Input::KeyboardAndMouse::VK_RETURN);
+        crate::input::tap(crate::input::keys::VK_RETURN);
     }
 }
 
@@ -462,7 +474,7 @@ impl Vault {
 
     /// Vault branché sur la vraie CLI ; réglages dans `%APPDATA%\RusTV\vault.json`.
     pub fn system() -> Self {
-        let base = std::env::var_os("APPDATA").map(PathBuf::from).unwrap_or_else(std::env::temp_dir).join("RusTV").join("vault.json");
+        let base = crate::platform::config_dir().join("vault.json");
         Vault::new(Arc::new(BwRunner::default()), Some(base))
     }
 
@@ -1183,6 +1195,22 @@ mod tests {
         let _ = std::fs::remove_dir_all(dir);
     }
 
+    #[cfg(not(windows))]
+    #[test]
+    fn candidate_paths_unix() {
+        let env = |k: &str| match k {
+            "PATH" => Some("/a:/b".to_string()),
+            "HOME" => Some("/home/u".to_string()),
+            _ => None,
+        };
+        let c = candidates(&env);
+        assert!(c.contains(&PathBuf::from("/a").join("bw")));
+        assert!(c.contains(&PathBuf::from("/opt/homebrew/bin").join("bw")));
+        assert!(c.contains(&PathBuf::from("/home/u").join(".local").join("bin").join("bw")));
+        assert!(!c.iter().any(|p| p.to_string_lossy().ends_with(".exe")));
+    }
+
+    #[cfg(windows)]
     #[test]
     fn candidate_paths() {
         let env = |k: &str| match k {

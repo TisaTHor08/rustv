@@ -1,4 +1,4 @@
-//! Configuration persistante : %APPDATA%\RusTV\config.json
+//! Configuration persistante : `<config_dir>/config.json` (`%APPDATA%\RusTV` sous Windows, voir `platform`).
 use base64::{engine::general_purpose::STANDARD, Engine};
 use rand::RngCore;
 use serde::{Deserialize, Serialize};
@@ -32,8 +32,7 @@ pub struct Config {
 }
 
 fn dir() -> PathBuf {
-    let base = std::env::var_os("APPDATA").map(PathBuf::from).unwrap_or_else(std::env::temp_dir);
-    base.join("RusTV")
+    crate::platform::config_dir()
 }
 
 pub fn random_hex(n: usize) -> String {
@@ -52,7 +51,7 @@ impl Config {
             // Illisible : on le garde de côté plutôt que de perdre les appairages.
             let _ = std::fs::rename(&path, dir().join("config.json.bad"));
         }
-        let name = std::env::var("COMPUTERNAME").unwrap_or_else(|_| "PC".into());
+        let name = std::env::var("COMPUTERNAME").or_else(|_| std::env::var("HOSTNAME")).unwrap_or_else(|_| "PC".into());
         let c = Config { pc_id: random_hex(8), pc_name: name, devices: vec![], custom_apps: vec![
             CustomApp { name: "YouTube".into(), target: "https://www.youtube.com/tv".into() },
             CustomApp { name: "Netflix".into(), target: "https://www.netflix.com".into() },

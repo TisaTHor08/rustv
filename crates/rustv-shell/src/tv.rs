@@ -51,6 +51,7 @@ fn place_full(win: &WebviewWindow, m: &MonInfo) {
 
 /// Windows refuse souvent de donner le focus à un process en arrière-plan : on passe par rustv-core.
 pub fn force_focus(win: &WebviewWindow) {
+    #[cfg(windows)]
     if let Ok(h) = win.hwnd() {
         rustv_core::input::force_foreground(h.0 as isize);
     }
@@ -240,6 +241,10 @@ pub fn go_home(app: &AppHandle) {
 // ---------- lancement d'apps ----------
 
 fn find_vlc() -> Option<String> {
+    if !cfg!(windows) {
+        let mac = std::path::PathBuf::from("/Applications/VLC.app/Contents/MacOS/VLC");
+        return rustv_core::platform::which("vlc").or_else(|| mac.is_file().then_some(mac)).map(|p| p.to_string_lossy().into_owned());
+    }
     for var in ["ProgramFiles", "ProgramFiles(x86)"] {
         if let Some(p) = std::env::var_os(var) {
             let path = std::path::PathBuf::from(p).join(r"VideoLAN\VLC\vlc.exe");
@@ -419,6 +424,11 @@ pub(crate) fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tau
         // Fond opaque dès l'ouverture : tant que la page n'a rien affiché, on ne voit pas l'accueil à travers la fenêtre.
         .background_color(tauri::window::Color(8, 10, 16, 255))
         .visible(false);
+    // WebView2 uniquement (sans effet ailleurs) : sous Linux (WebKitGTK) il faudra la politique TLS du WebContext
+    // via `with_webview` (docs/PORTING.md) ; en attendant, l'option « certificat auto-signé » est ignorée.
+    #[cfg(not(windows))]
+    let _ = insecure;
+    #[cfg(windows)]
     if insecure {
         // Remplace les arguments par défaut de wry (voir la doc de additional_browser_args) ; profil dédié par tuile.
         b = b.additional_browser_args("--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --ignore-certificate-errors");

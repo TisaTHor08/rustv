@@ -7,6 +7,7 @@
 - Node.js 22 or newer.
 - WebView2 runtime (included in Windows 11).
 - Android Studio, only if you build or modify the phone app APK.
+- Optional, to check the Linux build: Docker (see below and [PORTING.md](PORTING.md)).
 
 ## Repository map
 
@@ -50,6 +51,20 @@ npx cap open android                         # then Build > Build APK in Android
 
 Run `rustv.exe` for tray mode, or `rustv.exe --tv --screen N` to start directly in TV mode on screen number `N`.
 `npm run dev` in `ui/` or `remote/` starts a Vite dev server for the web part only.
+
+### Linux build check in Docker
+
+The workspace compiles and its unit tests pass on Linux (OS features are stubs, see [PORTING.md](PORTING.md)).
+With Docker Desktop and `ui/dist` built (`cd ui && npm run build`):
+
+```
+.\scripts\linux-docker.ps1 build-image   # once
+.\scripts\linux-docker.ps1 check         # cargo check --workspace --all-targets
+.\scripts\linux-docker.ps1 test          # cargo test --workspace
+```
+
+(`scripts/linux-docker.sh` offers the same sub-commands for bash.) Images and volumes are prefixed `rustv-`;
+`clean` removes them.
 
 ### Integration tests against a real PC
 

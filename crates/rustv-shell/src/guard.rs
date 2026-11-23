@@ -6,8 +6,12 @@
 //! en marche appelle (`activate` / `deactivate` / `restore_all`) : les tests ne touchent jamais ni le
 //! registre, ni la barre des tâches, ni les fenêtres.
 //!
+//! Hors Windows, `sys` est remplacé par `platform/stub/guard_sys.rs` (aucune action : pas de barre des tâches
+//! ni de garde de fenêtres, voir docs/PORTING.md) ; la logique pure ci-dessous reste compilée et testée.
+//!
 //! Limites assumées (voir docs/TV-GUARD.md) : le bureau sécurisé (UAC, Ctrl+Alt+Suppr, écran de verrouillage)
 //! n'est jamais visible ni modifiable par un processus normal, et la garde n'essaie pas d'y toucher.
+#![cfg_attr(not(windows), allow(dead_code, unused_imports))]
 use crate::{store, tv, Shell};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet, VecDeque};
@@ -867,6 +871,11 @@ pub async fn guard_panic(app: AppHandle) -> Result<GuardCfg, String> {
 // Enveloppes Win32 (jamais appelées par les tests)
 // =====================================================================================================
 
+#[cfg(not(windows))]
+#[path = "platform/stub/guard_sys.rs"]
+mod sys;
+
+#[cfg(windows)]
 mod sys {
     use super::*;
     use std::ffi::c_void;

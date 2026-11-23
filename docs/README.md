@@ -7,6 +7,7 @@
 | [../CHANGELOG.md](../CHANGELOG.md) | Everyone | What changed in each release |
 | [../CONTRIBUTING.md](../CONTRIBUTING.md) | Contributors | How to propose changes, code style, adding tiles, mods, translations |
 | [DEVELOPMENT.md](DEVELOPMENT.md) | Contributors | Setup, repository map, build/test/debug workflow, user data, safety |
+| [PORTING.md](PORTING.md) | Contributors | Linux and macOS porting: platform layer, per-module stubs and target backends, Docker build for Linux |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Contributors | Components and how they talk to each other |
 | [PROTOCOL.md](PROTOCOL.md) | Contributors, auditors | Wire protocol: handshake, encryption, messages |
 | [APPS.md](APPS.md) | Everyone | Natively supported apps and how well each one is tested (generated) |

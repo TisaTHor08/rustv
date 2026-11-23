@@ -15,7 +15,6 @@ use crate::{settings, tv, Shell};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
-use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::path::PathBuf;
 use std::process::{Child, Command};
@@ -80,7 +79,7 @@ struct Props {
 #[derive(Default)]
 pub struct Player {
     child: Mutex<Option<Child>>,
-    pipe: Mutex<Option<std::fs::File>>,
+    pipe: Mutex<Option<rustv_core::platform::ipc::Stream>>,
     items: Mutex<Vec<Item>>,
     index: Mutex<usize>,
     pub state: Mutex<PlayerState>,
@@ -100,9 +99,17 @@ fn player_dir() -> PathBuf {
 }
 
 pub fn find_mpv() -> Option<PathBuf> {
-    let mut cands: Vec<PathBuf> = vec![player_dir().join("mpv.exe")];
+    let exe = rustv_core::platform::exe_name("mpv");
+    let mut cands: Vec<PathBuf> = vec![player_dir().join(&exe)];
     if let Some(path) = std::env::var_os("PATH") {
-        cands.extend(std::env::split_paths(&path).map(|p| p.join("mpv.exe")));
+        cands.extend(std::env::split_paths(&path).map(|p| p.join(&exe)));
+    }
+    // Linux/macOS : emplacements usuels hors PATH (le bit d'exécution est vérifié par `which_in`).
+    if !cfg!(windows) {
+        cands.extend(rustv_core::platform::default_bin_dirs().into_iter().map(|d| d.join(&exe)));
+        if cfg!(target_os = "macos") {
+            cands.push(PathBuf::from("/Applications/mpv.app/Contents/MacOS/mpv"));
+        }
     }
     for var in ["ProgramFiles", "LOCALAPPDATA"] {
         if let Some(b) = std::env::var_os(var) {
@@ -120,6 +127,11 @@ pub fn find_mpv() -> Option<PathBuf> {
 // ---------- installation ----------
 
 pub fn install(app: &AppHandle) -> Result<PathBuf, String> {
+    // L'archive officielle est un build Windows : sous Linux/macOS, mpv s'installe avec le gestionnaire de paquets
+    // (apt, dnf, flatpak, brew : voir docs/PORTING.md) ; on ne télécharge jamais un binaire d'un autre OS.
+    if !cfg!(windows) {
+        return Err(rustv_core::platform::UNSUPPORTED.into());
+    }
     let agent = ureq::AgentBuilder::new().timeout_connect(Duration::from_secs(15)).timeout_read(Duration::from_secs(60)).user_agent("RusTV").build();
     let mut body = String::new();
     agent
@@ -301,7 +313,7 @@ pub fn play(app: &AppHandle, req: PlayRequest) -> Result<(), String> {
 
     let mons = tv::monitors(app);
     let tvmon = if shell.tv.lock().unwrap().active { shell.tv.lock().unwrap().monitor } else { 0 };
-    let pipe = format!(r"\\.\pipe\rustv-mpv-{}", std::process::id());
+    let pipe = rustv_core::platform::ipc::path(&format!("rustv-mpv-{}", std::process::id()));
     let (conf, lua) = write_support(&req.kind);
     let wl = player_dir().join("watch_later");
     let _ = std::fs::create_dir_all(&wl);
@@ -381,7 +393,7 @@ fn ipc_loop(app: &AppHandle, player: &Arc<Player>, pipe: &str) {
     // mpv met un instant à créer le tube : on réessaie quelques secondes.
     let mut file = None;
     for _ in 0..60 {
-        if let Ok(f) = OpenOptions::new().read(true).write(true).open(pipe) {
+        if let Ok(f) = rustv_core::platform::ipc::connect(pipe) {
             file = Some(f);
             break;
         }
