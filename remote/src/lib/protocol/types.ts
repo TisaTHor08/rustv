@@ -73,7 +73,7 @@ export interface RemoteMod {
 export type PcMsg =
   | { t: 'apps'; apps: AppEntry[] }
   | { t: 'icons'; icons: { id: string; icon: string }[] }
-  | { t: 'state'; pinned: boolean; textFocus: boolean; tvMode: boolean }
+  | { t: 'state'; pinned: boolean; textFocus: boolean; tvMode: boolean; osStyle?: string }
   | { t: 'nowPlaying'; active: boolean; title: string; artist: string; playing: boolean; position: number; duration: number; source: string }
   | { t: 'vaultState'; status: VaultStatus; email: string; autolockMin: number }
   | { t: 'vaultItems'; items: VaultItem[] }

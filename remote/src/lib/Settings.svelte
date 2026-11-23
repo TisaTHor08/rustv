@@ -1,6 +1,9 @@
 <script lang="ts">
   import { t } from './i18n.ts';
   import { app, unpair } from './connection.svelte.ts';
+  import { lang } from './i18n.ts';
+  import { MODELS } from './remotes/registry.ts';
+  import { modelPref, saveModelChoice } from './remotes/select.svelte.ts';
   import { label, modName, saveThemeChoice, themeKey } from './mods.ts';
 
   let { choice, onpick, onclose }: { choice: string; onpick: (key: string) => void; onclose: () => void } = $props();
@@ -16,6 +19,13 @@
 <div class="back" role="presentation" onclick={onclose}>
   <div class="sheet" role="dialog" tabindex="-1" onclick={(e) => e.stopPropagation()} onkeydown={() => {}}>
     <h3>{t('settings.title')}</h3>
+    <small class="cap">{t('settings.model')}</small>
+    <div class="list">
+      <button class:sel={modelPref.choice === 'auto'} onclick={() => saveModelChoice('auto')}>{t('settings.auto')}</button>
+      {#each MODELS as m (m.id)}
+        <button class:sel={modelPref.choice === m.id} onclick={() => saveModelChoice(m.id)}>{m.name[lang]}</button>
+      {/each}
+    </div>
     <small class="cap">{t('settings.theme')}</small>
     <div class="list">
       <button class:sel={choice === ''} onclick={() => pick('')}>{t('settings.default')}</button>

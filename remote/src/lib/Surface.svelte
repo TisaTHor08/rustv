@@ -5,6 +5,8 @@
 
   // Surface tactile façon Siri Remote : un glissement déplace le focus pas à pas (un cran de
   // haptique par pas), un geste rapide continue avec de l'inertie, un tap valide.
+  // `clickpad` (modèle tvOS) : pavé rond ; un clic sur le bord = flèche, au centre = OK.
+  let { variant = 'default' }: { variant?: 'default' | 'clickpad' } = $props();
   const STEP = 54; // pixels de glissement par pas de focus
   type Dir = 'up' | 'down' | 'left' | 'right';
 
@@ -87,6 +89,14 @@
     if (longFired) return;
     if (moved < 10 && performance.now() - t0 < 300) {
       tick(true);
+      if (variant === 'clickpad') {
+        const r = el.getBoundingClientRect();
+        const dx = last.x - (r.left + r.width / 2), dy = last.y - (r.top + r.height / 2);
+        if (Math.hypot(dx, dy) > r.width * 0.34) {
+          send({ t: 'key', k: Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up' });
+          return;
+        }
+      }
       send({ t: 'key', k: 'enter' });
       return;
     }
@@ -106,7 +116,7 @@
   }
 </script>
 
-<div bind:this={el} class="surface" onpointerdown={pdown} onpointermove={pmove} onpointerup={pup} onpointercancel={pup} role="application" aria-label="Surface tactile">
+<div bind:this={el} class="surface" class:clickpad={variant === 'clickpad'} onpointerdown={pdown} onpointermove={pmove} onpointerup={pup} onpointercancel={pup} role="application" aria-label="Surface tactile">
   {#if dot}<i style:left="{dot.x}px" style:top="{dot.y}px"></i>{/if}
   <span>{t('surface.1')}<br />{t('surface.2')}<br />{t('surface.3')}</span>
 </div>
@@ -123,6 +133,19 @@
     place-items: center;
     overflow: hidden;
     touch-action: none;
+  }
+  .clickpad {
+    flex: none;
+    min-height: 0;
+    width: var(--cp-size, min(100%, 280px));
+    aspect-ratio: 1;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: var(--cp-bg, radial-gradient(120% 90% at 50% 0%, #2a3243, #161b25));
+    box-shadow: var(--cp-shadow, inset 0 0 0 1px #ffffff14, 0 10px 30px #0006);
+  }
+  .clickpad span {
+    color: var(--cp-ink, #8a94a6);
   }
   span {
     color: #8a94a6;
