@@ -266,8 +266,12 @@ pub fn launch_value(app: &AppHandle, tile: &Value, url: Option<String>) -> Resul
     let shell = app.state::<Shell>();
     let id = tile["id"].as_str().filter(|i| i.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_' || c == ':')).ok_or("Tuile invalide")?;
     if let Some(u) = url.filter(|u| !u.trim().is_empty()) {
-        let u = if u.contains("://") { u } else { format!("http://{u}") };
-        u.parse::<Url>().map_err(|_| "Adresse invalide".to_string())?;
+        // Plusieurs adresses possibles (séparées par un espace, une virgule ou un point-virgule) : la première qui répond est utilisée.
+        let list = split_addresses(&u);
+        if list.is_empty() {
+            return Err("Adresse invalide".into());
+        }
+        let u = list.join(" ");
         let mut s = shell.settings.lock().unwrap();
         s.urls.insert(id.to_string(), u);
         s.save();
@@ -286,6 +290,7 @@ pub fn launch_value(app: &AppHandle, tile: &Value, url: Option<String>) -> Resul
         _ => {
             let url = tile["url"].as_str().filter(|u| !u.is_empty()).map(str::to_string).or_else(|| shell.settings.lock().unwrap().urls.get(id).cloned());
             let Some(url) = url else { return Ok("needs_url".into()) };
+            let url = pick_reachable(&url)?;
             let parsed: Url = url.parse().map_err(|_| "Adresse invalide")?;
             if !matches!(parsed.scheme(), "http" | "https") {
                 return Err("Seules les adresses http(s) sont autorisées".into());
@@ -306,6 +311,40 @@ pub fn launch_value(app: &AppHandle, tile: &Value, url: Option<String>) -> Resul
             open_web(app, id, &tile, parsed).map_err(|e| e.to_string())?;
             Ok("ok".into())
         }
+    }
+}
+
+/// Découpe une saisie en adresses http(s) valides (le schéma `http://` est ajouté s'il manque), sans doublon, 5 au plus.
+pub(crate) fn split_addresses(input: &str) -> Vec<String> {
+    let mut out: Vec<String> = Vec::new();
+    for part in input.split(|c: char| c.is_whitespace() || c == ',' || c == ';').filter(|p| !p.is_empty()) {
+        let u = if part.contains("://") { part.to_string() } else { format!("http://{part}") };
+        if let Ok(parsed) = u.parse::<Url>() {
+            if matches!(parsed.scheme(), "http" | "https") && parsed.host_str().is_some() && !out.contains(&u) && out.len() < 5 {
+                out.push(u);
+            }
+        }
+    }
+    out
+}
+
+/// L'hôte de l'adresse répond-il (résolution du nom puis connexion TCP en moins de 2 s) ?
+fn reachable(u: &str) -> bool {
+    use std::net::ToSocketAddrs;
+    let Ok(parsed) = u.parse::<Url>() else { return false };
+    let Some(host) = parsed.host_str() else { return false };
+    let Some(port) = parsed.port_or_known_default() else { return false };
+    let Ok(addrs) = (host, port).to_socket_addrs() else { return false };
+    addrs.take(4).any(|a| std::net::TcpStream::connect_timeout(&a, std::time::Duration::from_millis(2000)).is_ok())
+}
+
+/// Choisit la première adresse qui répond. Une seule adresse : on la garde telle quelle (la fenêtre affichera son erreur).
+fn pick_reachable(stored: &str) -> Result<String, String> {
+    let list = split_addresses(stored);
+    match list.len() {
+        0 => Err("Adresse invalide".into()),
+        1 => Ok(list.into_iter().next().unwrap()),
+        _ => list.iter().find(|u| reachable(u)).cloned().ok_or_else(|| "Aucune des adresses ne répond (NAS éteint ou hors réseau ?)".to_string()),
     }
 }
 
@@ -351,4 +390,22 @@ pub(crate) fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tau
     let _ = w.show();
     force_focus(&w);
     Ok(())
+}
+
+#[cfg(test)]
+mod address_tests {
+    use super::split_addresses;
+
+    #[test]
+    fn splits_and_normalizes() {
+        let l = split_addresses("http://DXP2800-8E19, dxp2800-8e19.eur81.ug.link  https://a.example/x;http://DXP2800-8E19");
+        assert_eq!(l, vec!["http://DXP2800-8E19", "http://dxp2800-8e19.eur81.ug.link", "https://a.example/x"]);
+    }
+
+    #[test]
+    fn rejects_other_schemes_and_garbage() {
+        assert!(split_addresses("file:///c:/x ftp://h javascript:alert(1)").is_empty());
+        assert!(split_addresses("   ").is_empty());
+        assert_eq!(split_addresses("1 2 3 4 5 6 7").len(), 5);
+    }
 }

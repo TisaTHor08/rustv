@@ -29,6 +29,7 @@ Research notes (2026-11) and what the `ugreen` tile does. No UGREEN NAS was avai
 ## What RusTV does
 
 - Tile `ugreen`: asks once for the NAS address (hint `http://192.168.1.20:9999`), stores it, opens it in a dedicated window with its own persistent profile.
+- **Several addresses**: you can enter more than one, separated by a space, comma or semicolon (for example `http://192.168.1.20:9999 https://my-nas.eur81.ug.link`). At launch RusTV uses the first one whose host resolves and accepts a TCP connection within 2 seconds, so the tile works both at home (local address) and away from home (UGREEN Link). If none answers, it says so instead of showing a browser error. With a single address nothing is probed.
 - `allow_insecure_lan` (catalog field, enabled for this tile): for an `https://` address whose host is a private IP (RFC 1918, link-local, loopback, IPv6 ULA), a `.local` name or a dotless name, the window is started with `--ignore-certificate-errors`. Public hostnames (for example `*.ugnas.com`) never get it. Plain `http://` needs no option.
   - Risk: certificate errors are ignored for **everything** loaded in that window, including links that leave the NAS. Do not log in to other sites in this window. Preferred alternative: install a proper certificate on the NAS or use `http://`.
 - Logic for host classification lives in `crates/rustv-shell/src/lan.rs` (unit tested).
