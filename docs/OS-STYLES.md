@@ -19,7 +19,9 @@ Settings > Appearance > Widget position moves the clock / phones / weather / mod
 | `rustv` | RusTV style | the original home, unchanged |
 | `googletv` | Google TV style | available |
 | `roku` | Roku style | available |
-| `tizen`, `webos`, `vidaa`, `titan`, `fire`, `tvos` | (to come) | ids reserved in the registry, hidden until their files exist |
+| `fire` | Fire TV style | available |
+| `tvos` | Apple TV style | available |
+| `tizen`, `webos`, `vidaa`, `titan` | (to come) | ids reserved in the registry, hidden until their files exist |
 
 ## Framework contract
 
@@ -99,13 +101,33 @@ Approximated: no theme art background (a purple gradient), no icons in the menu 
 
 Not done: Roku Settings as a left list plus right detail pane, search screen with the on-screen keyboard, tile reordering, screensaver, volume OSD, input panel.
 
+### Fire TV style (`fire`)
+
+Font Roboto (OFL). Reproduced: dark navy background (#0f171e), top navigation (search icon, Home, Live, Apps, Library, settings gear at the right, clock and phones), selected entry underlined, focused entry in a light-outlined box, large hero (kicker, title, description, white "Open" button, page dots) that follows the focused tile and scrolls away when the focus goes below the first row, first row "Your apps & channels", "Continue watching" 16:9 cards with progress bar, category rows, focus = scale 1.1 with a white 0.25 rem outline and a faint warm glow, label under the focused card, Up from the first row reaches the nav (zone `nav`), Down returns, Enter on an entry selects it, Apps = grid of all tiles, Library = library rows. Content width is capped (140 rem) on 32:9.
+
+Approximated: the hero art is the tile colour with a large letter or icon (no key art, no carousel auto-advance); the "More info" label is decorative; focus outline colour (white with a warm glow) and nav focus look are from memory; the newer Vega OS home (shared by some Panasonic sets) is not reproduced separately.
+
+Left out: the profile avatar, notifications, the "Find" sub-menu, the Alexa hint bar, the sponsored hero and quick-settings overlay.
+
+Verification: only two photos of the Fire TV remote were available as reference, none of the home screen, so the whole layout is built from knowledge of the real UI.
+
+### Apple TV style (`tvos`)
+
+Font: system stack first (`-apple-system`, SF Pro on Apple devices), then Inter (OFL, bundled variable subsets Latin and Latin-extended, 122 KB, in `ui/public/fonts/inter`). Reproduced: pure black background with the focused tile's colour glowing, centered translucent tab capsule (Home, Apps, Library, Live, search) with a light pill on the focused tab, clock pill and round profile button at the right, full-bleed top shelf (large title, subtitle line, frosted Open button) that follows the focused tile, the first row (all apps) as 16:10 rounded icons docked at about 60 % of the height, other rows below ("Up Next" = continue watching as 16:9 cards with progress, recent, categories), focus = icon lifts, scales 1.16, tilts toward the last arrow key (`model.tilt`) then settles, moving specular highlight, long soft shadow, the glyph layer moves slightly (parallax), the name fades in under it, other icons in the row dim, other rows dimmed, the shelf fades out when the focus goes to a lower row and rows scroll up, Up from the first row reaches the capsule (zone `nav`), Apps tab = grid.
+
+Approximated: tilt follows the arrow keys instead of a touch surface; the top shelf has no key art (tile colour plus a large letter or icon); the real Home screen has no tab capsule (it belongs to the TV app), it is kept because the model needs the tabs; no blur of the wallpaper behind the dock; the icon layers are two (background and glyph).
+
+Left out: Control Center, profile switcher, screensaver, app folders and the jiggle edit mode.
+
+Verification: screenshots of tvOS were available as reference (home with the dock, TV app shelves, rows); the tvOS 26 translucent look is only approximated.
+
 ### Not done for all styles (needs further work)
 
 Style-specific variants of Settings, Search, tile menu and pairing; volume and mute OSD; screensaver or ambient mode; quick-settings panel; style-specific launch transition and toast. These require new features (some native) and are listed per style in the checklists above. No bundled mod was added.
 
 ## Fonts and licences
 
-Roboto and Montserrat (variable) from the Fontsource packages, SIL Open Font License 1.1, Latin and Latin-extended subsets in `ui/public/fonts` (about 250 KB), declared with `font-display: swap`; licences next to the files. No network access at runtime.
+Roboto, Montserrat and Inter (variable) from the Fontsource packages, SIL Open Font License 1.1, Latin and Latin-extended subsets in `ui/public/fonts` (about 250 KB, plus 136 KB for Inter in `fonts/inter`), declared with `font-display: swap`; licences next to the files. No network access at runtime.
 
 ## Developing a style: mock harness
 
