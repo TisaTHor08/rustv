@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>RusTV banner</title>
+<!-- Source of assets/banner.png (1280x640, also used as the GitHub social preview).
+     Regenerate: chrome --headless --window-size=1280,640 --screenshot=assets/banner.png assets/banner.html -->
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1280px; height: 640px; overflow: hidden; background: #0b0614; font-family: "Segoe UI", system-ui, Arial, sans-serif; color: #fff; }
+  .bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(900px 520px at 85% 10%, rgba(255, 90, 60, 0.45), transparent 60%),
+      radial-gradient(700px 500px at 5% 100%, rgba(120, 70, 255, 0.35), transparent 60%),
+      linear-gradient(135deg, #120820 0%, #1d0b2e 55%, #3a0f2c 100%);
+  }
+  .grid {
+    position: absolute; inset: 0; opacity: .07;
+    background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: linear-gradient(90deg, #000 0%, transparent 70%);
+  }
+  .left { position: absolute; left: 72px; top: 96px; width: 520px; }
+  .brand { display: flex; align-items: center; gap: 22px; }
+  .brand img { width: 108px; height: 108px; filter: drop-shadow(0 10px 30px rgba(255, 90, 60, .45)); }
+  .brand h1 { font-size: 104px; font-weight: 800; letter-spacing: -3px; line-height: 1; }
+  .tag { margin-top: 28px; font-size: 38px; font-weight: 600; line-height: 1.2; letter-spacing: -0.5px; }
+  .tag b { color: #ff7a5c; font-weight: 700; }
+  .sub { margin-top: 16px; font-size: 20px; color: #c9bfd8; line-height: 1.4; }
+  .pills { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 12px; }
+  .pills span {
+    padding: 8px 16px; border-radius: 999px; font-size: 17px; font-weight: 600;
+    background: rgba(255, 255, 255, .10); border: 1px solid rgba(255, 255, 255, .18); backdrop-filter: blur(6px);
+  }
+  .pills span.hot { background: #ff5a3c; border-color: #ff5a3c; }
+  .tv {
+    position: absolute; left: 740px; top: 110px; width: 620px; height: 349px;
+    border-radius: 16px; overflow: hidden;
+    border: 6px solid #1a1325; outline: 2px solid rgba(255, 255, 255, .15);
+    box-shadow: 0 40px 90px rgba(0, 0, 0, .65), 0 0 120px rgba(255, 90, 60, .25);
+    transform: perspective(1400px) rotateY(-9deg) rotateZ(-1deg);
+  }
+  .tv img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .stand {
+    position: absolute; left: 960px; top: 458px; width: 150px; height: 14px; border-radius: 0 0 14px 14px;
+    background: #1a1325; transform: perspective(1400px) rotateY(-9deg);
+  }
+  .phone {
+    position: absolute; left: 668px; top: 250px; width: 180px; height: 380px;
+    border-radius: 30px; overflow: hidden; border: 6px solid #0d0a14; outline: 2px solid rgba(255, 255, 255, .18);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, .7);
+    transform: rotateZ(-4deg);
+  }
+  .phone img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .foot { position: absolute; left: 72px; bottom: 40px; font-size: 19px; color: #a99fbd; display: flex; gap: 22px; }
+  .foot b { color: #fff; }
+</style>
+</head>
+<body>
+  <div class="bg"></div><div class="grid"></div>
+  <div class="left">
+    <div class="brand"><img src="logo-mark.svg" alt="" /><h1>RusTV</h1></div>
+    <p class="tag">A real <b>TV system</b> for Windows.</p>
+    <p class="sub">Free and open source. A Google&nbsp;TV-style home, your streaming apps and live TV, controlled from your phone.</p>
+    <div class="pills"><span class="hot">Rust</span><span>Phone remote</span><span>Mods &amp; themes</span><span>Live TV</span></div>
+  </div>
+  <div class="tv"><img src="../docs/screenshots/home.png" alt="" /></div>
+  <div class="stand"></div>
+  <div class="phone"><img src="../docs/screenshots/remote.png" alt="" /></div>
+  <div class="foot"><span><b>github.com/TisaTHor08/rustv</b></span><span>GPL-3.0</span></div>
+</body>
+</html>

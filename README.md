@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner.png" alt="RusTV: a real TV system for Windows. Free, open source, controlled from your phone." width="100%" />
+</p>
+
 # RusTV
 
 **A real TV system for Windows. Free, open source, fully customizable, controlled from your phone.**
