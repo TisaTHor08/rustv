@@ -28,3 +28,15 @@ sevenz-rust = "0.6.1"
 sha2 = "0.10"
 quick-xml = "0.37"
 flate2 = "1.1.11"
+
+[dependencies.windows]
+version = "0.62"
+features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Dwm",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_Power",
+    "Win32_System_Threading",
+    "Win32_UI_Accessibility",
+    "Win32_UI_WindowsAndMessaging",
+]

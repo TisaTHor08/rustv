@@ -173,6 +173,55 @@ pub fn exit(app: &AppHandle) {
     crate::hooks::tv_mode_changed(app, false);
 }
 
+/// Démarrage automatique (`rustv --boot`, avec ou sans `--tv`) : choisit l'écran mémorisé sans afficher le
+/// sélecteur. Si la TV n'est pas encore là (réveil lent), attend jusqu'à 60 s qu'elle apparaisse, puis se
+/// rabat sur l'index mémorisé. `screen` : `--screen N` explicite.
+pub fn boot(app: &AppHandle, screen: Option<usize>) {
+    use crate::guard::{boot_decision, Boot, MonDesc, SavedMon};
+    let app = app.clone();
+    std::thread::spawn(move || {
+        let saved = match screen {
+            Some(i) => Some(SavedMon { index: i, name: String::new(), w: 0, h: 0, count: i + 1 }),
+            None => crate::guard::saved_monitor().or_else(|| {
+                let i = app.state::<Shell>().settings.lock().ok()?.monitor?;
+                Some(SavedMon { index: i, name: String::new(), w: 0, h: 0, count: i + 1 })
+            }),
+        };
+        let t0 = std::time::Instant::now();
+        loop {
+            if app.state::<Shell>().tv.lock().map(|t| t.active).unwrap_or(true) {
+                return;
+            }
+            let descs: Vec<MonDesc> = monitors(&app).iter().map(|m| MonDesc { name: m.name.clone(), w: m.w, h: m.h }).collect();
+            let waited = t0.elapsed().as_millis() as u64;
+            match boot_decision(saved.as_ref(), &descs, waited, 60_000) {
+                Boot::Use(i) | Boot::Fallback(i) => return choose(&app, i),
+                Boot::Pick => return start(&app),
+                Boot::Wait if waited > 600_000 => return,
+                Boot::Wait => std::thread::sleep(std::time::Duration::from_secs(1)),
+            }
+        }
+    });
+}
+
+/// Replace les fenêtres TV après un changement d'écrans (TV réveillée, résolution modifiée, veille).
+pub fn reflow(app: &AppHandle) {
+    let shell = app.state::<Shell>();
+    let (active, idx) = shell.tv.lock().map(|t| (t.active, t.monitor)).unwrap_or((false, 0));
+    if !active {
+        return;
+    }
+    let mons = monitors(app);
+    let Some(m) = mons.get(idx.min(mons.len().saturating_sub(1))).cloned() else { return };
+    for (label, w) in app.webview_windows() {
+        if label == "tv" || label.starts_with("app-") {
+            place_full(&w, &m);
+        } else if let Some(o) = label.strip_prefix("black-").and_then(|i| i.parse::<usize>().ok()).and_then(|i| mons.get(i)) {
+            place_full(&w, o);
+        }
+    }
+}
+
 /// Ferme l'app au premier plan et revient à l'accueil.
 pub fn go_home(app: &AppHandle) {
     crate::browser::close();
@@ -230,6 +279,7 @@ pub fn launch_value(app: &AppHandle, tile: &Value, url: Option<String>) -> Resul
                 "vlc" => find_vlc().ok_or("VLC n'est pas installé (https://www.videolan.org)")?,
                 _ => tile["target"].as_str().unwrap_or_default().to_string(),
             };
+            crate::guard::note_launch(&target); // la garde TV autorisera cette fenêtre (lancée exprès)
             rustv_core::apps::launch(&target);
             Ok("ok".into())
         }
