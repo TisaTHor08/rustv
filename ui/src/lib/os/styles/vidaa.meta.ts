@@ -6,9 +6,9 @@ import type { OsStyleMeta } from '../registry';
 import './vidaa.css';
 import './vidaa.strings';
 
-/** Raccourcis de la bande du haut (zone 'top'), de gauche à droite. */
-export const SHORTCUTS = ['live', 'library', 'search', 'settings'] as const;
-export type VidaaShortcut = (typeof SHORTCUTS)[number];
+/** Rail d'icônes à gauche (zone 'rail'), de haut en bas : profil, recherche, notifications, entrées, réglages. */
+export const RAIL = ['profile', 'search', 'notif', 'input', 'settings'] as const;
+export type VidaaRail = (typeof RAIL)[number];
 
 const by = (rows: HomeRow[], key: string) => rows.find((r) => r.key === key);
 
@@ -19,24 +19,35 @@ const meta: OsStyleMeta = {
   font: 'Roboto',
   slots: ['status'],
   tokens: {
-    '--bg': '#06223d',
-    '--bg-rgb': '6, 34, 61',
+    '--bg': '#10121a',
+    '--bg-rgb': '16, 18, 26',
     '--text': '#ffffff',
-    '--muted': 'rgba(255, 255, 255, 0.74)',
-    '--glass': 'rgba(255, 255, 255, 0.12)',
-    '--glass-strong': 'rgba(255, 255, 255, 0.26)',
-    '--sheet': 'rgba(10, 48, 82, 0.97)',
-    '--field': 'rgba(0, 0, 0, 0.32)',
+    '--muted': 'rgba(255, 255, 255, 0.66)',
+    '--glass': 'rgba(255, 255, 255, 0.09)',
+    '--glass-strong': 'rgba(255, 255, 255, 0.2)',
+    '--sheet': 'rgba(22, 25, 36, 0.98)',
+    '--field': 'rgba(0, 0, 0, 0.4)',
     '--ring': '#ffffff',
-    '--accent': '#25c2d9',
-    '--r': '1.1rem',
+    '--accent': '#2fb5c8',
+    '--r': '0.5rem',
     '--font': "'Roboto', 'Segoe UI', system-ui, sans-serif",
-    '--focus-scale': '1.12',
-    '--focus-ring': '0.25rem',
-    '--dock-top': '6rem',
-    '--dock-left': '4rem',
-    '--dock-right': '4rem',
+    '--focus-scale': '1.06',
+    '--focus-ring': '0.22rem',
+    '--dock-top': '0.8rem',
+    '--dock-left': '6rem',
+    '--dock-right': '4.5rem',
     '--dock-bottom': '1.4rem',
+  },
+  screens: {
+    settings: () => import('./vidaa.screens/settings.svelte'),
+    search: () => import('./vidaa.screens/search.svelte'),
+    tileMenu: () => import('./vidaa.screens/tileMenu.svelte'),
+    pairing: () => import('./vidaa.screens/pairing.svelte'),
+    quick: () => import('./vidaa.screens/quick.svelte'),
+    osd: () => import('./vidaa.screens/osd.svelte'),
+    ambient: () => import('./vidaa.screens/ambient.svelte'),
+    toast: () => import('./vidaa.screens/toast.svelte'),
+    launch: () => import('./vidaa.screens/launch.svelte'),
   },
   rows(base) {
     const cont = by(base, 'continue');
@@ -49,32 +60,44 @@ const meta: OsStyleMeta = {
     ];
   },
   nav(dir, model) {
-    if (model.zone === 'top') {
-      const i: number = model.ui.topFocus ?? 0;
-      if (dir === 'down') model.setZone('content');
-      else if (dir === 'left' || dir === 'right') {
-        const n = Math.max(0, Math.min(SHORTCUTS.length - 1, i + (dir === 'left' ? -1 : 1)));
+    if (model.zone === 'rail') {
+      const i: number = model.ui.railFocus ?? 1;
+      if (dir === 'right') model.setZone('content');
+      else if (dir === 'up' || dir === 'down') {
+        const n = Math.max(0, Math.min(RAIL.length - 1, i + (dir === 'up' ? -1 : 1)));
         if (n !== i) {
-          model.ui.topFocus = n;
+          model.ui.railFocus = n;
           play('move');
         }
       }
       return true;
     }
+    if (model.zone === 'banner') {
+      if (dir === 'down') model.setZone('content');
+      else if (dir === 'left') {
+        model.ui.railFocus = model.ui.railFocus ?? 1;
+        model.setZone('rail');
+      }
+      return true;
+    }
     if (dir === 'up' && model.focus.row <= 0) {
-      model.ui.topFocus = model.ui.topFocus ?? 0;
-      model.setZone('top');
+      model.setZone('banner');
+      return true;
+    }
+    if (dir === 'left' && model.focus.col <= 0) {
+      model.ui.railFocus = model.ui.railFocus ?? 1;
+      model.setZone('rail');
       return true;
     }
     return false;
   },
   activate(model) {
-    if (model.zone !== 'top') return false;
-    const s = SHORTCUTS[model.ui.topFocus ?? 0];
+    if (model.zone !== 'rail') return false;
+    const s = RAIL[model.ui.railFocus ?? 1];
     play('select');
-    if (s === 'live') model.openLive();
-    else if (s === 'library') model.openMedia('movies');
-    else if (s === 'search') model.openSearch();
+    if (s === 'search') model.openSearch();
+    else if (s === 'notif') model.note(t('vidaa.nonotif'));
+    else if (s === 'input') model.openMedia('movies');
     else model.openSettings();
     return true;
   },

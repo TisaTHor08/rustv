@@ -16,11 +16,11 @@
   const navFocus = $derived<number>(model.ui.navFocus ?? Math.max(0, NAV.findIndex((e) => e.id === tab)));
   const inNav = $derived(model.zone === 'nav');
   const isGrid = (k: string) => /^g\d+$/.test(k);
-  const ROW_H = (k: string) => (k === 'apps' ? 10.8 : isGrid(k) ? 11 : 12.2);
+  const ROW_H = (k: string) => (k === 'apps' ? 13 : isGrid(k) ? 11 : 12.2);
   const hasHero = $derived(tab === 'home');
   const hero = $derived(hasHero && model.focus.row <= 0);
   // Ancrage vertical : rangée du haut sous le héros, puis rangée ciblée sous la barre d'icônes.
-  const anchor = $derived(hero ? 29 : hasHero ? 9.4 : 8);
+  const anchor = $derived(hero ? 27 : hasHero ? 9.4 : 8);
   const shift = $derived.by(() => {
     const f = Math.max(0, model.focus.row);
     const skip = hasHero ? f : Math.max(0, f - 2);

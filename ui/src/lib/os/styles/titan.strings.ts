@@ -10,6 +10,12 @@ registerStrings('fr', {
   'titan.nav.library': 'Bibliothèque',
   'titan.nav.settings': 'Réglages',
   'titan.open': 'Ouvrir',
+  'titan.fav': 'Applis favorites',
+  'titan.kb.space': 'Espace',
+  'titan.kb.delete': 'Effacer',
+  'titan.kb.clear': 'Tout effacer',
+  'titan.search.start': 'Saisissez un titre',
+  'titan.settings.open': 'Ouvrez la catégorie avec OK',
 });
 registerStrings('en', {
   'os.titan': 'Titan style',
@@ -21,4 +27,10 @@ registerStrings('en', {
   'titan.nav.library': 'Library',
   'titan.nav.settings': 'Settings',
   'titan.open': 'Open',
+  'titan.fav': 'Favourite Apps',
+  'titan.kb.space': 'Space',
+  'titan.kb.delete': 'Delete',
+  'titan.kb.clear': 'Clear all',
+  'titan.search.start': 'Type a title',
+  'titan.settings.open': 'Press OK to open the category',
 });
