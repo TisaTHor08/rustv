@@ -16,3 +16,7 @@ crates/rustv-shell/gen/
 ui/dist/
 
 dist-macos/
+dist-ios/
+remote/ios/App/Pods/
+remote/ios/DerivedData/
+remote/ios/App/build/

@@ -2,9 +2,14 @@
 
 This page is written to be handed to an AI coding agent (Claude Code, Codex, or similar) running on a Mac, so that it clones RusTV, builds the macOS version, fixes macOS-only problems, and sends the result back as a pull request, with little help from the human. The human version of the procedure is [BUILD-MACOS.md](BUILD-MACOS.md).
 
+## Two tasks in this Mac session
+
+1. **Task 1, the macOS app** (this page): build RusTV for macOS, fix macOS-only problems, open a pull request.
+2. **Task 2, the iOS remote app** ([AGENT-BUILD-IOS.md](AGENT-BUILD-IOS.md)): create the iPhone version of the phone remote (a Swift Capacitor plugin and an Xcode project), build it for the iOS simulator with `scripts/build-ios.sh`, open a second pull request. Do task 2 right after task 1, on its own branch, unless the human says to skip it. Task 2 needs full Xcode (from the App Store), not just the Command Line Tools.
+
 ## For the human: what to do
 
-1. Make sure the Mac has the **Xcode Command Line Tools** (`xcode-select --install`, a window opens and needs your click), **Node.js 20+** (`brew install node`) and **Rust** (official installer from <https://rustup.rs>). The agent cannot click system dialogs for you.
+1. Make sure the Mac has the **Xcode Command Line Tools** (and, for the iOS task, **Xcode** from the App Store, opened once to accept its licence) (`xcode-select --install`, a window opens and needs your click), **Node.js 20+** (`brew install node`) and **Rust** (official installer from <https://rustup.rs>). The agent cannot click system dialogs for you.
 2. Make sure you are signed in to GitHub in the terminal: `gh auth login` (GitHub CLI: `brew install gh`) or have git credentials configured. Fork <https://github.com/TisaTHor08/rustv> on GitHub first, or let the agent do it with `gh repo fork`.
 3. Open your agent in an empty folder and paste the block below. Replace the two placeholders. Stay nearby: the first build takes 20 to 40 minutes, and the agent may ask you to click a system dialog.
 
@@ -35,7 +40,9 @@ Steps
 8. If you cannot push or open the pull request (no credentials), create a git bundle (git bundle create dist-macos/macos.bundle upstream/main..HEAD) and tell me exactly which files in dist-macos/ to send to the maintainer.
 9. Finish with a short summary for me: commit built, macOS version and architecture, result of each step, what you changed and why, the links, and anything you could not verify (for example: you cannot see the screen, so you did not check the interface visually).
 
-Definition of done: the branch is pushed, the pull request is open (or the bundle is ready), the report and the checksums are attached, and I have your summary.
+10. When the macOS pull request is open, continue with task 2: read docs/AGENT-BUILD-IOS.md in the repository and do it exactly as written (separate branch ios/<MY_GITHUB_USER>-<YYYYMMDD>, separate pull request, same rules). If full Xcode is not installed, tell me how to install it and wait.
+
+Definition of done: the macOS branch is pushed and its pull request is open (or the bundle is ready), the report and the checksums are attached, task 2 is done the same way (or I told you to skip it), and I have your summary of both.
 ```
 
 ## Reference for the agent
