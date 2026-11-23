@@ -3103,6 +3103,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "ureq",
+ "windows",
  "zip",
 ]
 

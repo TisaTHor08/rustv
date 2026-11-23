@@ -4,6 +4,7 @@ mod autostart;
 mod browser;
 mod commands;
 mod fs;
+mod guard;
 mod hooks;
 mod lan;
 mod library;
@@ -117,6 +118,10 @@ fn main() {
             commands::set_blackout,
             commands::set_autostart,
             commands::quit_app,
+            guard::guard_get,
+            guard::guard_set,
+            guard::guard_status,
+            guard::guard_panic,
         ])
         .setup(move |app| {
             let h = app.handle().clone();
@@ -171,13 +176,24 @@ fn main() {
                 }
             });
 
+            // Garde TV : récupération après un éventuel crash, puis abonnement au mode TV.
+            guard::start(app.handle());
+
             // `rustv --tv [--screen N]` : démarre directement en mode TV (démarrage automatique, tests).
+            // `--boot` : démarrage silencieux à l'ouverture de session (attend l'écran de la TV jusqu'à 60 s,
+            // pas de fenêtre d'appairage ; sans `--tv`, reprend le mode TV s'il était actif à l'arrêt).
             let args: Vec<String> = std::env::args().collect();
+            let boot = args.iter().any(|a| a == "--boot");
+            let screen = args.iter().position(|a| a == "--screen").and_then(|i| args.get(i + 1)).and_then(|s| s.parse::<usize>().ok());
             if args.iter().any(|a| a == "--tv") {
-                let screen = args.iter().position(|a| a == "--screen").and_then(|i| args.get(i + 1)).and_then(|s| s.parse::<usize>().ok());
-                match screen {
-                    Some(i) => tv::choose(app.handle(), i),
-                    None => tv::start(app.handle()),
+                match (boot, screen) {
+                    (true, s) => tv::boot(app.handle(), s),
+                    (false, Some(i)) => tv::choose(app.handle(), i),
+                    (false, None) => tv::start(app.handle()),
+                }
+            } else if boot {
+                if guard::resume_wanted() {
+                    tv::boot(app.handle(), screen);
                 }
             } else if core.cfg.lock().unwrap().devices.is_empty() {
                 // Premier lancement : aucun téléphone appairé → on ouvre la fenêtre d'appairage.
@@ -189,6 +205,10 @@ fn main() {
         .expect("erreur au démarrage de RusTV");
 
     app.run(|_app, ev| {
+        // Quoi qu'il arrive, on rend la barre des tâches et les notifications.
+        if let RunEvent::Exit = ev {
+            guard::shutdown();
+        }
         // Fermer la dernière fenêtre ne quitte pas RusTV : il reste dans la zone de notification.
         if let RunEvent::ExitRequested { code, api, .. } = ev {
             if code.is_none() {

@@ -26,6 +26,28 @@ pub fn set(mode: &str) {
         return;
     }
     let Ok(exe) = std::env::current_exe() else { return };
-    let value = format!("\"{}\"{}", exe.display(), if mode == "tv" { " --tv" } else { "" });
+    let value = run_value(&exe.display().to_string(), mode);
     let _ = reg(&["add", RUN_KEY, "/v", NAME, "/t", "REG_SZ", "/d", &value, "/f"]);
+}
+
+/// Valeur de la clé Run. `--boot` = démarrage silencieux (pas de fenêtre d'appairage, attente de l'écran de la
+/// TV, reprise du mode TV). Les anciennes entrées (`--tv` seul, ou sans argument) restent comprises par `get`.
+pub fn run_value(exe: &str, mode: &str) -> String {
+    match mode {
+        "tv" => format!("\"{exe}\" --tv --boot"),
+        _ => format!("\"{exe}\" --boot"),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn run_values() {
+        assert_eq!(run_value(r"C:\a b\rustv.exe", "tv"), "\"C:\\a b\\rustv.exe\" --tv --boot");
+        assert_eq!(run_value(r"C:\r.exe", "tray"), "\"C:\\r.exe\" --boot");
+        // `get` reconnaît « tv » à la présence de --tv (ancien et nouveau format)
+        assert!(run_value("x", "tv").contains("--tv") && !run_value("x", "tray").contains("--tv"));
+    }
 }
