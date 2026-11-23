@@ -4,6 +4,7 @@ mod autostart;
 mod browser;
 mod commands;
 mod fs;
+mod hooks;
 mod lan;
 mod library;
 mod live;

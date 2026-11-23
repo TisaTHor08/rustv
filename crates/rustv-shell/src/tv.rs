@@ -156,6 +156,7 @@ pub fn choose(app: &AppHandle, index: usize) {
         }
     }
     shell.core.set_tv_mode(true);
+    crate::hooks::tv_mode_changed(app, true);
     let _ = app.emit("tv-changed", true);
 }
 
@@ -169,6 +170,7 @@ pub fn exit(app: &AppHandle) {
     }
     shell.tv.lock().unwrap().active = false;
     shell.core.set_tv_mode(false);
+    crate::hooks::tv_mode_changed(app, false);
 }
 
 /// Ferme l'app au premier plan et revient à l'accueil.
