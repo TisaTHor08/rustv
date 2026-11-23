@@ -19,7 +19,9 @@ Settings > Appearance > Widget position moves the clock / phones / weather / mod
 | `rustv` | RusTV style | the original home, unchanged |
 | `googletv` | Google TV style | available |
 | `roku` | Roku style | available |
-| `tizen`, `webos`, `vidaa`, `titan`, `fire`, `tvos` | (to come) | ids reserved in the registry, hidden until their files exist |
+| `vidaa` | VIDAA style | available |
+| `titan` | Titan style | available |
+| `tizen`, `webos`, `fire`, `tvos` | (to come) | ids reserved in the registry, hidden until their files exist |
 
 ## Framework contract
 
@@ -99,13 +101,31 @@ Approximated: no theme art background (a purple gradient), no icons in the menu 
 
 Not done: Roku Settings as a left list plus right detail pane, search screen with the on-screen keyboard, tile reordering, screensaver, volume OSD, input panel.
 
+### VIDAA style (`vidaa`)
+
+Font Roboto (OFL). Reproduced: bright blue-teal background, a status strip with the "Home" label and four shortcut pills (Live TV, Library, Search, Settings), clock, phones and mod widgets at the right, a large rounded promotional banner that follows the focused tile (colours, title, description, Open button, dots), an "Apps" row of 16:9 colourful rounded tiles with the name below, then "Continue watching" and the category rows, focus = scale 1.12 with a white 0.25 rem frame and a cyan glow, vertical anchoring (the banner slides away once you leave the first row), horizontal scrolling that keeps the focused tile visible, Up from the first row focuses the shortcut strip, Down returns, Enter on a pill opens the page, Back from the strip returns to content.
+
+Approximated: there are NO VIDAA UI screenshots in the reference folder (only remote photos), so the layout comes from general knowledge of VIDAA U5 to U7 and is the least verified of the two: the banner is tile colours with a letter or icon (no key art), the strip has no real input-source or network icon set (a plain "Home" label and a Wi-Fi glyph for connected phones), proportions and colours are estimates.
+
+Left out: input sources panel, quick settings, VIDAA's own settings layout, screensaver, notification centre, tile reordering.
+
+### Titan style (`titan`)
+
+Font Poppins (OFL). Reproduced (checked against four photos of Philips Titan OS): an icon-only top bar (search, home, apps, live, library) with a white underline under the current page, a blue underline plus label under the focused icon, settings gear and clock at the right, a full-width hero (category chip, large title, description, translucent "Open" pill, elongated page dot), a row of small rounded-square app tiles right under the hero, then 16:9 rails with the row title above and the name over a bottom gradient, "Continue watching" with a progress bar, focus = scale 1.1 with a thin bright ring and a soft glow, the hero fades out and rows scroll up when you go down, Up from the first row reaches the top bar, Left/Right moves between icons, Enter opens or switches page (Home, Apps grid, Library), Back returns to content.
+
+Approximated: hero art is the tile colour with a large letter or icon (no key art), no auto-rotation of the hero (the dots follow the focused column), the indigo tint is an ambient gradient, icon glyphs are generic.
+
+Left out: Titan's account/profile entry, the "Gaming" and "Sport" style category pages, the Ambilight-linked background, Settings layout, screensaver.
+
+Both styles share a small helper `styles/trackfit.ts` (horizontal scroll fitting). No shared framework file was edited.
+
 ### Not done for all styles (needs further work)
 
 Style-specific variants of Settings, Search, tile menu and pairing; volume and mute OSD; screensaver or ambient mode; quick-settings panel; style-specific launch transition and toast. These require new features (some native) and are listed per style in the checklists above. No bundled mod was added.
 
 ## Fonts and licences
 
-Roboto and Montserrat (variable) from the Fontsource packages, SIL Open Font License 1.1, Latin and Latin-extended subsets in `ui/public/fonts` (about 250 KB), declared with `font-display: swap`; licences next to the files. No network access at runtime.
+Roboto, Montserrat (variable) and Poppins (static 400 to 700, about 54 KB in `ui/public/fonts/poppins`) from the Fontsource packages, SIL Open Font License 1.1, Latin and Latin-extended subsets in `ui/public/fonts` (about 250 KB), declared with `font-display: swap`; licences next to the files. No network access at runtime.
 
 ## Developing a style: mock harness
 
