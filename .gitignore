@@ -16,3 +16,4 @@ crates/rustv-shell/gen/
 ui/dist/
 
 dist-macos/
+dist-linux/

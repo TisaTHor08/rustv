@@ -10,7 +10,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential pkg-config curl ca-certificates git file xz-utils \
         libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev \
-        librsvg2-dev libssl-dev libxdo-dev \
+        librsvg2-dev libssl-dev libxdo-dev libdbus-1-dev \
+        dpkg-dev patchelf wget squashfs-tools desktop-file-utils xdg-utils zsync xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Rust stable (rustup) + cible macOS pour les verifications de structure (best effort).
@@ -23,3 +24,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
+
+# Tauri CLI (cargo tauri build --bundles deb,appimage). Couche separee : longue a compiler, mise en cache.
+# Les bundles AppImage s'executent sans FUSE (APPIMAGE_EXTRACT_AND_RUN) dans un conteneur.
+ENV APPIMAGE_EXTRACT_AND_RUN=1 NO_STRIP=true CARGO_TARGET_DIR=/target
+RUN cargo install tauri-cli --version "^2" --locked && rm -rf /opt/cargo/registry /opt/cargo/git
