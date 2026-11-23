@@ -34,7 +34,10 @@ html[data-theme='light'] {
 
 html {
   /* Toute l'interface TV est dimensionnée en rem : 1080p => 20 px. */
-  font-size: calc(100vh / 54 * var(--ui-scale, 1));
+  /* La référence est du 16:9 : on prend le plus petit des deux rapports pour que rien ne déborde sur
+     les écrans plus carrés (4:3, 16:10, portrait) ; sur les ultra-larges (21:9, 32:9) la hauteur
+     décide, et les rangées de tuiles utilisent simplement la largeur supplémentaire. */
+  font-size: calc(min(100vh / 54, 100vw / 96) * var(--ui-scale, 1));
 }
 html[data-view='pairing'] {
   font-size: 16px;
