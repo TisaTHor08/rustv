@@ -4,6 +4,7 @@ mod autostart;
 mod browser;
 mod commands;
 mod fs;
+mod gamepad;
 mod hooks;
 mod lan;
 mod library;
@@ -117,6 +118,9 @@ fn main() {
             commands::set_blackout,
             commands::set_autostart,
             commands::quit_app,
+            gamepad::gamepad_get,
+            gamepad::gamepad_set,
+            gamepad::gamepad_test_vibration,
         ])
         .setup(move |app| {
             let h = app.handle().clone();
@@ -149,6 +153,8 @@ fn main() {
                     }
                 })
                 .build(app)?;
+
+            gamepad::start(app.handle());
 
             // Contributions des mods à la télécommande du téléphone.
             core.set_remote_mods(mods::remote_bundle());
