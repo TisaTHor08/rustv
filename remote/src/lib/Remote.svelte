@@ -1,6 +1,7 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { t } from './i18n.ts';
-  import { activate, app, deactivate, send } from './connection.svelte.ts';
+  import { activate, app, send, stopByUser } from './connection.svelte.ts';
   import { longpress, repeat, tick } from './haptics.ts';
   import type { KeyName, MediaAction } from './protocol/types.ts';
   import Apps from './Apps.svelte';
@@ -15,7 +16,26 @@
   import { applyTheme, findTheme, loadThemeChoice, panelsOf } from './mods.ts';
 
   type Tab = 'remote' | 'apps' | 'pad' | 'mods';
-  let tab = $state<Tab>('remote');
+  const TABS: Tab[] = ['remote', 'apps', 'pad', 'mods'];
+  let savedTab: Tab = 'remote';
+  try {
+    const v = sessionStorage.getItem('rustv.tab') as Tab | null;
+    if (v && TABS.includes(v)) savedTab = v;
+  } catch {}
+  let tab = $state<Tab>(savedTab);
+  $effect(() => {
+    try {
+      sessionStorage.setItem('rustv.tab', tab);
+    } catch {}
+  });
+  // Reconnexion automatique à l'ouverture (ou si Android a rechargé l'appli en arrière-plan), sauf arrêt volontaire.
+  onMount(() => {
+    let off = false;
+    try {
+      off = localStorage.getItem('rustv.manualOff') === '1';
+    } catch {}
+    if (!off && app.status === 'idle') activate();
+  });
   let altOpen = $state(false);
   let altTimer: number | undefined;
   let manualKeyboard = $state(false);
@@ -115,7 +135,7 @@
         <button class="primary activate" onclick={activate}>{t('activate')}</button>
       {:else}
         <div class="spinner"></div>
-        <button class="small" onclick={deactivate}>{t('cancel')}</button>
+        <button class="small" onclick={stopByUser}>{t('cancel')}</button>
       {/if}
     </div>
   {:else}

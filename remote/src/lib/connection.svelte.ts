@@ -161,6 +161,9 @@ let session: Session | null = null;
 let runId = 0;
 
 export function activate() {
+  try {
+    localStorage.removeItem('rustv.manualOff');
+  } catch {}
   const p = app.pairing;
   if (!p || app.status !== 'idle') return;
   const myRun = ++runId;
@@ -261,6 +264,14 @@ async function serve(s: Session, active: () => boolean) {
     // textFocus est conservé : la prochaine connexion renvoie l'état réel (évite de perdre le champ de saisie pendant une reconnexion).
     resetVault();
   }
+}
+
+/** Arrêt volontaire (bouton Annuler) : on ne se reconnecte plus tout seul à l'ouverture suivante. */
+export function stopByUser() {
+  try {
+    localStorage.setItem('rustv.manualOff', '1');
+  } catch {}
+  deactivate();
 }
 
 export function deactivate() {
