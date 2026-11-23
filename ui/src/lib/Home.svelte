@@ -205,7 +205,7 @@
           modal = { kind: 'page', modId: raw.modId, entry: raw.entry ?? 'index.html', title: tile.name };
           return;
         }
-        r = await api.launchCustom({ id: raw.id, name: tile.name, kind: raw.kind, url: raw.url, target: raw.target, spatnav: raw.spatnav });
+        r = await api.launchCustom({ id: raw.id, name: tile.name, kind: raw.kind, url: raw.url, target: raw.target, spatnav: raw.spatnav, googleSignIn: raw.googleSignIn });
       } else if (tile.custom) r = await api.launchCustom(tile.raw);
       else {
         const needs = (tile.raw as any).needs_url && !st?.settings.urls[tile.id];

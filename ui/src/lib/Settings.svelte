@@ -20,6 +20,7 @@
   import { createPage as createHyperion } from './settings/hyperion.svelte';
   import { createPage as createPlayer } from './settings/player.svelte';
   import { createPage as createUsearch } from './settings/usearch.svelte';
+  import { createPage as createGoogle } from './settings/google.svelte';
   import { createPage as createEpg } from './settings/epg.svelte';
   import { osState } from './os/apply.svelte';
   import { availableStyles, resolveStyle } from './os/registry';
@@ -39,8 +40,8 @@
 
   type Page = 'root' | 'appearance' | 'wallpaper' | 'tiles' | 'weather' | 'live' | 'library' | 'apps' | 'vault' | 'system' | 'ext' | ExtKey;
   // Pages issues des modules intégrés (voir src/lib/settings/*.svelte.ts), regroupées sous « Intégrations ».
-  type ExtKey = 'guard' | 'display' | 'gamepad' | 'player' | 'dvr' | 'hyperion' | 'ha' | 'cast' | 'usearch' | 'epg';
-  const EXT: ExtKey[] = ['guard', 'display', 'gamepad', 'player', 'dvr', 'hyperion', 'ha', 'cast', 'usearch', 'epg'];
+  type ExtKey = 'guard' | 'display' | 'gamepad' | 'player' | 'dvr' | 'hyperion' | 'ha' | 'cast' | 'usearch' | 'epg' | 'google';
+  const EXT: ExtKey[] = ['guard', 'display', 'gamepad', 'player', 'dvr', 'hyperion', 'ha', 'cast', 'usearch', 'epg', 'google'];
   interface Row {
     label: string;
     value?: string;
@@ -62,6 +63,7 @@
     ha: createHa(ctx),
     cast: createCast(ctx),
     usearch: createUsearch(ctx),
+    google: createGoogle(ctx),
     epg: createEpg(ctx),
   };
   const isExt = (p: Page): p is ExtKey => (EXT as string[]).includes(p);
