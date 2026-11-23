@@ -100,6 +100,8 @@
     else if (e.key === 'Enter') (it?.enter && play('select'), it?.enter?.());
     else if (e.key === 'Escape' || e.key === 'Backspace' || e.key === 'ContextMenu') (play('back'), onclose());
     else return;
+    // Après « Ouvrir » ou Retour, Home a déjà fermé le menu : la tuile n'existe plus, `items` ne doit plus être relu.
+    if (!tile) return e.preventDefault();
     if (idx >= items.length) idx = items.length - 1;
     if (idx !== before) play('move');
     e.preventDefault();

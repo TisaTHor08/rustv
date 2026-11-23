@@ -27,6 +27,8 @@ const meta: OsStyleMeta = {
   descKey: 'os.googletv.d',
   font: 'Roboto',
   slots: ['status'],
+  /** Zones de focus que ce style sait gérer (voir navguard.ts) : toute autre zone est ramenée à 'content'. */
+  zones: ['content', 'tabs'],
   // Écrans propres au style (voir docs/OS-STYLES.md, « Écrans »)
   screens: {
     settings: () => import('./googletv.screens/settings.svelte'),

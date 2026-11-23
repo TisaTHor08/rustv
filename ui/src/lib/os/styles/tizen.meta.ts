@@ -29,6 +29,8 @@ const meta: OsStyleMeta = {
   descKey: 'os.tizen.d',
   font: 'Inter',
   slots: ['status'],
+  /** Zones de focus que ce style sait gérer (voir navguard.ts) : toute autre zone est ramenée à 'content'. */
+  zones: ['content', 'tabs', 'rail', 'ambient'],
   screens: {
     settings: () => import('./tizen.screens/settings.svelte'),
     search: () => import('./tizen.screens/search.svelte'),

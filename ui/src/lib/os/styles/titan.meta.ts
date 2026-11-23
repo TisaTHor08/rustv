@@ -33,6 +33,8 @@ const meta: OsStyleMeta = {
   descKey: 'os.titan.d',
   font: 'Poppins',
   slots: ['status'],
+  /** Zones de focus que ce style sait gérer (voir navguard.ts) : toute autre zone est ramenée à 'content'. */
+  zones: ['content', 'nav'],
   screens: {
     settings: () => import('./titan.screens/settings.svelte'),
     search: () => import('./titan.screens/search.svelte'),
