@@ -16,6 +16,7 @@
   import PageHost from './PageHost.svelte';
   import Pairing from './Pairing.svelte';
   import { prefs, savePrefs } from './prefs.svelte';
+  import { play } from './sounds';
   import Settings from './Settings.svelte';
   import TileMenu from './TileMenu.svelte';
   import { CATEGORIES, findTile, iconSrc, moveTile, tilesOf, type BuiltinTile, type DTile } from './tiles.svelte';
@@ -92,10 +93,13 @@
     } else if (row >= 0) {
       col = Math.max(0, Math.min(rows[row].tiles.length - 1, col + dc));
     }
+    if (row === focus.row && col === focus.col) return;
     focus = { row, col };
+    play('move');
   }
 
   async function activate() {
+    play('select');
     if (focus.row === -1) {
       modal = { kind: 'settings' };
       return;

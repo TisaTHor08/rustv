@@ -5,6 +5,7 @@
   import { api, type FsEntry, type FsListing, type WinApp } from './api';
   import { overlay } from './overlays.svelte';
   import { t } from './i18n';
+  import { play } from './sounds';
 
   // ---------- saisie de texte ----------
   let promptInput = $state<HTMLInputElement | null>(null);
@@ -137,12 +138,19 @@
     c?.resolve(v);
   }
 
+  function cue(key: string) {
+    if (key === 'Enter') play('select');
+    else if (key === 'Escape' || (key === 'Backspace' && !overlay.prompt)) play('back');
+    else if (key.startsWith('Arrow') && (overlay.confirm || overlay.file || overlay.app)) play('move');
+  }
+
   // ---------- clavier (phase de capture : prioritaire sur les autres écrans) ----------
   function onKey(e: KeyboardEvent) {
     const stop = () => {
       e.preventDefault();
       e.stopImmediatePropagation();
     };
+    if (e.type === 'keydown' && !overlay.busy) cue(e.key);
     if (overlay.busy) return stop(); // opération en cours : on ignore les touches
     if (overlay.confirm) {
       stop();

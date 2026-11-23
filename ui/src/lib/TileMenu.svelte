@@ -4,6 +4,7 @@
   import { t } from './i18n';
   import { askText, pickFile } from './overlays.svelte';
   import { TILE_COLORS, prefs, savePrefs } from './prefs.svelte';
+  import { play } from './sounds';
   import { deleteCustom, hideTile, iconSrc, resetTile, type DTile } from './tiles.svelte';
 
   let {
@@ -78,14 +79,16 @@
 
   function onKey(e: KeyboardEvent) {
     const it = items[idx];
+    const before = idx;
     if (e.key === 'ArrowDown') idx = Math.min(items.length - 1, idx + 1);
     else if (e.key === 'ArrowUp') idx = Math.max(0, idx - 1);
     else if (e.key === 'ArrowLeft') it?.left?.();
     else if (e.key === 'ArrowRight') it?.right?.();
-    else if (e.key === 'Enter') it?.enter?.();
-    else if (e.key === 'Escape' || e.key === 'Backspace' || e.key === 'ContextMenu') onclose();
+    else if (e.key === 'Enter') (it?.enter && play('select'), it?.enter?.());
+    else if (e.key === 'Escape' || e.key === 'Backspace' || e.key === 'ContextMenu') (play('back'), onclose());
     else return;
     if (idx >= items.length) idx = items.length - 1;
+    if (idx !== before) play('move');
     e.preventDefault();
   }
 </script>

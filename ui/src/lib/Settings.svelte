@@ -9,6 +9,7 @@
   import { modThemes } from './mods.svelte';
   import { scanLibrary } from './library.svelte';
   import { loadLive } from './live.svelte';
+  import { play } from './sounds';
 
   let {
     st,
@@ -187,6 +188,15 @@
     }
   }
 
+  function soundVolumeRow(): Row {
+    const step = (d: number) => {
+      prefs.soundVolume = Math.max(0, Math.min(100, prefs.soundVolume + d));
+      savePrefs();
+      play('move'); // aperçu au nouveau volume
+    };
+    return { label: t('settings.soundvol'), value: `${prefs.soundVolume} %`, arrows: true, left: () => step(-10), right: () => step(10) };
+  }
+
   const rows = $derived.by<Row[]>(() => {
     const w = prefs.wallpaper;
     switch (page) {
@@ -215,6 +225,8 @@
           choice(t('settings.tint'), ['yes', 'no'] as const, () => (prefs.tint ? 'yes' : 'no'), (v) => set('tint', v === 'yes'), (v) => t(`common.${v}`)),
           choice(t('settings.size'), ['80', '90', '100', '110', '125', '140'], () => String(prefs.uiScale), (v) => ((prefs.uiScale = +v), savePrefs()), (v) => ` %`),
           choice(t('settings.clock24'), ['24', '12'] as const, () => (prefs.clock24 ? '24' : '12'), (v) => set('clock24', v === '24'), (v) => t(`clock.${v}`)),
+          choice(t('settings.sounds'), ['yes', 'no'] as const, () => (prefs.sounds ? 'yes' : 'no'), (v) => set('sounds', v === 'yes'), (v) => t(`common.${v}`)),
+          ...(prefs.sounds ? [soundVolumeRow()] : []),
         ];
       case 'wallpaper': {
         const r: Row[] = [
@@ -353,16 +365,19 @@
 
   function onKey(e: KeyboardEvent) {
     const r = rows[idx];
+    const before = idx;
     if (e.key === 'ArrowDown') idx = Math.min(rows.length - 1, idx + 1);
     else if (e.key === 'ArrowUp') idx = Math.max(0, idx - 1);
     else if (e.key === 'ArrowLeft') r?.left?.();
     else if (e.key === 'ArrowRight') r?.right?.();
-    else if (e.key === 'Enter') r?.enter?.();
+    else if (e.key === 'Enter') (r?.enter && play('select'), r?.enter?.());
     else if (e.key === 'Escape' || e.key === 'Backspace') {
+      play('back');
       if (page === 'root') onclose();
       else go('root');
     } else return;
     if (idx >= rows.length) idx = rows.length - 1;
+    if (idx !== before) play('move');
     e.preventDefault();
   }
 </script>

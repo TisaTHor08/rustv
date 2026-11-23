@@ -24,6 +24,10 @@ export interface Prefs {
   modTheme: string;
   tint: boolean;
   clock24: boolean;
+  /** Sons de navigation synthétisés. */
+  sounds: boolean;
+  /** Volume des sons, 0-100. */
+  soundVolume: number;
   /** Taille de l'interface en % (accessibilité / distance d'écran). */
   uiScale: number;
   autoUpdate: boolean;
@@ -73,6 +77,8 @@ function defaults(): Prefs {
     modTheme: '',
     tint: true,
     clock24: true,
+    sounds: true,
+    soundVolume: 40,
     uiScale: 100,
     autoUpdate: true,
     youtubeBrowser: 'auto',
