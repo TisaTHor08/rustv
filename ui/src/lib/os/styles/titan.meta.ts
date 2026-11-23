@@ -1,4 +1,5 @@
 // Style « Titan » (téléviseurs Philips / TP Vision) : barre d'icônes en haut (zone 'nav'), héros carrousel, rangée d'applis carrées, rails. Inspiré, non officiel.
+import { t } from '../../i18n';
 import { play } from '../../sounds';
 import type { HomeRow } from '../model.svelte';
 import type { OsStyleMeta } from '../registry';
@@ -32,6 +33,17 @@ const meta: OsStyleMeta = {
   descKey: 'os.titan.d',
   font: 'Poppins',
   slots: ['status'],
+  screens: {
+    settings: () => import('./titan.screens/settings.svelte'),
+    search: () => import('./titan.screens/search.svelte'),
+    tileMenu: () => import('./titan.screens/tileMenu.svelte'),
+    pairing: () => import('./titan.screens/pairing.svelte'),
+    quick: () => import('./titan.screens/quick.svelte'),
+    osd: () => import('./titan.screens/osd.svelte'),
+    ambient: () => import('./titan.screens/ambient.svelte'),
+    toast: () => import('./titan.screens/toast.svelte'),
+    launch: () => import('./titan.screens/launch.svelte'),
+  },
   tokens: {
     '--bg': '#0d0b1d',
     '--bg-rgb': '13, 11, 29',
@@ -61,7 +73,7 @@ const meta: OsStyleMeta = {
       case 'library':
         return pick('library', 'music');
       default:
-        return [{ key: 'apps', title: '', tiles: model.allTiles }, ...(cont ? [cont] : []), ...pick('video', 'tv', 'music', 'library', 'games')];
+        return [{ key: 'apps', title: t('titan.fav'), tiles: model.allTiles }, ...(cont ? [cont] : []), ...pick('video', 'tv', 'music', 'library', 'games')];
     }
   },
   nav(dir, model) {
