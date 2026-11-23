@@ -1,65 +1,1438 @@
 {
-    "version":  1,
-    "mods":  [
-                 {
-                     "id":  "theme-midnight",
-                     "name":  "Midnight",
-                     "version":  "1.0.0",
-                     "author":  "RusTV",
-                     "description":  "Deep blue theme with a cyan accent and rounder tiles.",
-                     "source":  {
-                                    "repo":  "TisaTHor08/rustv",
-                                    "commit":  "c7f1e6e19138fd359dbc8931521d9a88df90a0ef",
-                                    "path":  "mods/theme-midnight"
-                                }
-                 },
-                 {
-                     "id":  "widget-analog-clock",
-                     "name":  "Analog clock",
-                     "version":  "1.0.0",
-                     "author":  "RusTV",
-                     "description":  "A small analog clock in the top bar. Needs no permission.",
-                     "source":  {
-                                    "repo":  "TisaTHor08/rustv",
-                                    "commit":  "c7f1e6e19138fd359dbc8931521d9a88df90a0ef",
-                                    "path":  "mods/widget-analog-clock"
-                                }
-                 },
-                 {
-                     "id":  "skip-intro",
-                     "name":  "Skip intro",
-                     "version":  "1.0.0",
-                     "author":  "RusTV",
-                     "description":  "Automatically presses the Skip intro / recap buttons on Netflix and Prime Video. Experimental.",
-                     "source":  {
-                                    "repo":  "TisaTHor08/rustv",
-                                    "commit":  "c7f1e6e19138fd359dbc8931521d9a88df90a0ef",
-                                    "path":  "mods/skip-intro"
-                                }
-                 },
-                 {
-                     "id":  "page-news",
-                     "name":  "Hacker News",
-                     "version":  "1.0.0",
-                     "author":  "RusTV",
-                     "description":  "A full-screen page listing the top Hacker News stories (network and launch permissions).",
-                     "source":  {
-                                    "repo":  "TisaTHor08/rustv",
-                                    "commit":  "c7f1e6e19138fd359dbc8931521d9a88df90a0ef",
-                                    "path":  "mods/page-news"
-                                }
-                 },
-                 {
-                     "id":  "tiles-community",
-                     "name":  "Community tiles",
-                     "version":  "1.0.0",
-                     "author":  "RusTV",
-                     "description":  "Extra website tiles: Wikipedia, Radio Paradise and NASA Live.",
-                     "source":  {
-                                    "repo":  "TisaTHor08/rustv",
-                                    "commit":  "c7f1e6e19138fd359dbc8931521d9a88df90a0ef",
-                                    "path":  "mods/tiles-community"
-                                }
-                 }
-             ]
+  "version": 2,
+  "mods": [
+    {
+      "id": "focus-ring",
+      "name": "Focus ring",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "enhancements",
+      "description": "Adds a strong, always visible keyboard focus outline to web apps that lack one.",
+      "details": "Gives every focused link, button, input and focusable element a thick yellow outline with a dark halo, so you can see where the remote's arrow keys are. It only adds CSS (:focus-visible); no script, no network, nothing stored. Sites that already draw their own focus may show both. This adapter matches every website, so it runs inside every web app you open in RusTV.",
+      "tags": [
+        "focus",
+        "keyboard",
+        "remote",
+        "accessibility",
+        "web"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Contour de focus",
+          "description": "Ajoute un contour de focus clavier bien visible aux applications web qui n'en ont pas.",
+          "details": "Donne a chaque lien, bouton, champ et element focalisable un epais contour jaune avec un halo sombre, pour voir ou se trouvent les fleches de la telecommande. Il n'ajoute que du CSS (:focus-visible) ; pas de script, pas de reseau, rien n'est stocke. Les sites qui dessinent deja leur focus peuvent afficher les deux. Ce module s'applique a tous les sites : il s'execute dans chaque application web ouverte dans RusTV."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#facc15",
+        "to": "#78350f",
+        "glyph": "eye"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/focus-ring"
+      }
+    },
+    {
+      "id": "game-2048",
+      "name": "2048",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "games",
+      "description": "Slide and merge tiles to reach 2048, played with the D-pad.",
+      "details": "The classic 2048 puzzle. Arrows slide the tiles, equal numbers merge. Your best score is saved. When no move is left, press Enter to restart. Offline.",
+      "tags": [
+        "puzzle",
+        "2048",
+        "arcade"
+      ],
+      "permissions": [
+        "storage"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "2048",
+          "description": "Faites glisser et fusionnez les tuiles pour atteindre 2048.",
+          "details": "Le puzzle 2048 classique. Les flèches font glisser les tuiles, les nombres identiques fusionnent. Meilleur score mémorisé. Quand plus aucun coup n'est possible, Entrée relance. Hors ligne."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#f59e0b",
+        "to": "#92400e",
+        "glyph": "grid"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/game-2048"
+      }
+    },
+    {
+      "id": "game-memory",
+      "name": "Memory",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "games",
+      "description": "Find all the matching pairs of symbols with the D-pad.",
+      "details": "Flip cards with Enter and find all pairs in as few moves as possible. Choose the grid size and symbol theme before you start. Offline.",
+      "tags": [
+        "memory",
+        "pairs",
+        "cards",
+        "kids"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Memory",
+          "description": "Retrouvez toutes les paires de symboles à la télécommande.",
+          "details": "Retournez les cartes avec Entrée et trouvez toutes les paires en un minimum de coups. Choisissez la grille et le thème avant de commencer. Hors ligne."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#ec4899",
+        "to": "#701a75",
+        "glyph": "smile"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/game-memory"
+      }
+    },
+    {
+      "id": "game-minesweeper",
+      "name": "Minesweeper",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "games",
+      "description": "Minesweeper for the D-pad: reveal cells, flag mines with a toggle.",
+      "details": "Clear the board without hitting a mine. Arrows move the cursor, Enter reveals; switch to Flag mode with the button below the grid (or Down on the last row) to plant flags. Offline.",
+      "tags": [
+        "minesweeper",
+        "puzzle",
+        "logic"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Démineur",
+          "description": "Le démineur à la télécommande : révélez, posez des drapeaux.",
+          "details": "Videz la grille sans toucher de mine. Flèches pour déplacer, Entrée pour révéler ; passez en mode Drapeau avec le bouton sous la grille (ou Bas sur la dernière ligne). Hors ligne."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#64748b",
+        "to": "#0f172a",
+        "glyph": "shield"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/game-minesweeper"
+      }
+    },
+    {
+      "id": "game-snake",
+      "name": "Snake",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "games",
+      "description": "The classic snake game with growing speed, controlled with the D-pad.",
+      "details": "Eat to grow, avoid walls and your own tail. The snake speeds up as you score and your best score is saved. Enter starts and restarts. Offline.",
+      "tags": [
+        "snake",
+        "arcade",
+        "classic"
+      ],
+      "permissions": [
+        "storage"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Snake",
+          "description": "Le jeu du serpent classique, de plus en plus rapide.",
+          "details": "Mangez pour grandir, évitez les murs et votre queue. Le serpent accélère avec le score, meilleur score mémorisé. Entrée lance et relance. Hors ligne."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#22c55e",
+        "to": "#14532d",
+        "glyph": "gamepad"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/game-snake"
+      }
+    },
+    {
+      "id": "hide-cursor",
+      "name": "Hide cursor",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "enhancements",
+      "description": "Hides the mouse cursor in web apps after a few seconds of inactivity.",
+      "details": "After 3 seconds without mouse movement, hides the cursor; moving the mouse shows it again. It only creates one style element and listens to mouse events; it does not read page content, use the network or store anything. This adapter matches every website, so it runs inside every web app you open in RusTV.",
+      "tags": [
+        "cursor",
+        "mouse",
+        "tv",
+        "web"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Masquer le curseur",
+          "description": "Masque le curseur de la souris dans les applications web apres quelques secondes d'inactivite.",
+          "details": "Apres 3 secondes sans mouvement de souris, masque le curseur ; il reapparait au moindre mouvement. Il ne cree qu'un element de style et ecoute les evenements souris ; il ne lit pas le contenu, n'utilise pas le reseau et ne stocke rien. Ce module s'applique a tous les sites : il s'execute dans chaque application web ouverte dans RusTV."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#475569",
+        "to": "#0f172a",
+        "glyph": "cursor-off"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/hide-cursor"
+      }
+    },
+    {
+      "id": "page-calendar",
+      "name": "Calendar",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "pages",
+      "description": "A month calendar you drive with the D-pad. Mark days with a dot.",
+      "details": "A localized month view. Arrows move the selected day, Enter marks or unmarks it with a dot (saved on your PC), today is highlighted. Fully offline.",
+      "tags": [
+        "calendar",
+        "month",
+        "planner"
+      ],
+      "permissions": [
+        "storage"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Calendrier",
+          "description": "Un calendrier mensuel piloté à la télécommande. Marquez des jours.",
+          "details": "Une vue mensuelle localisée. Les flèches déplacent le jour, Entrée le marque ou le démarque d'un point (enregistré sur le PC), aujourd'hui est mis en évidence. Hors ligne."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#10b981",
+        "to": "#064e3b",
+        "glyph": "calendar"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/page-calendar"
+      }
+    },
+    {
+      "id": "page-news",
+      "name": "Hacker News",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "pages",
+      "description": "Browse the top Hacker News stories full screen and open them with the remote.",
+      "details": "A full-screen list of the current top Hacker News stories. Move with Up and Down, press Enter to open the story in the browser. Also a small example of a page that uses the network and launch permissions.",
+      "tags": [
+        "news",
+        "tech",
+        "hacker news",
+        "reader"
+      ],
+      "permissions": [
+        "network:https://hacker-news.firebaseio.com",
+        "launch"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Hacker News",
+          "description": "Parcourez les meilleurs articles de Hacker News en plein écran.",
+          "details": "Une liste plein écran des meilleurs articles du moment sur Hacker News. Haut et Bas pour naviguer, Entrée pour ouvrir l'article dans le navigateur."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#ff6600",
+        "to": "#7a2f00",
+        "glyph": "newspaper"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/page-news"
+      }
+    },
+    {
+      "id": "page-remote-help",
+      "name": "Remote help",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "pages",
+      "description": "An illustrated cheat sheet of the phone remote and keyboard shortcuts.",
+      "details": "A static, offline guide to controlling RusTV: Back, Home, Menu, Search (F3), the tab switcher, volume and the D-pad, for the phone remote and the keyboard.",
+      "tags": [
+        "help",
+        "remote",
+        "shortcuts",
+        "guide"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Aide télécommande",
+          "description": "Aide-mémoire illustré de la télécommande téléphone et des raccourcis.",
+          "details": "Un guide statique et hors ligne pour piloter RusTV : Retour, Accueil, Menu, Recherche (F3), changement d'onglet, volume et flèches, au téléphone comme au clavier."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#8b5cf6",
+        "to": "#312e81",
+        "glyph": "book"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/page-remote-help"
+      }
+    },
+    {
+      "id": "page-timer",
+      "name": "Kitchen timer",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "pages",
+      "description": "A big countdown timer with a progress ring and an end beep.",
+      "details": "Set minutes with Up and Down (Left and Right change by 5), Enter starts or pauses, and a beep sounds when time is up. Large ring and digits readable from across the room. Offline.",
+      "tags": [
+        "timer",
+        "kitchen",
+        "countdown"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Minuteur de cuisine",
+          "description": "Un grand minuteur avec anneau de progression et bip final.",
+          "details": "Réglez les minutes avec Haut et Bas (Gauche et Droite par pas de 5), Entrée démarre ou met en pause, un bip retentit à la fin. Gros chiffres lisibles de loin. Hors ligne."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#f97316",
+        "to": "#7c2d12",
+        "glyph": "timer"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/page-timer"
+      }
+    },
+    {
+      "id": "page-weather",
+      "name": "Weather",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "pages",
+      "description": "7-day weather forecast for big cities, from the free Open-Meteo service.",
+      "details": "A clean 7-day forecast with temperatures, weather icons, wind and rain. Pick one of about 12 big cities with Left and Right; your choice is remembered. Data comes from Open-Meteo (free, no account or key).",
+      "tags": [
+        "weather",
+        "forecast",
+        "open-meteo"
+      ],
+      "permissions": [
+        "network:https://api.open-meteo.com",
+        "storage"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Météo",
+          "description": "Prévisions à 7 jours pour les grandes villes, via Open-Meteo.",
+          "details": "Des prévisions à 7 jours claires : températures, icônes, vent et pluie. Choisissez une ville parmi une douzaine avec Gauche et Droite ; le choix est mémorisé. Données Open-Meteo (gratuit, sans compte)."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#38bdf8",
+        "to": "#1e3a8a",
+        "glyph": "cloud"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/page-weather"
+      }
+    },
+    {
+      "id": "real-icons",
+      "name": "Real icons",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "icons",
+      "description": "Shows each built-in app's real logo on its tile instead of a letter.",
+      "details": "Replaces the letter on built-in tiles (Netflix, YouTube, Spotify, Twitch, Steam and more) with the service's logo. The logos come from Simple Icons and are released under CC0. Icons you picked yourself on a tile always win. Logos remain trademarks of their owners.",
+      "tags": [
+        "icons",
+        "logos",
+        "tiles",
+        "simple-icons"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Vraies icônes",
+          "description": "Affiche le vrai logo de chaque appli intégrée sur sa tuile à la place d'une lettre.",
+          "details": "Remplace la lettre des tuiles intégrées (Netflix, YouTube, Spotify, Twitch, Steam et d'autres) par le logo du service. Les logos viennent de Simple Icons et sont publiés sous licence CC0. Les icônes choisies par vous sur une tuile restent prioritaires. Les logos restent des marques de leurs propriétaires."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#a855f7",
+        "to": "#3b0764",
+        "glyph": "sparkles"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/real-icons"
+      }
+    },
+    {
+      "id": "skip-intro",
+      "name": "Skip intro",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "enhancements",
+      "description": "Automatically presses the Skip intro and Skip recap buttons on Netflix and Prime Video.",
+      "details": "Runs only on Netflix and Prime Video pages. It watches the page for the Skip intro / Skip recap button and clicks it for you. It reads nothing else and uses no network or storage. Experimental: streaming sites change their pages often, so it may stop working until updated.",
+      "tags": [
+        "netflix",
+        "prime video",
+        "skip",
+        "intro",
+        "streaming"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Passer l'intro",
+          "description": "Appuie automatiquement sur Passer l'intro et Passer le resume sur Netflix et Prime Video.",
+          "details": "S'execute uniquement sur Netflix et Prime Video. Il surveille la page, repere le bouton Passer l'intro ou Passer le resume et clique dessus. Il ne lit rien d'autre et n'utilise ni reseau ni stockage. Experimental : ces sites changent souvent leurs pages."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#e50914",
+        "to": "#1f0306",
+        "glyph": "play"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/skip-intro"
+      }
+    },
+    {
+      "id": "theme-aurora",
+      "name": "Aurora",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "themes",
+      "description": "Deep green and teal theme with a cyan-green glow around the focused tile.",
+      "details": "A dark forest-green background with teal depth and a luminous cyan-green accent. The focused tile is ringed in mint and glows like a northern light. Only colors and tile styling change.",
+      "tags": [
+        "dark",
+        "green",
+        "teal",
+        "glow"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Aurore",
+          "description": "Theme vert profond et turquoise avec une lueur cyan-vert autour de la tuile active.",
+          "details": "Fond vert foret sombre, accent turquoise lumineux. La tuile selectionnee est cerclee de menthe et brille comme une aurore boreale. Seuls les couleurs et le style des tuiles changent."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#0f766e",
+        "to": "#04201c",
+        "glyph": "sparkles"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/theme-aurora"
+      }
+    },
+    {
+      "id": "theme-cinema",
+      "name": "Cinema",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "themes",
+      "description": "Warm near-black with a gold accent and a classic movie-theater feel.",
+      "details": "A warm, almost black background with a gold accent, like a movie theater. Tiles have small corners, uppercase spaced labels and a thin gold ring when focused. Only colors and tile styling change.",
+      "tags": [
+        "dark",
+        "gold",
+        "cinema",
+        "warm",
+        "elegant"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Cinema",
+          "description": "Quasi-noir chaud avec accent dore, pour une ambiance de salle de cinema.",
+          "details": "Fond presque noir et chaud, accent dore comme au cinema. Tuiles aux petits coins, libelles en majuscules espacees et fin contour dore a la selection. Seuls les couleurs et le style des tuiles changent."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#b8860b",
+        "to": "#120d07",
+        "glyph": "film"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/theme-cinema"
+      }
+    },
+    {
+      "id": "theme-contrast",
+      "name": "High contrast",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "themes",
+      "description": "High-contrast accessibility theme: huge white focus ring, bold labels, no blur.",
+      "details": "Designed for readability from far away or with low vision: pure black and white, a very large white focus ring with a yellow outer edge, bold labels and no blurred or translucent backgrounds. Only colors and tile styling change.",
+      "tags": [
+        "accessibility",
+        "contrast",
+        "black",
+        "white",
+        "bold"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Contraste eleve",
+          "description": "Theme d'accessibilite a fort contraste : tres grand contour blanc, libelles gras, sans flou.",
+          "details": "Concu pour bien lire de loin ou avec une vue reduite : noir et blanc purs, tres grand contour blanc a bord jaune, libelles gras, aucun fond flou ni translucide. Seuls les couleurs et le style des tuiles changent."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#000000",
+        "to": "#404040",
+        "glyph": "eye"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/theme-contrast"
+      }
+    },
+    {
+      "id": "theme-dracula",
+      "name": "Dracula",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "themes",
+      "description": "The Dracula palette: dark grey-violet with purple and pink accents.",
+      "details": "Built on the Dracula color palette: a dark grey-violet background, off-white text and a purple accent. The focused tile gets a pink ring and a purple glow. Only colors and tile styling change.",
+      "tags": [
+        "dark",
+        "dracula",
+        "purple",
+        "pink",
+        "palette"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Dracula",
+          "description": "La palette Dracula : gris-violet sombre avec accents violet et rose.",
+          "details": "Base sur la palette Dracula : fond gris-violet sombre, texte blanc casse et accent violet. La tuile selectionnee a un contour rose et une lueur violette. Seuls les couleurs et le style des tuiles changent."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#bd93f9",
+        "to": "#282a36",
+        "glyph": "bolt"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/theme-dracula"
+      }
+    },
+    {
+      "id": "theme-midnight",
+      "name": "Midnight",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "themes",
+      "description": "Deep blue theme with a cyan accent, rounder tiles and a soft blue glow.",
+      "details": "A deep navy background with a cyan accent. Tiles get larger rounded corners and the focused tile glows with a soft blue halo. Only colors and tile styling change; layout and behavior stay the same.",
+      "tags": [
+        "dark",
+        "blue",
+        "cyan",
+        "rounded"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Minuit",
+          "description": "Theme bleu profond, accent cyan, tuiles arrondies et halo bleu doux.",
+          "details": "Fond bleu nuit et accent cyan. Les tuiles ont des coins plus arrondis et la tuile selectionnee brille d'un halo bleu. Seuls les couleurs et le style des tuiles changent."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#0b1a45",
+        "to": "#050a18",
+        "glyph": "moon"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/theme-midnight"
+      }
+    },
+    {
+      "id": "theme-mono",
+      "name": "Mono",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "themes",
+      "description": "Pure black OLED theme with a white accent, flat tiles and a thin focus ring.",
+      "details": "True black background (OLED friendly), white accent and no glow. Tiles are flat with small corners, and the focused tile is marked by a thin white ring only. Only colors and tile styling change.",
+      "tags": [
+        "dark",
+        "oled",
+        "black",
+        "flat",
+        "minimal"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Mono",
+          "description": "Theme noir OLED pur, accent blanc, tuiles plates et fin contour de selection.",
+          "details": "Fond noir absolu (ideal OLED), accent blanc et aucune lueur. Les tuiles sont plates, la tuile selectionnee n'a qu'un fin contour blanc. Seuls les couleurs et le style des tuiles changent."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#3f3f46",
+        "to": "#000000",
+        "glyph": "contrast"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/theme-mono"
+      }
+    },
+    {
+      "id": "theme-nord",
+      "name": "Nord",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "themes",
+      "description": "The cool, calm Nord palette: slate blue-grey with a frost-blue accent.",
+      "details": "Built on the Nord color palette: polar-night background, snow-storm text and a frost-blue accent. Tiles are softly rounded and the focus ring is frost blue. Only colors and tile styling change.",
+      "tags": [
+        "dark",
+        "nord",
+        "blue",
+        "calm",
+        "palette"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Nord",
+          "description": "La palette Nord, calme et froide : gris-bleu ardoise et accent bleu glace.",
+          "details": "Base sur la palette Nord : fond nuit polaire, texte blanc neige et accent bleu glace. Tuiles legerement arrondies, contour de selection bleu glace. Seuls les couleurs et le style des tuiles changent."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#5e81ac",
+        "to": "#2e3440",
+        "glyph": "cloud"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/theme-nord"
+      }
+    },
+    {
+      "id": "theme-paper",
+      "name": "Paper",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "themes",
+      "description": "A light theme: soft off-white background with dark text and an indigo accent.",
+      "details": "A bright paper-like background with dark text and an indigo accent. Tiles keep their own colors with white labels, and the focused tile gets a dark ring. Only colors and tile styling change.",
+      "tags": [
+        "light",
+        "white",
+        "paper",
+        "bright",
+        "indigo"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Papier",
+          "description": "Theme clair : fond blanc casse, texte sombre et accent indigo.",
+          "details": "Fond clair facon papier, texte sombre et accent indigo. Les tuiles gardent leurs couleurs avec des libelles blancs et la tuile selectionnee a un contour sombre. Seuls les couleurs et le style des tuiles changent."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#6366f1",
+        "to": "#e0e7ff",
+        "glyph": "book"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/theme-paper"
+      }
+    },
+    {
+      "id": "theme-sunset",
+      "name": "Sunset",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "themes",
+      "description": "Warm dark purple fading to orange, with generously rounded tiles.",
+      "details": "A dusky purple background with an orange accent and extra-round tile corners. The focused tile gets a warm amber halo. Only colors and tile styling change.",
+      "tags": [
+        "dark",
+        "purple",
+        "orange",
+        "warm",
+        "rounded"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Coucher de soleil",
+          "description": "Violet sombre vers orange chaud, avec des tuiles tres arrondies.",
+          "details": "Fond violet crepusculaire, accent orange et coins de tuiles tres arrondis. La tuile selectionnee a un halo ambre. Seuls les couleurs et le style des tuiles changent."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#f97316",
+        "to": "#4c1d95",
+        "glyph": "sun"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/theme-sunset"
+      }
+    },
+    {
+      "id": "tiles-anime",
+      "name": "Anime tiles",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "apps",
+      "description": "Anime and Asian pop culture sites: HIDIVE, Anime Onegai, Bilibili, MyAnimeList and AniList.",
+      "details": "Adds five tiles for anime fans: HIDIVE and Anime Onegai (streaming, account needed), Bilibili (video platform), plus MyAnimeList and AniList to track and discover series. Crunchyroll and ADN are already built into RusTV.",
+      "tags": [
+        "anime",
+        "manga",
+        "streaming",
+        "japan"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Tuiles anime",
+          "description": "Sites d'anime : HIDIVE, Anime Onegai, Bilibili, MyAnimeList et AniList.",
+          "details": "Ajoute cinq tuiles pour les fans d'anime : HIDIVE et Anime Onegai (streaming, compte requis), Bilibili (plateforme vidéo), ainsi que MyAnimeList et AniList pour suivre et découvrir des séries. Crunchyroll et ADN sont déjà intégrés à RusTV."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#ec4899",
+        "to": "#500724",
+        "glyph": "star"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/tiles-anime"
+      }
+    },
+    {
+      "id": "tiles-community",
+      "name": "Community tiles",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "apps",
+      "description": "A few extra website tiles: Wikipedia, Radio Paradise and NASA Live.",
+      "details": "Adds three extra website tiles: Wikipedia (the free encyclopedia), Radio Paradise (eclectic listener-supported radio) and NASA Live (NASA TV and live streams). All are free to use and need no account.",
+      "tags": [
+        "wikipedia",
+        "radio",
+        "nasa",
+        "space"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Tuiles communautaires",
+          "description": "Quelques tuiles de sites en plus : Wikipedia, Radio Paradise et NASA Live.",
+          "details": "Ajoute trois tuiles de sites : Wikipedia (l'encyclopédie libre), Radio Paradise (radio éclectique financée par ses auditeurs) et NASA Live (NASA TV et directs). Gratuit, sans compte."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#475569",
+        "to": "#0f172a",
+        "glyph": "grid"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/tiles-community"
+      }
+    },
+    {
+      "id": "tiles-kids",
+      "name": "Kids tiles",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "apps",
+      "description": "Child-friendly video: YouTube Kids, Disney Junior, Gulli, Okoo, PBS Kids, Nick Jr and Cartoon Network.",
+      "details": "Adds seven kids tiles that open the official web sites: YouTube Kids, Disney Junior, Gulli, Okoo (France Televisions), PBS Kids, Nick Jr and Cartoon Network. Content and availability depend on your country; check each service's parental controls.",
+      "tags": [
+        "kids",
+        "cartoons",
+        "family",
+        "children"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Tuiles enfants",
+          "description": "Vidéos pour enfants : YouTube Kids, Disney Junior, Gulli, Okoo, PBS Kids, Nick Jr et Cartoon Network.",
+          "details": "Ajoute sept tuiles enfants vers les sites officiels : YouTube Kids, Disney Junior, Gulli, Okoo (France Télévisions), PBS Kids, Nick Jr et Cartoon Network. Contenus et disponibilité selon votre pays ; vérifiez le contrôle parental de chaque service."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#f59e0b",
+        "to": "#b91c1c",
+        "glyph": "smile"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/tiles-kids"
+      }
+    },
+    {
+      "id": "tiles-learning",
+      "name": "Learning tiles",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "apps",
+      "description": "Free learning on the big screen: Khan Academy, TED, Coursera, edX, Duolingo and Crash Course.",
+      "details": "Adds six learning tiles that open the official sites: Khan Academy, TED, Coursera, edX, Duolingo and Crash Course. Khan Academy and TED are free; Coursera, edX and Duolingo offer free and paid tiers and need an account to track progress.",
+      "tags": [
+        "learning",
+        "education",
+        "courses",
+        "languages"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Tuiles apprentissage",
+          "description": "Apprendre sur grand écran : Khan Academy, TED, Coursera, edX, Duolingo et Crash Course.",
+          "details": "Ajoute six tuiles apprentissage vers les sites officiels : Khan Academy, TED, Coursera, edX, Duolingo et Crash Course. Khan Academy et TED sont gratuits ; Coursera, edX et Duolingo proposent des offres gratuites et payantes et demandent un compte pour suivre la progression."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#2563eb",
+        "to": "#172554",
+        "glyph": "book"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/tiles-learning"
+      }
+    },
+    {
+      "id": "tiles-media-tools",
+      "name": "Media tools tiles",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "apps",
+      "description": "Launch local media programs from RusTV: the Kodi media center and the Spotify desktop app.",
+      "details": "Adds native tiles for Kodi and the Spotify desktop app. Both programs must be installed on the PC. VLC and the Spotify web player are already built into RusTV. Needs the launch permission.",
+      "tags": [
+        "media",
+        "kodi",
+        "spotify",
+        "desktop"
+      ],
+      "dependencies": [
+        {
+          "type": "external",
+          "name": "Kodi",
+          "url": "https://kodi.tv/download/windows",
+          "note": "Required for the Kodi tile"
+        },
+        {
+          "type": "external",
+          "name": "Spotify desktop app",
+          "url": "https://www.spotify.com/download/windows/",
+          "note": "Required for the Spotify desktop tile"
+        }
+      ],
+      "permissions": [
+        "launch"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Outils multimédia",
+          "description": "Lancez des programmes multimédia locaux depuis RusTV : Kodi et Spotify de bureau.",
+          "details": "Ajoute des tuiles natives pour Kodi et l'application Spotify de bureau. Les deux programmes doivent être installés sur le PC. VLC et le lecteur web Spotify sont déjà intégrés à RusTV. Nécessite la permission launch."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#0891b2",
+        "to": "#083344",
+        "glyph": "film"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/tiles-media-tools"
+      }
+    },
+    {
+      "id": "tiles-music-radio",
+      "name": "Radio and music tiles",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "apps",
+      "description": "Radio and listening sites: RTL, Europe 1, NRJ, Fip, Mixcloud, Bandcamp, TuneIn and Radio Garden.",
+      "details": "Adds eight audio tiles that open the official web players: RTL, Europe 1, NRJ, Fip (Radio France), Mixcloud, Bandcamp, TuneIn and Radio Garden. Spotify, Deezer, SoundCloud, Tidal and Radio France are already built into RusTV and are not repeated here.",
+      "tags": [
+        "radio",
+        "music",
+        "podcasts",
+        "live"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Tuiles radio et musique",
+          "description": "Radio et écoute : RTL, Europe 1, NRJ, Fip, Mixcloud, Bandcamp, TuneIn et Radio Garden.",
+          "details": "Ajoute huit tuiles audio vers les lecteurs web officiels : RTL, Europe 1, NRJ, Fip (Radio France), Mixcloud, Bandcamp, TuneIn et Radio Garden. Spotify, Deezer, SoundCloud, Tidal et Radio France sont déjà intégrés à RusTV."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#7c3aed",
+        "to": "#2e1065",
+        "glyph": "radio"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/tiles-music-radio"
+      }
+    },
+    {
+      "id": "tiles-news",
+      "name": "News tiles",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "apps",
+      "description": "Live news and web players: franceinfo, Euronews, France 24, BBC News, Al Jazeera, DW, Arte Info and LCI.",
+      "details": "Adds eight news tiles that open the official web sites and live players: franceinfo, Euronews, France 24, BBC News, Al Jazeera English, DW (Deutsche Welle), Arte Info and LCI. Most are free to watch.",
+      "tags": [
+        "news",
+        "live",
+        "info",
+        "journalism"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Tuiles actualités",
+          "description": "Info en direct : franceinfo, Euronews, France 24, BBC News, Al Jazeera, DW, Arte Info et LCI.",
+          "details": "Ajoute huit tuiles info vers les sites et directs officiels : franceinfo, Euronews, France 24, BBC News, Al Jazeera English, DW (Deutsche Welle), Arte Info et LCI. La plupart sont gratuits."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#dc2626",
+        "to": "#450a0a",
+        "glyph": "newspaper"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/tiles-news"
+      }
+    },
+    {
+      "id": "tiles-pc-gaming",
+      "name": "PC gaming launchers",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "apps",
+      "description": "Open your PC game launchers from the couch: Epic Games, GOG Galaxy, Xbox app and Battle.net.",
+      "details": "Adds native tiles for four Windows game launchers through their URI schemes: Epic Games Launcher, GOG Galaxy, the Xbox app and Battle.net. Each launcher must already be installed; the tile only opens it. Steam Big Picture is already built into RusTV. Needs the launch permission.",
+      "tags": [
+        "games",
+        "pc",
+        "launcher",
+        "epic",
+        "gog",
+        "xbox"
+      ],
+      "dependencies": [
+        {
+          "type": "external",
+          "name": "Epic Games Launcher",
+          "url": "https://store.epicgames.com/download",
+          "note": "Required for the Epic Games tile"
+        },
+        {
+          "type": "external",
+          "name": "GOG Galaxy",
+          "url": "https://www.gog.com/galaxy",
+          "note": "Required for the GOG Galaxy tile"
+        },
+        {
+          "type": "external",
+          "name": "Xbox app",
+          "url": "https://www.xbox.com/xbox-app",
+          "note": "Required for the Xbox app tile"
+        },
+        {
+          "type": "external",
+          "name": "Battle.net",
+          "url": "https://download.battle.net",
+          "note": "Required for the Battle.net tile"
+        }
+      ],
+      "permissions": [
+        "launch"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Lanceurs de jeux PC",
+          "description": "Ouvrez vos lanceurs de jeux PC depuis le canapé : Epic Games, GOG Galaxy, app Xbox et Battle.net.",
+          "details": "Ajoute des tuiles natives pour quatre lanceurs Windows via leurs schémas d'URI : Epic Games Launcher, GOG Galaxy, l'app Xbox et Battle.net. Chaque lanceur doit déjà être installé ; la tuile ne fait que l'ouvrir. Steam Big Picture est déjà intégré à RusTV. Nécessite la permission launch."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#475569",
+        "to": "#0f172a",
+        "glyph": "gamepad"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/tiles-pc-gaming"
+      }
+    },
+    {
+      "id": "tiles-sports",
+      "name": "Sports tiles",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "apps",
+      "description": "Sports streaming and live scores: Eurosport, DAZN, beIN SPORTS CONNECT, RMC Sport, OneFootball, NBA and UEFA.tv.",
+      "details": "Adds seven sports tiles that open the official web players: Eurosport, DAZN, beIN SPORTS CONNECT, RMC Sport, OneFootball, NBA and UEFA.tv. Most of them need a subscription or an account; availability depends on your country.",
+      "tags": [
+        "sports",
+        "football",
+        "live",
+        "streaming"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Tuiles sport",
+          "description": "Streaming sportif et scores en direct : Eurosport, DAZN, beIN SPORTS CONNECT, RMC Sport, OneFootball, NBA et UEFA.tv.",
+          "details": "Ajoute sept tuiles sport qui ouvrent les lecteurs web officiels : Eurosport, DAZN, beIN SPORTS CONNECT, RMC Sport, OneFootball, NBA et UEFA.tv. La plupart demandent un abonnement ou un compte ; la disponibilité dépend de votre pays."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#15803d",
+        "to": "#052e16",
+        "glyph": "trophy"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/tiles-sports"
+      }
+    },
+    {
+      "id": "tiles-world-tv",
+      "name": "World TV tiles",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "apps",
+      "description": "Catch-up TV from abroad: BBC iPlayer, ARD Mediathek, ZDF, RTVE Play, NHK World, CBC Gem and SBS On Demand.",
+      "details": "Adds seven international TV tiles that open the official players: BBC iPlayer (UK), ARD Mediathek and ZDF (Germany), RTVE Play (Spain), NHK WORLD-JAPAN, CBC Gem (Canada) and SBS On Demand (Australia). Many are geo-restricted to their home country; Arte is already built into RusTV.",
+      "tags": [
+        "tv",
+        "world",
+        "international",
+        "catch-up"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Tuiles TV du monde",
+          "description": "Replay de TV étrangères : BBC iPlayer, ARD Mediathek, ZDF, RTVE Play, NHK World, CBC Gem et SBS On Demand.",
+          "details": "Ajoute sept tuiles TV internationales vers les lecteurs officiels : BBC iPlayer (Royaume-Uni), ARD Mediathek et ZDF (Allemagne), RTVE Play (Espagne), NHK WORLD-JAPAN, CBC Gem (Canada) et SBS On Demand (Australie). Beaucoup sont limités géographiquement ; Arte est déjà intégré à RusTV."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#0ea5e9",
+        "to": "#082f49",
+        "glyph": "globe"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/tiles-world-tv"
+      }
+    },
+    {
+      "id": "tv-zoom",
+      "name": "TV zoom",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "enhancements",
+      "description": "Slightly enlarges text and interface of web apps so they read better from the couch.",
+      "details": "Applies a CSS zoom of 125% to the page so text and buttons are bigger from a distance. It only injects one stylesheet (html { zoom: 1.25 }); no script, no network, nothing stored. Sites with fixed layouts or custom video players may look slightly off; disable the mod if so. This adapter matches every website, so it runs inside every web app you open in RusTV.",
+      "tags": [
+        "zoom",
+        "text",
+        "accessibility",
+        "tv",
+        "web"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Zoom TV",
+          "description": "Agrandit legerement le texte et l'interface des applications web pour mieux lire depuis le canape.",
+          "details": "Applique un zoom CSS de 125 % a la page pour des textes et boutons plus grands a distance. Il n'injecte qu'une feuille de style (html { zoom: 1.25 }) ; pas de script, pas de reseau, rien n'est stocke. Les sites a mise en page fixe ou a lecteur video personnalise peuvent etre un peu decales ; desactivez le module dans ce cas. Ce module s'applique a tous les sites : il s'execute dans chaque application web ouverte dans RusTV."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#0ea5e9",
+        "to": "#1e3a8a",
+        "glyph": "type"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/tv-zoom"
+      }
+    },
+    {
+      "id": "widget-analog-clock",
+      "name": "Analog clock",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "widgets",
+      "description": "A small analog clock in the top bar. Needs no permission.",
+      "details": "A compact analog clock with hour, minute and second hands for the top bar. Works offline and asks for no permission.",
+      "tags": [
+        "clock",
+        "time",
+        "analog"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Horloge analogique",
+          "description": "Une petite horloge analogique dans la barre du haut.",
+          "details": "Une horloge analogique compacte avec aiguilles des heures, minutes et secondes. Fonctionne hors ligne, sans aucune permission."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#334155",
+        "to": "#0f172a",
+        "glyph": "clock"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/widget-analog-clock"
+      }
+    },
+    {
+      "id": "widget-daily-quote",
+      "name": "Daily quote",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "widgets",
+      "description": "A short quote that changes every day, shown in the top bar.",
+      "details": "Shows one short quote per day, picked from a built-in list of about 40 French and English quotes (public domain or original) with the author. Offline, no permission.",
+      "tags": [
+        "quote",
+        "daily",
+        "inspiration"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Citation du jour",
+          "description": "Une courte citation qui change chaque jour dans la barre du haut.",
+          "details": "Affiche une citation par jour choisie dans une liste d'environ 40 citations françaises et anglaises (domaine public ou originales), avec l'auteur. Hors ligne, sans permission."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#f59e0b",
+        "to": "#78350f",
+        "glyph": "note"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/widget-daily-quote"
+      }
+    },
+    {
+      "id": "widget-date",
+      "name": "Date",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "widgets",
+      "description": "Weekday, day, month and ISO week number in the top bar, in your language.",
+      "details": "Displays today's weekday, day and month together with the ISO week number, localized with the system language. Updates itself at midnight. Offline, no permission.",
+      "tags": [
+        "date",
+        "calendar",
+        "week"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Date",
+          "description": "Jour, date, mois et numéro de semaine dans la barre du haut.",
+          "details": "Affiche le jour de la semaine, la date et le mois avec le numéro de semaine ISO, dans la langue du système. Se met à jour à minuit. Hors ligne, sans permission."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#f43f5e",
+        "to": "#881337",
+        "glyph": "calendar"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/widget-date"
+      }
+    },
+    {
+      "id": "widget-moon-phase",
+      "name": "Moon phase",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "widgets",
+      "description": "The current moon phase, computed offline and drawn as a small icon.",
+      "details": "Computes the current phase of the moon with the synodic month (29.53 days) and draws it as a small SVG next to its name and illumination. Offline, no permission. The result is an approximation, accurate to about a day.",
+      "tags": [
+        "moon",
+        "astronomy",
+        "night"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Phase de lune",
+          "description": "La phase de lune actuelle, calculée hors ligne.",
+          "details": "Calcule la phase de la lune avec le mois synodique (29,53 jours) et la dessine en SVG avec son nom et son éclairement. Hors ligne, sans permission. Approximation à environ un jour près."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#6366f1",
+        "to": "#1e1b4b",
+        "glyph": "moon"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/widget-moon-phase"
+      }
+    },
+    {
+      "id": "widget-world-clocks",
+      "name": "World clocks",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "widgets",
+      "description": "Three city clocks in the top bar, using time zones. Fully offline.",
+      "details": "Shows the local time of three cities (Paris, New York and Tokyo by default) side by side in the top bar. Uses the time zone database of the system, so it works offline and needs no permission. Edit the CITIES list in clocks.html to change cities.",
+      "tags": [
+        "clock",
+        "time zone",
+        "world",
+        "travel"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Horloges du monde",
+          "description": "Trois horloges de villes dans la barre du haut, hors ligne.",
+          "details": "Affiche l'heure de trois villes (Paris, New York et Tokyo par défaut) côte à côte. Utilise les fuseaux horaires du système, donc hors ligne et sans permission. Modifiez la liste CITIES dans clocks.html pour changer de villes."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#0ea5e9",
+        "to": "#1e3a8a",
+        "glyph": "globe"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "path": "mods/widget-world-clocks"
+      }
+    }
+  ]
 }
