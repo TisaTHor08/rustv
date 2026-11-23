@@ -7,6 +7,7 @@
 //!
 //! Toute la logique (sens du stick, répétition, fronts, mapping, décision premier plan, combo d'échappement)
 //! est pure et testée ; les appels XInput / Win32 restent minces.
+#![cfg_attr(not(windows), allow(dead_code, unused_imports))]
 use crate::{store, Shell};
 use rustv_protocol::messages::*;
 use serde::{Deserialize, Serialize};
@@ -535,18 +536,29 @@ pub fn step(rt: &mut PadRt, inp: &Input, now: u64, c: &Config, gate: &Gate) -> V
 
 // ---------- XInput (appels minces, chargés dynamiquement) ----------
 
+#[cfg(windows)]
 use windows::core::{s, w, PWSTR};
+#[cfg(windows)]
 use windows::Win32::Foundation::{CloseHandle, HANDLE};
+#[cfg(windows)]
 use windows::Win32::System::Diagnostics::ToolHelp::{CreateToolhelp32Snapshot, Process32FirstW, Process32NextW, PROCESSENTRY32W, TH32CS_SNAPPROCESS};
+#[cfg(windows)]
 use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryW};
+#[cfg(windows)]
 use windows::Win32::System::Threading::{OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32, PROCESS_QUERY_LIMITED_INFORMATION};
+#[cfg(windows)]
 use windows::Win32::UI::Input::XboxController::{BATTERY_DEVTYPE, BATTERY_DEVTYPE_GAMEPAD, XINPUT_BATTERY_INFORMATION, XINPUT_STATE, XINPUT_VIBRATION};
+#[cfg(windows)]
 use windows::Win32::UI::WindowsAndMessaging::GetWindowThreadProcessId;
 
+#[cfg(windows)]
 type GetState = unsafe extern "system" fn(u32, *mut XINPUT_STATE) -> u32;
+#[cfg(windows)]
 type SetState = unsafe extern "system" fn(u32, *const XINPUT_VIBRATION) -> u32;
+#[cfg(windows)]
 type GetBattery = unsafe extern "system" fn(u32, BATTERY_DEVTYPE, *mut XINPUT_BATTERY_INFORMATION) -> u32;
 
+#[cfg(windows)]
 struct XInput {
     get: GetState,
     set: SetState,
@@ -554,8 +566,10 @@ struct XInput {
     battery: Option<GetBattery>,
 }
 
+#[cfg(windows)]
 static XI: OnceLock<Option<XInput>> = OnceLock::new();
 
+#[cfg(windows)]
 impl XInput {
     /// xinput1_4 (Windows 8+), puis xinput1_3, puis xinput9_1_0 ; la fonction batterie est facultative.
     fn load() -> Option<XInput> {
@@ -629,6 +643,7 @@ fn battery_level(l: u8, t: u8) -> &'static str {
 
 // ---------- premier plan ----------
 
+#[cfg(windows)]
 fn exe_of(pid: u32) -> Option<String> {
     unsafe {
         let h = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid).ok()?;
@@ -642,6 +657,7 @@ fn exe_of(pid: u32) -> Option<String> {
     }
 }
 
+#[cfg(windows)]
 fn parent_map() -> HashMap<u32, u32> {
     let mut m = HashMap::new();
     unsafe {
@@ -662,6 +678,7 @@ fn parent_map() -> HashMap<u32, u32> {
 }
 
 /// `pid` descend-il de `me` (7 générations maximum) ?
+#[cfg_attr(not(windows), allow(dead_code))]
 fn descends_from(pid: u32, me: u32, parents: &HashMap<u32, u32>) -> bool {
     let mut cur = pid;
     for _ in 0..7 {
@@ -674,6 +691,7 @@ fn descends_from(pid: u32, me: u32, parents: &HashMap<u32, u32>) -> bool {
     false
 }
 
+#[cfg(windows)]
 #[derive(Default)]
 struct FgCache {
     checked: u64,
@@ -681,6 +699,7 @@ struct FgCache {
     known: HashMap<u32, (u64, bool, Option<String>)>,
 }
 
+#[cfg(windows)]
 fn foreground_ok(c: &Config, cache: &mut FgCache, now: u64) -> bool {
     if cache.checked != 0 && now.saturating_sub(cache.checked) < 100 {
         return cache.ok;
@@ -715,6 +734,7 @@ fn foreground_ok(c: &Config, cache: &mut FgCache, now: u64) -> bool {
 
 // ---------- fil d'interrogation ----------
 
+#[cfg(windows)]
 fn run(app: AppHandle) {
     let Some(xi) = XI.get_or_init(XInput::load).as_ref() else {
         eprintln!("gamepad : XInput indisponible, manette désactivée");
@@ -803,8 +823,14 @@ pub fn start(app: &AppHandle) {
             PAUSED.store(false, Ordering::Relaxed);
         }
     });
-    let h = app.clone();
-    std::thread::spawn(move || run(h));
+    #[cfg(windows)]
+    {
+        let h = app.clone();
+        std::thread::spawn(move || run(h));
+    }
+    // Hors Windows : pas de backend manette (voir docs/PORTING.md : evdev/gilrs sous Linux, GameController sous macOS).
+    #[cfg(not(windows))]
+    let _ = app;
 }
 
 // ---------- commandes ----------
@@ -818,7 +844,10 @@ pub async fn gamepad_get() -> Result<Value, String> {
         .enumerate()
         .map(|(i, p)| json!({ "slot": i, "connected": p.connected, "batteryType": battery_type(p.bt, p.connected), "batteryLevel": if p.connected { battery_level(p.bl, p.bt) } else { "unknown" } }))
         .collect();
+    #[cfg(windows)]
     let available = XI.get().map(|x| x.is_some()).unwrap_or(true);
+    #[cfg(not(windows))]
+    let available = false;
     Ok(json!({ "config": cfg(), "pads": pads, "paused": PAUSED.load(Ordering::Relaxed), "available": available }))
 }
 
@@ -835,17 +864,22 @@ pub async fn gamepad_test_vibration(slot: u8) -> Result<(), String> {
     if slot > 3 || !PADS.lock().unwrap()[slot as usize].connected {
         return Err("manette absente".into());
     }
-    let Some(xi) = XI.get().and_then(|x| x.as_ref()) else { return Err("XInput indisponible".into()) };
-    let level = cfg().vibration.max(2);
-    let speed = pulse_plan(level, false).first().map(|p| p.1).unwrap_or(26000);
-    xi.rumble(slot as u32, speed);
-    std::thread::spawn(move || {
-        std::thread::sleep(Duration::from_millis(300));
-        if let Some(Some(xi)) = XI.get() {
-            xi.rumble(slot as u32, 0);
-        }
-    });
-    Ok(())
+    #[cfg(not(windows))]
+    return Err(rustv_core::platform::UNSUPPORTED.to_string());
+    #[cfg(windows)]
+    {
+        let Some(xi) = XI.get().and_then(|x| x.as_ref()) else { return Err("XInput indisponible".into()) };
+        let level = cfg().vibration.max(2);
+        let speed = pulse_plan(level, false).first().map(|p| p.1).unwrap_or(26000);
+        xi.rumble(slot as u32, speed);
+        std::thread::spawn(move || {
+            std::thread::sleep(Duration::from_millis(300));
+            if let Some(Some(xi)) = XI.get() {
+                xi.rumble(slot as u32, 0);
+            }
+        });
+        Ok(())
+    }
 }
 
 // ---------- tests ----------

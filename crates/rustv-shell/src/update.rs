@@ -50,6 +50,11 @@ pub fn check() -> Result<Value, String> {
 
 /// Télécharge l'installeur annoncé par `check`, vérifie son empreinte, le lance puis quitte RusTV.
 pub fn install(app: &AppHandle, asset: &Value) -> Result<(), String> {
+    // L'installeur publié est un `-setup.exe` Windows : jamais exécuté ailleurs (docs/PORTING.md : paquet .deb,
+    // AppImage ou .dmg à prévoir).
+    if !cfg!(windows) {
+        return Err(rustv_core::platform::UNSUPPORTED.into());
+    }
     let url = asset["url"].as_str().ok_or("URL manquante")?;
     if !url.starts_with(ASSET_PREFIX) || !url.ends_with("-setup.exe") {
         return Err("installeur hors du dépôt officiel : refusé".into());

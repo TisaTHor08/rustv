@@ -22,7 +22,7 @@ impl Default for Settings {
 }
 
 pub fn dir() -> PathBuf {
-    std::env::var_os("APPDATA").map(PathBuf::from).unwrap_or_else(std::env::temp_dir).join("RusTV")
+    rustv_core::platform::config_dir()
 }
 
 impl Settings {

@@ -1,7 +1,21 @@
 //! Injection d'entrées via SendInput + fenêtres (épinglage).
-use windows::Win32::Foundation::HWND;
+pub use windows::Win32::Foundation::HWND;
 use windows::Win32::UI::Input::KeyboardAndMouse::*;
 use windows::Win32::UI::WindowsAndMessaging::*;
+
+/// Codes de touches logiques utilisés par le cœur (mêmes noms que Windows ; les stubs non-Windows
+/// définissent les mêmes constantes, voir `platform/stub/input.rs`).
+pub mod keys {
+    pub use windows::Win32::UI::Input::KeyboardAndMouse::{
+        VIRTUAL_KEY, VK_APPS, VK_BACK, VK_DOWN, VK_ESCAPE, VK_F3, VK_LEFT, VK_MEDIA_NEXT_TRACK, VK_MEDIA_PLAY_PAUSE, VK_MEDIA_PREV_TRACK,
+        VK_MEDIA_STOP, VK_MENU, VK_RETURN, VK_RIGHT, VK_TAB, VK_UP, VK_VOLUME_DOWN, VK_VOLUME_MUTE, VK_VOLUME_UP,
+    };
+}
+
+/// L'injection d'entrées est disponible (toujours vrai sous Windows).
+pub fn check() -> Result<(), &'static str> {
+    Ok(())
+}
 
 fn send(inputs: &[INPUT]) {
     unsafe {
@@ -149,6 +163,14 @@ pub fn force_foreground(hwnd: isize) {
         let _ = SetForegroundWindow(h);
         let _ = BringWindowToTop(h);
     }
+}
+
+/// Titre de la fenêtre au premier plan (vide si inconnu).
+pub fn foreground_title() -> String {
+    let h = foreground();
+    let mut buf = [0u16; 256];
+    let n = unsafe { GetWindowTextW(h, &mut buf) };
+    String::from_utf16_lossy(&buf[..n.max(0) as usize])
 }
 
 pub fn is_window(hwnd: HWND) -> bool {

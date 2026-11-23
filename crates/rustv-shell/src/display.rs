@@ -58,6 +58,7 @@ pub fn filter_modes(raw: &[RawMode]) -> Vec<Mode> {
 }
 
 /// Position d'un écran : l'index suit l'ordre de `tv::monitors` (gauche -> droite, puis haut -> bas).
+#[cfg_attr(not(windows), allow(dead_code))]
 pub fn sort_by_position<T>(v: &mut [T], pos: impl Fn(&T) -> (i32, i32)) {
     v.sort_by_key(|m| pos(m));
 }
@@ -170,16 +171,19 @@ pub fn next_output(outs: &[Output], dir: i32) -> Option<usize> {
 }
 
 /// Volume 0 à 100 depuis un niveau scalaire 0.0 à 1.0.
+#[cfg_attr(not(windows), allow(dead_code))]
 pub fn level_to_percent(level: f32) -> u8 {
     (level * 100.0).round().clamp(0.0, 100.0) as u8
 }
 
 /// Niveau scalaire 0.0 à 1.0 depuis un pourcentage (borné).
+#[cfg_attr(not(windows), allow(dead_code))]
 pub fn percent_to_level(p: u32) -> f32 {
     p.min(100) as f32 / 100.0
 }
 
 /// Convertit un tampon UTF-16 terminé par 0 en `String`.
+#[cfg_attr(not(windows), allow(dead_code))]
 pub fn wide_to_string(w: &[u16]) -> String {
     let end = w.iter().position(|&c| c == 0).unwrap_or(w.len());
     String::from_utf16_lossy(&w[..end])
@@ -228,6 +232,12 @@ pub struct SetModeResult {
 
 // ---------- appels système (non testés automatiquement) ----------
 
+/// Windows : Core Audio, GDI, DisplayConfig. Autres OS : `platform/stub/display_sys.rs` (voir docs/PORTING.md).
+#[cfg(not(windows))]
+#[path = "platform/stub/display_sys.rs"]
+mod sys;
+
+#[cfg(windows)]
 #[allow(non_snake_case)]
 mod sys {
     use super::*;

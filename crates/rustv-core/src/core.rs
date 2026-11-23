@@ -7,8 +7,8 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
-use windows::Win32::Foundation::HWND;
-use windows::Win32::UI::Input::KeyboardAndMouse::*;
+use crate::input::keys::*;
+use crate::input::HWND;
 
 /// Relâche Alt automatiquement si le téléphone ne confirme pas.
 const ALT_SAFETY: Duration = Duration::from_secs(5);

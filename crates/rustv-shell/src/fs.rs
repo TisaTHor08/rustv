@@ -29,15 +29,23 @@ pub const AUDIO: &[&str] = &["mp3", "flac", "ogg", "wav", "m4a", "aac", "opus"];
 
 pub fn roots() -> Vec<Root> {
     let mut v = Vec::new();
-    if let Some(home) = std::env::var_os("USERPROFILE").map(PathBuf::from) {
-        for (label, dir) in [("Images", "Pictures"), ("Vidéos", "Videos"), ("Musique", "Music"), ("Téléchargements", "Downloads"), ("Bureau", "Desktop"), ("Documents", "Documents")] {
+    if let Some(home) = rustv_core::platform::home_dir() {
+        // `Videos` s'appelle `Movies` sous macOS.
+        let videos = if cfg!(target_os = "macos") { "Movies" } else { "Videos" };
+        for (label, dir) in [("Images", "Pictures"), ("Vidéos", videos), ("Musique", "Music"), ("Téléchargements", "Downloads"), ("Bureau", "Desktop"), ("Documents", "Documents")] {
             let p = home.join(dir);
             if p.is_dir() {
                 v.push(Root { name: label.into(), path: p.to_string_lossy().into_owned() });
             }
         }
     }
-    // Masque des lecteurs fourni par Windows : instantané (tester chaque lettre bloque sur un disque réseau absent).
+    drive_roots(&mut v);
+    v
+}
+
+/// Masque des lecteurs fourni par Windows : instantané (tester chaque lettre bloque sur un disque réseau absent).
+#[cfg(windows)]
+fn drive_roots(v: &mut Vec<Root>) {
     let mask = unsafe { GetLogicalDrives() };
     for i in 2..26u32 {
         if mask & (1 << i) != 0 {
@@ -45,9 +53,16 @@ pub fn roots() -> Vec<Root> {
             v.push(Root { name: format!("Disque {l}:"), path: format!("{l}:\\") });
         }
     }
-    v
 }
 
+/// Hors Windows : la racine du système de fichiers (le backend pourra y ajouter les volumes montés :
+/// /media, /run/media, /Volumes).
+#[cfg(not(windows))]
+fn drive_roots(v: &mut Vec<Root>) {
+    v.push(Root { name: "Système".into(), path: "/".into() });
+}
+
+#[cfg(windows)]
 extern "system" {
     fn GetLogicalDrives() -> u32;
 }

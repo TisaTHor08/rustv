@@ -100,8 +100,9 @@ impl Default for Config {
 }
 
 pub fn default_folder() -> String {
-    let base = std::env::var_os("USERPROFILE").map(PathBuf::from).unwrap_or_else(std::env::temp_dir);
-    base.join("Videos").join("RusTV Recordings").to_string_lossy().into_owned()
+    // `~/Videos` (Windows, Linux ; XDG_VIDEOS_DIR prioritaire), `~/Movies` (macOS).
+    let base = rustv_core::platform::video_dir().unwrap_or_else(|| std::env::temp_dir().join("Videos"));
+    base.join("RusTV Recordings").to_string_lossy().into_owned()
 }
 
 /// Valide et borne les réglages.
@@ -627,12 +628,16 @@ fn quit_mpv(pipe: &str) {
     }
 }
 #[cfg(not(windows))]
-fn quit_mpv(_pipe: &str) {}
+fn quit_mpv(pipe: &str) {
+    if let Ok(mut f) = rustv_core::platform::ipc::connect(pipe) {
+        let _ = f.write_all(b"{\"command\":[\"quit\"]}\n");
+    }
+}
 
 fn run_mpv(r: &Recording, path: &Path, end: i64, ctl: &AtomicU8, min_free: u64) -> Outcome {
     let out = |status, error: &str| Outcome { status, error: error.into(), path: path.to_path_buf() };
     let Some(mpv) = player::find_mpv() else { return out(Status::Failed, "mpv_missing") };
-    let pipe = format!(r"\\.\pipe\rustv-dvr-{}", r.id);
+    let pipe = rustv_core::platform::ipc::path(&format!("rustv-dvr-{}", r.id));
     let mut cmd = Command::new(mpv);
     cmd.args(mpv_args(&r.url, path, &pipe)).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
     #[cfg(windows)]
@@ -1082,7 +1087,7 @@ mod tests {
         assert!(enough_space(Some(10), 10));
         assert!(!enough_space(Some(9), 10));
         assert!(enough_space(None, 10)); // inconnu : on n'empêche pas
-        let c = sanitize_config(Config { folder: "C:\\Rec".into(), pad_before: 999, max_parallel: 0, tz: 5000, ..Default::default() }).unwrap();
+        let c = sanitize_config(Config { folder: std::env::temp_dir().to_string_lossy().into_owned(), pad_before: 999, max_parallel: 0, tz: 5000, ..Default::default() }).unwrap();
         assert_eq!((c.pad_before, c.max_parallel, c.tz), (120, 1, 840));
         assert!(sanitize_config(Config { folder: "relatif\\dossier".into(), ..Default::default() }).is_err());
         assert!(!sanitize_config(Config { folder: "  ".into(), ..Default::default() }).unwrap().folder.is_empty());

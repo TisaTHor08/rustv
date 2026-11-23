@@ -28,6 +28,9 @@ pub struct Found {
 
 /// Chemins d'installation standard (Brave d'abord : son bloqueur est actif par défaut).
 pub fn candidate_paths(env: &dyn Fn(&str) -> Option<String>) -> Vec<(Kind, PathBuf)> {
+    if !cfg!(windows) {
+        return unix_candidate_paths(env);
+    }
     let mut v = Vec::new();
     let local = env("LOCALAPPDATA").map(PathBuf::from);
     let pf: Vec<PathBuf> = ["ProgramFiles", "ProgramFiles(x86)"].iter().filter_map(|k| env(k)).map(PathBuf::from).collect();
@@ -42,6 +45,32 @@ pub fn candidate_paths(env: &dyn Fn(&str) -> Option<String>) -> Vec<(Kind, PathB
     }
     for p in &pf {
         v.push((Kind::Vivaldi, p.join(r"Vivaldi\Application\vivaldi.exe")));
+    }
+    v
+}
+
+/// Linux/macOS : emplacements usuels (paquets, snap, flatpak, /opt, /Applications) puis `PATH`.
+fn unix_candidate_paths(env: &dyn Fn(&str) -> Option<String>) -> Vec<(Kind, PathBuf)> {
+    let mut v: Vec<(Kind, PathBuf)> = Vec::new();
+    let (brave, vivaldi): (&[&str], &[&str]) = if cfg!(target_os = "macos") {
+        (&["/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"], &["/Applications/Vivaldi.app/Contents/MacOS/Vivaldi"])
+    } else {
+        (
+            &["/usr/bin/brave-browser", "/usr/bin/brave", "/opt/brave.com/brave/brave", "/snap/bin/brave", "/var/lib/flatpak/exports/bin/com.brave.Browser"],
+            &["/usr/bin/vivaldi", "/usr/bin/vivaldi-stable", "/opt/vivaldi/vivaldi", "/snap/bin/vivaldi", "/var/lib/flatpak/exports/bin/com.vivaldi.Vivaldi"],
+        )
+    };
+    v.extend(brave.iter().map(|p| (Kind::Brave, PathBuf::from(p))));
+    v.extend(vivaldi.iter().map(|p| (Kind::Vivaldi, PathBuf::from(p))));
+    if let Some(path) = env("PATH") {
+        for d in std::env::split_paths(&path) {
+            for n in ["brave-browser", "brave"] {
+                v.push((Kind::Brave, d.join(n)));
+            }
+            for n in ["vivaldi", "vivaldi-stable"] {
+                v.push((Kind::Vivaldi, d.join(n)));
+            }
+        }
     }
     v
 }
@@ -87,6 +116,9 @@ fn no_window(cmd: &mut Command) -> &mut Command {
 }
 
 fn registry_paths() -> Vec<(Kind, PathBuf)> {
+    if !cfg!(windows) {
+        return Vec::new(); // pas de registre : les chemins usuels et le PATH suffisent
+    }
     let mut v = Vec::new();
     for (kind, exe) in [(Kind::Brave, "brave.exe"), (Kind::Vivaldi, "vivaldi.exe")] {
         for hive in ["HKCU", "HKLM"] {
@@ -162,8 +194,20 @@ static GEN: Mutex<u64> = Mutex::new(0);
 pub fn close() {
     let r = RUNNING.lock().unwrap().take();
     if let Some(r) = r {
-        let mut c = Command::new("taskkill");
-        c.args(["/PID", &r.pid.to_string(), "/T", "/F"]).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
+        #[cfg(windows)]
+        let mut c = {
+            let mut c = Command::new("taskkill");
+            c.args(["/PID", &r.pid.to_string(), "/T", "/F"]);
+            c
+        };
+        // Unix : SIGTERM au processus lancé par nous (le backend Linux/macOS affinera : groupe de processus).
+        #[cfg(not(windows))]
+        let mut c = {
+            let mut c = Command::new("kill");
+            c.args(["-TERM", &r.pid.to_string()]);
+            c
+        };
+        c.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
         let _ = no_window(&mut c).status();
     }
 }
@@ -228,6 +272,7 @@ pub fn launch(app: &AppHandle, found: &Found, id: &str, tile: &Value, url: &str)
 mod tests {
     use super::*;
 
+    #[cfg(windows)]
     fn env(k: &str) -> Option<String> {
         match k {
             "LOCALAPPDATA" => Some(r"C:\Users\u\AppData\Local".into()),
@@ -237,6 +282,7 @@ mod tests {
         }
     }
 
+    #[cfg(windows)]
     #[test]
     fn brave_preferred_over_vivaldi() {
         let f = detect_with(&env, &|_| true, &[]);
@@ -246,6 +292,7 @@ mod tests {
         assert_eq!(f[1].kind, Kind::Vivaldi);
     }
 
+    #[cfg(windows)]
     #[test]
     fn only_vivaldi_in_program_files() {
         let want = PathBuf::from(r"C:\Program Files\Vivaldi\Application\vivaldi.exe");
@@ -253,6 +300,7 @@ mod tests {
         assert_eq!(f, vec![Found { kind: Kind::Vivaldi, path: want }]);
     }
 
+    #[cfg(windows)]
     #[test]
     fn nothing_installed_and_registry_extra() {
         assert!(detect_with(&env, &|_| false, &[]).is_empty());
@@ -262,6 +310,7 @@ mod tests {
         assert_eq!(f[0].kind, Kind::Brave);
     }
 
+    #[cfg(windows)]
     #[test]
     fn resolve_choices() {
         let f = detect_with(&env, &|_| true, &[]);
@@ -272,6 +321,7 @@ mod tests {
         assert!(resolve("brave", &f[1..]).is_none());
     }
 
+    #[cfg(windows)]
     #[test]
     fn reg_output_parsing() {
         let out = "\r\nHKEY_CURRENT_USER\\SOFTWARE\\X\\brave.exe\r\n    (Default)    REG_SZ    C:\\Brave\\brave.exe\r\n";
@@ -299,5 +349,19 @@ mod tests {
     fn hl_param() {
         assert_eq!(url_hl("https://www.youtube.com/tv?hl=fr"), Some("fr".into()));
         assert_eq!(url_hl("https://x/y"), None);
+    }
+
+    #[cfg(not(windows))]
+    #[test]
+    fn unix_detection_uses_known_paths_and_path() {
+        let env = |k: &str| (k == "PATH").then(|| "/x/bin:/y/bin".to_string());
+        let c = candidate_paths(&env);
+        assert!(c.iter().any(|(k, p)| *k == Kind::Brave && p == Path::new("/x/bin").join("brave-browser").as_path()));
+        assert!(c.iter().any(|(k, p)| *k == Kind::Vivaldi && p == Path::new("/y/bin").join("vivaldi").as_path()));
+        assert!(!c.iter().any(|(_, p)| p.to_string_lossy().ends_with(".exe")));
+        let want = Path::new("/y/bin").join("vivaldi");
+        let f = detect_with(&env, &|p| p == want, &[]);
+        assert_eq!(f, vec![Found { kind: Kind::Vivaldi, path: want }]);
+        assert!(detect_with(&env, &|_| false, &[]).is_empty());
     }
 }
