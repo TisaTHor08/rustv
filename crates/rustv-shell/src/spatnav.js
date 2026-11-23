@@ -72,7 +72,13 @@
   function move(key) {
     const all = [...document.querySelectorAll(SEL)].filter(visible).concat(pointerTargets());
     if (!all.length) return false;
-    const cur = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
+    let cur = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
+    // Case à cocher ou bouton radio masqués par le site : on se repère sur leur conteneur visible (l'étiquette).
+    if (cur && !visible(cur)) {
+      let p = cur.parentElement;
+      while (p && p !== document.body && !visible(p)) p = p.parentElement;
+      if (p && p !== document.body) cur = p;
+    }
     if (!cur || !visible(cur)) {
       // Premier appui : on vise l'élément le plus proche du centre de l'écran.
       const cx = innerWidth / 2, cy = innerHeight / 2;
