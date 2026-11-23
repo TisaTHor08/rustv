@@ -3563,6 +3563,7 @@ dependencies = [
  "rustv-protocol",
  "serde",
  "serde_json",
+ "sha1",
  "windows",
  "zbus",
 ]
