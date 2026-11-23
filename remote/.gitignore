@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# harness visuel (non livre)
+mock.html
+frame.html
+src/mock.ts
+shots/

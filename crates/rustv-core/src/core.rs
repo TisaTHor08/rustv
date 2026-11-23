@@ -20,6 +20,9 @@ struct Conn {
     tx: Sender<PcMsg>,
 }
 
+/// Styles d'accueil TV reconnus (identiques à ceux de l'interface TV).
+pub const OS_STYLES: [&str; 9] = ["rustv", "googletv", "tizen", "webos", "vidaa", "titan", "fire", "tvos", "roku"];
+
 /// Événements destinés au shell TV (interface), émis par les commandes du téléphone.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
@@ -66,6 +69,7 @@ pub struct Core {
     pub bt_addr: Mutex<Option<String>>,
     events: Mutex<Vec<Sender<Event>>>,
     tv_mode: Mutex<bool>,
+    os_style: Mutex<Option<String>>,
     player: Mutex<Option<PlayerInfo>>,
     smtc: Mutex<Option<NowPlaying>>,
     last_np: Mutex<Option<PcMsg>>,
@@ -95,6 +99,7 @@ impl Core {
             bt_addr: Mutex::new(None),
             events: Mutex::new(vec![]),
             tv_mode: Mutex::new(false),
+            os_style: Mutex::new(None),
             player: Mutex::new(None),
             smtc: Mutex::new(None),
             last_np: Mutex::new(None),
@@ -133,6 +138,22 @@ impl Core {
             drop(t);
             self.broadcast(self.state_msg());
         }
+    }
+
+    /// Style d'accueil TV choisi : le téléphone adopte la télécommande correspondante.
+    /// Refuse un identifiant inconnu ; ne rediffuse rien si le style ne change pas.
+    pub fn set_os_style(&self, id: &str) -> Result<(), String> {
+        if !OS_STYLES.contains(&id) {
+            return Err("unknown os style".into());
+        }
+        let new = if id == "rustv" { None } else { Some(id.to_string()) };
+        let mut cur = self.os_style.lock().unwrap();
+        if *cur != new {
+            *cur = new;
+            drop(cur);
+            self.broadcast(self.state_msg());
+        }
+        Ok(())
     }
 
     // ---- média en cours ----
@@ -313,6 +334,7 @@ impl Core {
             pinned: self.pinned.lock().unwrap().is_some(),
             text_focus: *self.text_focus.lock().unwrap(),
             tv_mode: *self.tv_mode.lock().unwrap(),
+            os_style: self.os_style.lock().unwrap().clone(),
         }
     }
 
@@ -539,5 +561,41 @@ impl Core {
                 std::thread::spawn(move || crate::vault::dispatch(&v, &*t, m, &r));
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod os_style_tests {
+    use super::*;
+
+    fn core() -> Core {
+        let cfg = Config { pc_id: "t".into(), pc_name: "t".into(), devices: vec![], custom_apps: vec![] };
+        Core::new(cfg)
+    }
+
+    fn style_of(m: PcMsg) -> Option<String> {
+        match m {
+            PcMsg::State { os_style, .. } => os_style,
+            _ => panic!("state attendu"),
+        }
+    }
+
+    #[test]
+    fn rejects_unknown_and_dedups() {
+        let c = core();
+        let (tx, rx) = channel();
+        c.conns.lock().unwrap().push(Conn { id: 1, device: "d".into(), tx });
+        assert!(c.set_os_style("nope").is_err());
+        assert!(rx.try_recv().is_err());
+        assert!(c.set_os_style("tizen").is_ok());
+        assert_eq!(style_of(rx.try_recv().unwrap()), Some("tizen".into()));
+        // Même style : aucune rediffusion.
+        assert!(c.set_os_style("tizen").is_ok());
+        assert!(rx.try_recv().is_err());
+        // Retour au style par défaut : champ absent.
+        assert!(c.set_os_style("rustv").is_ok());
+        assert_eq!(style_of(rx.try_recv().unwrap()), None);
+        assert!(c.set_os_style("rustv").is_ok());
+        assert!(rx.try_recv().is_err());
     }
 }

@@ -2,17 +2,17 @@
   import { onMount } from 'svelte';
   import { t } from './i18n.ts';
   import { activate, app, send, stopByUser } from './connection.svelte.ts';
-  import { longpress, repeat, tick } from './haptics.ts';
-  import type { KeyName, MediaAction } from './protocol/types.ts';
+  import { tick } from './haptics.ts';
+  import type { MediaAction } from './protocol/types.ts';
   import Apps from './Apps.svelte';
-  import Surface from './Surface.svelte';
   import Touchpad from './Touchpad.svelte';
   import TextInput from './TextInput.svelte';
   import Vault from './Vault.svelte';
-  import Ring from './Ring.svelte';
-  import Volume from './Volume.svelte';
   import ModPanels from './ModPanels.svelte';
   import Settings from './Settings.svelte';
+  import Utility from './remotes/parts/Utility.svelte';
+  import { activeModel } from './remotes/select.svelte.ts';
+  import type { RemoteCtx } from './remotes/types.ts';
   import { applyTheme, findTheme, loadThemeChoice, panelsOf } from './mods.ts';
 
   type Tab = 'remote' | 'apps' | 'pad' | 'mods';
@@ -51,23 +51,6 @@
   $effect(() => {
     if (tab === 'mods' && !hasPanels) tab = 'remote';
   });
-  let mode = $state<'dpad' | 'surface'>(loadMode());
-
-  function loadMode(): 'dpad' | 'surface' {
-    try {
-      return localStorage.getItem('rustv.mode') === 'surface' ? 'surface' : 'dpad';
-    } catch {
-      return 'dpad';
-    }
-  }
-  function setMode(m: 'dpad' | 'surface') {
-    mode = m;
-    try {
-      localStorage.setItem('rustv.mode', m);
-    } catch {}
-  }
-
-  const key = (k: KeyName) => () => send({ t: 'key', k });
   const media = (a: MediaAction) => (e: PointerEvent) => {
     e.preventDefault();
     tick();
@@ -95,6 +78,29 @@
       clearTimeout(altTimer);
     } else send({ t: 'key', k: 'enter' });
   }
+
+  // Modèle de télécommande affiché : `auto` suit le style d'accueil TV du PC (voir remotes/select.svelte.ts).
+  const model = $derived(activeModel());
+  let toastMsg = $state('');
+  let toastTimer: number | undefined;
+  const ctx: RemoteCtx = {
+    ok,
+    get altOpen() {
+      return altOpen;
+    },
+    toast(msg) {
+      toastMsg = msg;
+      clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => (toastMsg = ''), 2600);
+    },
+    get keyboardOn() {
+      return manualKeyboard;
+    },
+    toggleKeyboard: () => (manualKeyboard = !manualKeyboard),
+    openVault: () => (vaultOpen = true),
+    tabSwitch,
+    alt,
+  };
 
   const connected = $derived(app.status === 'connected');
   // Pendant une reconnexion on garde l'interface (onglet, champ de saisie) au lieu de la remplacer par un spinner.
@@ -165,48 +171,11 @@
           <button class="primary tvstart" onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'tv', on: true }); }}>{t('tv.start')}</button>
         {/if}
 
-        <div class="seg">
-          <button class:sel={mode === 'surface'} onclick={() => setMode('surface')}>{t('seg.surface')}</button>
-          <button class:sel={mode === 'dpad'} onclick={() => setMode('dpad')}>{t('seg.dpad')}</button>
-        </div>
-
-        {#if mode === 'surface'}
-          <Surface />
-        {:else}
-          <Ring onok={ok} {altOpen} />
-        {/if}
-
-        {#if altOpen}
-          <div class="row">
-            <button use:repeat={() => alt('left')}>{t('tab.prev')}</button>
-            <button use:repeat={() => alt('right')}>{t('tab.next')}</button>
-            <button class="primary" onpointerdown={(e) => { e.preventDefault(); tick(true); ok(); }}>{t('validate')}</button>
-          </div>
-        {/if}
-
-        <div class="round">
-          <button use:longpress={{ onTap: key('back'), onLong: key('backlong') }} aria-label={t('back')}>
-            <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" /></svg><small>{t('back')}</small>
-          </button>
-          <button onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'home' }); }} aria-label={t('home')}>
-            <svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1z" /></svg><small>{t('home')}</small>
-          </button>
-          <button onpointerdown={(e) => { e.preventDefault(); tick(); send({ t: 'key', k: 'search' }); }} aria-label="Recherche">
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" /><path d="M16 16l4 4" /></svg><small>{t('search')}</small>
-          </button>
-          <button onpointerdown={(e) => { e.preventDefault(); tick(); tabSwitch(); }} aria-label={t('tabs')}>
-            <svg viewBox="0 0 24 24"><rect x="4" y="6" width="12" height="10" rx="2" /><path d="M8 19h12V9" /></svg><small>{t('tabs')}</small>
-          </button>
-        </div>
-
-        <Volume />
-
-        <div class="row media">
-          <button onpointerdown={media('prev')} aria-label="Précédent">⏮</button>
-          <button onpointerdown={media('playPause')} aria-label="Lecture / pause">⏯</button>
-          <button onpointerdown={media('next')} aria-label="Suivant">⏭</button>
-          <button class:active={manualKeyboard} onpointerdown={(e) => { e.preventDefault(); tick(); manualKeyboard = !manualKeyboard; }} aria-label="Clavier">⌨</button>
-          <button onpointerdown={(e) => { e.preventDefault(); tick(); vaultOpen = true; }} aria-label="Bitwarden">🔑</button>
+        <div class="model">
+          {#key model.id}
+            <model.component {ctx} />
+          {/key}
+          {#if !model.ownsUtilities}<Utility {ctx} />{/if}
         </div>
 
         {#if app.tvMode}
@@ -223,6 +192,7 @@
   {/if}
 </div>
 
+{#if toastMsg}<div class="toast" role="status">{toastMsg}</div>{/if}
 {#if settingsOpen}<Settings choice={themeChoice} onpick={(k) => (themeChoice = k)} onclose={() => (settingsOpen = false)} />{/if}
 {#if vaultOpen}<Vault onclose={() => (vaultOpen = false)} />{/if}
 {#if showKeyboard && !vaultOpen}<TextInput onclose={() => (manualKeyboard = false)} />{/if}
@@ -320,66 +290,29 @@
     font-size: 1.05rem;
     border-radius: 18px;
   }
-  .seg {
-    align-self: center;
-    display: flex;
-    background: var(--panel);
-    border-radius: 12px;
-    padding: 3px;
-  }
-  .seg button {
-    padding: 6px 18px;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    background: transparent;
-  }
-  .seg .sel {
-    background: var(--panel-2);
-  }
-  .round {
-    display: flex;
-    justify-content: space-around;
-    gap: 8px;
-  }
-  .round button {
+  .model {
     flex: 1;
-    max-width: 84px;
+    min-height: 0;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 0 8px;
-    border-radius: 22px;
-    background: var(--panel);
+    gap: 12px;
+    scrollbar-width: none;
   }
-  .round svg {
-    width: 26px;
-    height: 26px;
-    fill: none;
-    stroke: var(--text);
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .round small {
-    font-size: 0.7rem;
-    color: var(--muted);
-  }
-  .row {
-    display: flex;
-    gap: 10px;
-  }
-  .row button {
-    flex: 1;
-    padding: 14px 4px;
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: max(24px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    max-width: calc(100% - 32px);
+    padding: 10px 16px;
+    border-radius: 14px;
+    background: var(--panel-2);
+    color: var(--text);
     font-size: 0.85rem;
-  }
-  .media button {
-    font-size: 1.15rem;
-    padding: 12px 0;
-  }
-  .active {
-    background: var(--accent);
+    text-align: center;
+    box-shadow: 0 6px 24px #0008;
+    z-index: 60;
   }
   .now {
     display: flex;

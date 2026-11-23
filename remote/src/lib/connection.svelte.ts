@@ -22,6 +22,8 @@ export const app = $state({
   /** Vrai dès que la télécommande a été connectée (jusqu'à l'arrêt manuel) : l'interface reste affichée pendant une reconnexion. */
   wasConnected: false,
   tvMode: false,
+  /** Style d'accueil TV annoncé par le PC (`rustv` si absent) : choisit le modèle de télécommande en mode auto. */
+  osStyle: 'rustv',
   now: { active: false, title: '', artist: '', playing: false, position: 0, duration: 0, source: '' },
   volume: { level: 0, muted: false, known: false },
   apps: [] as AppEntry[],
@@ -235,6 +237,7 @@ async function serve(s: Session, active: () => boolean) {
         app.pinned = m.pinned;
         app.textFocus = m.textFocus;
         app.tvMode = m.tvMode;
+        app.osStyle = m.osStyle || 'rustv';
       } else if (m.t === 'volume') {
         app.volume = { level: m.level, muted: m.muted, known: true };
       } else if (m.t === 'nowPlaying') {

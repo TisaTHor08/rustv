@@ -325,6 +325,12 @@ pub async fn set_blackout(shell: State<'_, Shell>, on: bool) -> Result<(), Strin
     Ok(())
 }
 
+/// Style d'accueil TV actif : le téléphone adopte la télécommande correspondante (voir docs/REMOTE-MODELS.md).
+#[tauri::command]
+pub async fn set_os_style(shell: State<'_, Shell>, id: String) -> Result<(), String> {
+    shell.core.set_os_style(&id)
+}
+
 #[tauri::command]
 pub async fn set_autostart(mode: String) -> Result<(), String> {
     if !["off", "tray", "tv"].contains(&mode.as_str()) {

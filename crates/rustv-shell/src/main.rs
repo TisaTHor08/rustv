@@ -148,6 +148,7 @@ fn main() {
             commands::pairing_cancel,
             commands::device_revoke,
             commands::set_blackout,
+            commands::set_os_style,
             commands::set_autostart,
             commands::quit_app,
             tv::launch_cancel,

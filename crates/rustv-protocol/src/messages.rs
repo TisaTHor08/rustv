@@ -111,7 +111,14 @@ pub enum PcMsg {
     /// Icônes envoyées par lots après la liste (une trame est limitée à 1 Mo).
     Icons { icons: Vec<IconEntry> },
     #[serde(rename_all = "camelCase")]
-    State { pinned: bool, text_focus: bool, tv_mode: bool },
+    State {
+        pinned: bool,
+        text_focus: bool,
+        tv_mode: bool,
+        /// Style d'accueil TV actif (`googletv`, `tizen`...), absent = `rustv` : le téléphone en déduit le modèle de télécommande.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        os_style: Option<String>,
+    },
     /// Média en cours de lecture sur le PC (lecteur RusTV ou n'importe quelle appli via les contrôles média Windows).
     NowPlaying { active: bool, title: String, artist: String, playing: bool, position: f64, duration: f64, source: String },
     /// Contributions des mods actifs pour la télécommande : liste de `{id, name, themes, panels}` (voir docs/MODS.md).
@@ -252,6 +259,19 @@ mod vault_tests {
         assert_eq!(i, json!({"t":"vaultItems","items":[{"id":"1","name":"GitHub","username":"me","host":"github.com","hasTotp":true}]}));
         let r = serde_json::to_value(PcMsg::VaultResult { op: "unlock".into(), ok: false, code: "badPassword".into() }).unwrap();
         assert_eq!(r, json!({"t":"vaultResult","op":"unlock","ok":false,"code":"badPassword"}));
+    }
+
+    #[test]
+    fn state_os_style_field() {
+        let a = serde_json::to_value(PcMsg::State { pinned: false, text_focus: true, tv_mode: false, os_style: None }).unwrap();
+        assert_eq!(a, json!({"t":"state","pinned":false,"textFocus":true,"tvMode":false}));
+        let b = serde_json::to_value(PcMsg::State { pinned: false, text_focus: false, tv_mode: true, os_style: Some("tizen".into()) }).unwrap();
+        assert_eq!(b, json!({"t":"state","pinned":false,"textFocus":false,"tvMode":true,"osStyle":"tizen"}));
+        // Un ancien PC (sans le champ) reste lisible.
+        let old: PcMsg = serde_json::from_value(json!({"t":"state","pinned":true,"textFocus":false,"tvMode":false})).unwrap();
+        assert_eq!(old, PcMsg::State { pinned: true, text_focus: false, tv_mode: false, os_style: None });
+        let new: PcMsg = serde_json::from_value(b).unwrap();
+        assert!(matches!(new, PcMsg::State { os_style: Some(ref s), .. } if s == "tizen"));
     }
 
     #[test]
