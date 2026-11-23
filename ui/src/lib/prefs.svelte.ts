@@ -45,7 +45,7 @@ export interface Prefs {
     interval: number;
   };
   weather: { enabled: boolean; city: string; lat: number | null; lon: number | null; unit: 'c' | 'f' };
-  live: { sources: { id: string; name: string; m3u: string; xmltv: string }[]; active: string };
+  live: { sources: { id: string; name: string; m3u: string; xmltv: string; kind?: 'm3u' | 'hdhomerun' | 'tvheadend'; host?: string; port?: number; user?: string; password?: string }[]; active: string };
   library: { movies: string[]; series: string[]; photos: string[]; music: string[] };
   tiles: {
     order: Record<string, string[]>;

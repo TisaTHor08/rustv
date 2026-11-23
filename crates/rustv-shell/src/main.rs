@@ -4,6 +4,7 @@ mod autostart;
 mod browser;
 mod commands;
 mod display;
+mod dvr;
 mod fs;
 mod guard;
 mod gamepad;
@@ -17,6 +18,7 @@ mod player;
 mod prefs;
 mod settings;
 mod store;
+mod tuner;
 mod tv;
 mod update;
 
@@ -97,6 +99,18 @@ fn main() {
             commands::player_state,
             commands::live_load,
             commands::live_nownext,
+            live::live_epg,
+            tuner::tuner_discover,
+            tuner::tuner_build_source,
+            dvr::dvr_list,
+            dvr::dvr_schedule,
+            dvr::dvr_cancel,
+            dvr::dvr_delete,
+            dvr::dvr_get_config,
+            dvr::dvr_set_config,
+            dvr::dvr_start_now,
+            dvr::dvr_series_add,
+            dvr::dvr_series_remove,
             commands::library_scan,
             commands::open_path,
             commands::mods_list,
@@ -139,6 +153,7 @@ fn main() {
         ])
         .setup(move |app| {
             let h = app.handle().clone();
+            dvr::start(app.handle());
 
             // Icône de la zone de notification.
             let start = MenuItem::with_id(app, "tv", "Démarrer le mode TV", true, None::<&str>)?;
