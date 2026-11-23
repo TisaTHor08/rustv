@@ -12,6 +12,7 @@ mod mods;
 mod player;
 mod prefs;
 mod settings;
+mod store;
 mod tv;
 mod update;
 
