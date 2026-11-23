@@ -29,6 +29,10 @@ export interface Prefs {
   osStyle: string;
   /** Position du groupe de widgets (horloge, météo, téléphones, widgets de mods) : 'auto' = celle du style. */
   widgetPos: 'auto' | 'tr' | 'tl' | 'br' | 'bl' | 'hidden';
+  /** Affiche le volume à l'écran (OSD) quand le volume du PC change (voir os/SystemLayer). */
+  volumeOsd: boolean;
+  /** Veille ambiante (écran de veille de l'accueil) après N minutes sans action ; 0 = désactivée. */
+  ambientMin: number;
   clock24: boolean;
   /** Sons de navigation synthétisés. */
   sounds: boolean;
@@ -85,6 +89,8 @@ function defaults(): Prefs {
     tint: true,
     osStyle: 'rustv',
     widgetPos: 'auto',
+    volumeOsd: true,
+    ambientMin: 0,
     clock24: true,
     sounds: true,
     soundVolume: 40,

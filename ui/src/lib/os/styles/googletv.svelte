@@ -72,7 +72,7 @@
   <!-- Barre du haut -->
   <header>
     <div class="left">
-      <button class="avatar" class:focus={inTabs && tabFocus === 0} onclick={() => model.openSettings()} onmouseenter={() => ((model.ui.tabFocus = 0), model.setZone('tabs'))} aria-label={t('gtv.profile')}>R</button>
+      <button class="avatar" class:focus={inTabs && tabFocus === 0} onclick={() => model.openQuick()} onmouseenter={() => ((model.ui.tabFocus = 0), model.setZone('tabs'))} aria-label={t('gtv.profile')}>R</button>
       <div class="pillbar">
         <button class="sbtn" class:focus={inTabs && tabFocus === 1} onclick={() => model.openSearch()} onmouseenter={() => ((model.ui.tabFocus = 1), model.setZone('tabs'))} aria-label={t('gtv.search')}>
           <svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" /></svg>

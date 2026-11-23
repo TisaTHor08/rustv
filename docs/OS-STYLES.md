@@ -93,7 +93,7 @@ Font Roboto (OFL), local files. Reproduced: avatar then a pill holding search an
 
 Approximated: the hero art is the tile colour with a large letter or icon (no key art); the "+" button is decorative; the dots follow the column; the Live tab of recent Google TV versions is not present; wallpaper is replaced by the ambient gradient.
 
-Left out or not done yet: quick-settings overlay and profile switcher (the avatar opens the RusTV Settings); style-specific Settings layout (full-screen two-column page), search screen look, volume OSD, screensaver / ambient mode, notification look, input panel: the shared screens are only re-skinned through tokens (palette, radius, font).
+Common screens (see "Screens" below) are all provided: two-column full-screen Settings, Search with on-screen keyboard, quick settings panel (top right, tiles), tile menu, pairing page, vertical volume OSD on the right, ambient mode (landscape with clock and weather), toast bottom left, launch transition (tile colour grows to full screen). Left out: profile switcher (the avatar opens the RusTV Settings), input panel.
 
 ### Roku style (`roku`)
 
@@ -101,7 +101,7 @@ Font Montserrat (OFL). Reproduced: left menu (Home, Search, Apps, Live TV, Libra
 
 Approximated: no theme art background (a purple gradient), no icons in the menu (as in the reference), tile art is a letter or the tile icon.
 
-Not done: Roku Settings as a left list plus right detail pane, search screen with the on-screen keyboard, tile reordering, screensaver, volume OSD, input panel.
+Common screens provided: Settings as a left list plus right detail pane, Search with on-screen keyboard, Options panel on the right (tile menu and quick settings), pairing page, horizontal volume OSD at the bottom, bouncing-card screensaver, toast at the top, launch screen with loading bar. Not done: tile reordering, input panel.
 
 ### VIDAA style (`vidaa`)
 
@@ -136,9 +136,23 @@ Approximated: no promotional artwork (tile colour with a large letter or icon); 
 
 Left out: Home Hub quick cards, input list, app edit mode (drag to reorder), screen saver.
 
-### Not done for all styles (needs further work)
+## Screens (extension points)
 
-Style-specific variants of Settings, Search, tile menu and pairing; volume and mute OSD; screensaver or ambient mode; quick-settings panel; style-specific launch transition and toast. These require new features (some native) and are listed per style in the checklists above. No bundled mod was added.
+`OsStyle.screens` (`os/screens.ts`) lets a style redraw the common screens: `settings`, `search`, `tileMenu`, `pairing`, `quick`, `osd`, `ambient`, `toast`, `launch`. Each entry is a lazy loader of a Svelte component (`styles/<id>.screens/<name>.svelte`) that receives typed props (`ScreenProps[name]`). Logic (keys, data, actions) stays in the shared components (`Settings`, `Search`, `TileMenu`, `Pairing`, `os/QuickHost`, `os/SystemLayer`); a screen component only draws the props and calls the given callbacks. `ScreenSlot.svelte` loads the style's component and falls back to the default one (`os/defaults/`, the RusTV look re-skinned by tokens) when the style does not provide it or while it loads. Styles without `screens` (tizen, webos... to come) therefore keep working unchanged. The Search screen binds the real input with `bindInput` (phone keyboard keeps working) and may take over arrow keys with `setKeyboardHandler` for an on-screen keyboard.
+
+New common features:
+
+- Quick settings (`QuickHost`, opened by `model.openQuick()`): volume slider, audio output, display settings, phones, all settings, exit TV mode. Network and PC sleep are not offered (no safe native command).
+- Volume OSD: the shell (`rustv-shell/src/volume.rs`) compares the core's polled volume every 250 ms and emits the Tauri event `volume-changed { level, muted }` on real changes only (never at start). `SystemLayer` shows the OSD for about 1.5 s; preference `prefs.volumeOsd` turns it off.
+- Ambient / screensaver: `SystemLayer` shows the style's `ambient` after `prefs.ambientMin` minutes without input; any key or pointer move closes it, and any opened window cancels it.
+- Toast (`model.note`), launch transition (`launch` screen, shown by Home while an app opens), pairing and tile menu use the same slot mechanism.
+- Widget position: style default (`slots`, `--dock-*`) overridden by `prefs.widgetPos`, as described under Widgets.
+
+To give a new style these screens, add the loaders to `meta.screens`; any missing one uses the default.
+
+### Not done
+
+Profile switcher, input panel, network and PC-sleep tiles in quick settings; screens for the styles still to come (they use the defaults).
 
 ## Fonts and licences
 
@@ -151,6 +165,8 @@ Roboto, Montserrat, Inter and Noto Sans (variable) from the Fontsource packages,
 
 ## Not verified
 
+- `cargo test` for `volume.rs` could not run in the last session (disk full); the code compiles logically against `Core::volume()` but was not built.
+- Screens were checked with `npm run check` and `npm run build`, not visually against the reference screenshots frame by frame.
 - No run on a real TV session or with the real Tauri shell; no check with the phone remote.
 - Mod widgets in a style were not exercised in the mock (the mock has no mods); weather refresh was not exercised (network).
 - Visual comparison was done against a handful of reference screenshots, not frame by frame; motion timings are estimates.

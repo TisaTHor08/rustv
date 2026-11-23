@@ -26,6 +26,7 @@ mod tuner;
 mod tv;
 mod update;
 mod usearch;
+mod volume;
 
 use rustv_core::{Core, Event};
 use std::sync::{Arc, Mutex};
@@ -237,6 +238,7 @@ fn main() {
 
             gamepad::start(app.handle());
             ha::start(app.handle());
+            volume::start(app.handle());
 
             // Contributions des mods à la télécommande du téléphone.
             core.set_remote_mods(mods::remote_bundle());

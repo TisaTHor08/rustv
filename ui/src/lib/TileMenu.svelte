@@ -5,6 +5,7 @@
   import { askText, pickFile } from './overlays.svelte';
   import { TILE_COLORS, prefs, savePrefs } from './prefs.svelte';
   import { play } from './sounds';
+  import ScreenSlot from './os/ScreenSlot.svelte';
   import { deleteCustom, hideTile, iconSrc, resetTile, type DTile } from './tiles.svelte';
 
   let {
@@ -77,6 +78,18 @@
     return out;
   });
 
+  // Props de l'écran de style (voir os/screens.ts).
+  const screenProps = $derived({
+    tile,
+    items: items.map((i) => ({ label: i.label, value: i.value, swatch: i.swatch, arrows: !!(i.left || i.right) })),
+    index: idx,
+    hint: t('tilemenu.hint'),
+    icon: tile.icon ? iconSrc(tile.icon) : '',
+    hover: (i: number) => (idx = i),
+    activate: (i: number) => (idx = i, items[i]?.enter?.()),
+    close: onclose,
+  });
+
   function onKey(e: KeyboardEvent) {
     const it = items[idx];
     const before = idx;
@@ -95,6 +108,8 @@
 
 <svelte:window onkeydown={onKey} />
 
+<ScreenSlot name="tileMenu" props={screenProps}>
+{#snippet fallback()}
 <div class="sheet" in:fly={{ y: 30, duration: 320, easing: cubicOut }}>
   <div class="head">
     <span class="mini" style:background="linear-gradient(135deg, {tile.color}, {tile.color2})">
@@ -110,6 +125,8 @@
   {/each}
   <p class="hint">{t('tilemenu.hint')}</p>
 </div>
+{/snippet}
+</ScreenSlot>
 
 <style>
   .sheet { width: 38rem; padding: 2rem 2.2rem; border-radius: 1.8rem; background: var(--sheet); box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.55), inset 0 0 0 0.08rem var(--glass-strong); color: var(--text); }

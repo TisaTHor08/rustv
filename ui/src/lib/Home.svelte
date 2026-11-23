@@ -8,6 +8,9 @@
   import { askText } from './overlays.svelte';
   import { anyOverlay } from './overlays.svelte';
   import OverlayHost from './OverlayHost.svelte';
+  import QuickHost from './os/QuickHost.svelte';
+  import ScreenSlot from './os/ScreenSlot.svelte';
+  import SystemLayer from './os/SystemLayer.svelte';
   import LivePage from './LivePage.svelte';
   import MediaPage from './MediaPage.svelte';
   import LaunchOverlay from './LaunchOverlay.svelte';
@@ -27,9 +30,10 @@
   import TileMenu from './TileMenu.svelte';
   import { CATEGORIES, findTile, iconSrc, moveTile, tilesOf, type BuiltinTile, type DTile } from './tiles.svelte';
 
-  type Modal = null | { kind: 'settings' } | { kind: 'pairing' } | { kind: 'mods' } | { kind: 'live' } | { kind: 'search' } | { kind: 'media'; tab: 'movies' | 'series' | 'photos' | 'music' | 'files' } | { kind: 'page'; modId: string; entry: string; title: string } | { kind: 'tile'; id: string };
+  type Modal = null | { kind: 'settings'; page?: string } | { kind: 'quick' } | { kind: 'pairing' } | { kind: 'mods' } | { kind: 'live' } | { kind: 'search' } | { kind: 'media'; tab: 'movies' | 'series' | 'photos' | 'music' | 'files' } | { kind: 'page'; modId: string; entry: string; title: string } | { kind: 'tile'; id: string };
 
   let st = $state<ShellState | null>(null);
+  let sys = $state<{ startAmbient(): void; showVolume(l: number, m: boolean): void } | undefined>();
   let now = $state(new Date());
   let focus = $state({ row: 0, col: 0 });
   let tilt = $state('');
@@ -93,7 +97,8 @@
     open: (tile) => void openTile(tile),
     resume: (url) => void resume(url),
     openSearch: () => (modal = { kind: 'search' }),
-    openSettings: () => (modal = { kind: 'settings' }),
+    openSettings: (page) => (modal = { kind: 'settings', page }),
+    openQuick: () => (modal = { kind: 'quick' }),
     openLive: () => (modal = { kind: 'live' }),
     openMedia: (tab) => (modal = { kind: 'media', tab }),
     contextMenu: (tile) => {
@@ -267,7 +272,9 @@
         modal = { kind: 'search' };
         break;
       case 'ContextMenu':
-        if (focused?.id.startsWith('continue:')) continueRemove(focused.id.slice(9)).then(loadCont);
+        // Hors d'une tuile (icône Réglages, barre d'onglets, menu latéral) : panneau de réglages rapides.
+        if (zone !== 'content' || focus.row < 0 || !focused) modal = { kind: 'quick' };
+        else if (focused?.id.startsWith('continue:')) continueRemove(focused.id.slice(9)).then(loadCont);
         else if (focused) modal = { kind: 'tile', id: focused.id };
         break;
       default: return;
@@ -313,6 +320,25 @@
       else if (p.phase === 'timeout' || p.phase === 'cancelled') endLaunch();
     });
     wake();
+    // Harnais de maquette (ui/mock.html) : permet d'ouvrir chaque écran sans touches. Absent en production.
+    if ((window as any).__RUSTV_MOCK__) {
+      (window as any).__rustvHome = {
+        model,
+        show: (k: string) => {
+          if (k === 'settings') modal = { kind: 'settings' };
+          else if (k === 'display') modal = { kind: 'settings', page: 'display' };
+          else if (k === 'search') modal = { kind: 'search' };
+          else if (k === 'pairing') modal = { kind: 'pairing' };
+          else if (k === 'quick') modal = { kind: 'quick' };
+          else if (k === 'tilemenu' && focused) modal = { kind: 'tile', id: focused.id };
+          else if (k === 'ambient') sys?.startAmbient();
+          else if (k === 'osd') sys?.showVolume(42, false);
+          else if (k === 'mute') sys?.showVolume(42, true);
+          else if (k === 'toast') note('Exemple de message');
+          else if (k === 'launch') beginLaunch(rows[0].tiles[0]);
+        },
+      };
+    }
     return () => {
       clearInterval(clock);
       unLaunch.then((f) => f());
@@ -353,7 +379,11 @@
 
 <svelte:window onkeydown={onKey} onmousemove={wake} />
 
-{#if launching}<LaunchOverlay name={launching.name} color={launching.color} color2={launching.color2} slow={launching.slow} />{/if}
+{#if launching}
+  <ScreenSlot name="launch" props={{ name: launching.name, color: launching.color, color2: launching.color2, slow: launching.slow, opening: t('launch.opening', { name: launching.name }), cancelHint: launching.slow ? t('launch.slow') : t('launch.cancel') }}>
+    {#snippet fallback()}<LaunchOverlay name={launching!.name} color={launching!.color} color2={launching!.color2} slow={launching!.slow} />{/snippet}
+  </ScreenSlot>
+{/if}
 
 <div class="root">
   {#key osState.style.id}
@@ -364,23 +394,31 @@
   {/key}
   <WidgetDock {model} />
 
-  {#if toast}<div class="toast" transition:fade={{ duration: 200 }}>{toast}</div>{/if}
+  <SystemLayer bind:this={sys} {model} {toast} blocked={!!modal || anyOverlay() || !!launching} />
 
   <!-- Fenêtres modales -->
   {#if modal && ['settings', 'pairing', 'mods', 'tile'].includes(modal.kind)}
     <div class="scrim" transition:fade={{ duration: 180 }}>
       {#if modal.kind === 'settings'}
-        <Settings {st} {refresh} {note} onclose={() => (modal = null)} onpairing={() => (modal = { kind: 'pairing' })} onmods={() => (modal = { kind: 'mods' })} />
+        <Settings {st} {refresh} initial={modal.kind === 'settings' ? modal.page : undefined} {note} onclose={() => (modal = null)} onpairing={() => (modal = { kind: 'pairing' })} onmods={() => (modal = { kind: 'mods' })} />
       {:else if modal.kind === 'pairing'}
-        <div class="sheet wide" in:fly={{ y: 30, duration: 360, easing: cubicOut }}>
+        {#if osState.style.screens?.pairing}
           <Pairing embedded onclose={() => (modal = { kind: 'settings' })} />
-        </div>
+        {:else}
+          <div class="sheet wide" in:fly={{ y: 30, duration: 360, easing: cubicOut }}>
+            <Pairing embedded onclose={() => (modal = { kind: 'settings' })} />
+          </div>
+        {/if}
       {:else if modal.kind === 'mods'}
         <ModManager {note} onclose={() => (modal = { kind: 'settings' })} />
       {:else if modal.kind === 'tile' && menuTile && st}
         <TileMenu tile={menuTile} onclose={() => (modal = null)} onopen={() => openTile(menuTile)} onmove={(d) => onMove(menuTile.id, d)} />
       {/if}
     </div>
+  {/if}
+
+  {#if modal?.kind === 'quick'}
+    <QuickHost time={time} {date} {phonesLabel} onclose={() => (modal = null)} onsettings={(p) => (modal = { kind: 'settings', page: p })} onpairing={() => (modal = { kind: 'pairing' })} />
   {/if}
 
   {#if modal?.kind === 'page'}
@@ -399,8 +437,6 @@
 <style>
   .root { position: fixed; inset: 0; background: var(--bg); }
   .layout { position: absolute; inset: 0; }
-
-  .toast { position: absolute; left: 50%; bottom: 3rem; transform: translateX(-50%); padding: 0.9rem 1.8rem; border-radius: 99rem; background: rgba(255, 255, 255, 0.95); color: #111; font-size: 1.2rem; font-weight: 600; z-index: 40; }
 
   .scrim { position: absolute; inset: 0; background: rgba(4, 6, 10, 0.72); backdrop-filter: blur(1.6rem); display: grid; place-items: center; z-index: 10; }
   .sheet.wide { width: 56rem; padding: 2.2rem 2.4rem; border-radius: 1.8rem; background: var(--sheet); box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.6), inset 0 0 0 0.08rem var(--glass-strong); }

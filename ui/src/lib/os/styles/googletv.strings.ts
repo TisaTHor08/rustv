@@ -13,6 +13,7 @@ registerStrings('fr', {
   'gtv.yourapps': 'Vos applis',
   'gtv.open': 'Ouvrir',
   'gtv.add': 'Plus',
+  'gtv.settings.open': 'Choisissez une catégorie',
 });
 registerStrings('en', {
   'os.googletv': 'Google TV style',
@@ -27,4 +28,5 @@ registerStrings('en', {
   'gtv.yourapps': 'Your apps',
   'gtv.open': 'Open',
   'gtv.add': 'More',
+  'gtv.settings.open': 'Choose a category',
 });
