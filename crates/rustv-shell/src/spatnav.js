@@ -34,10 +34,43 @@
       el.tagName === 'TEXTAREA' ||
       (el.tagName === 'INPUT' && !['button', 'checkbox', 'radio', 'submit', 'range'].includes(el.type)));
 
+  // Dans un champ sur une seule ligne, Haut/Bas n'ont pas de sens natif : on les laisse naviguer.
+  // Gauche/Droite ne naviguent que si le curseur est au bord. Zones de texte multi-lignes : comportement natif.
+  const textBlocks = (el, key) => {
+    if (!isTextField(el)) return false;
+    if (el.tagName !== 'INPUT') return true;
+    if (key === 'ArrowUp' || key === 'ArrowDown') return false;
+    try {
+      if (el.selectionStart !== el.selectionEnd) return true;
+      return key === 'ArrowLeft' ? el.selectionStart > 0 : el.selectionStart < el.value.length;
+    } catch {
+      return false; // types sans sélection (email, number…)
+    }
+  };
+
   const videoPlaying = () => [...document.querySelectorAll('video')].some((v) => !v.paused && !v.ended);
 
+  // Interfaces web « bureau » (NAS, tableaux de bord…) : beaucoup d'éléments cliquables sont de simples <div>.
+  // On les reconnaît au curseur « main » et on retient le plus externe de chaque groupe.
+  const CLICKABLE = 'div,li,span,img,figure,svg,i,p,label';
+  function pointerTargets() {
+    const out = [];
+    for (const el of document.querySelectorAll(CLICKABLE)) {
+      if (el.matches(SEL) || el.closest('a[href],button,input,select,textarea,[role="button"]')) continue;
+      const p = el.parentElement;
+      if (!p || getComputedStyle(el).cursor !== 'pointer' || getComputedStyle(p).cursor === 'pointer') continue;
+      if (!visible(el)) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width > innerWidth * 0.9 && r.height > innerHeight * 0.6) continue; // fond plein écran
+      el.dataset.rustvNav = '1';
+      if (!el.hasAttribute('tabindex')) el.tabIndex = -1;
+      out.push(el);
+    }
+    return out;
+  }
+
   function move(key) {
-    const all = [...document.querySelectorAll(SEL)].filter(visible);
+    const all = [...document.querySelectorAll(SEL)].filter(visible).concat(pointerTargets());
     if (!all.length) return false;
     const cur = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
     if (!cur || !visible(cur)) {
@@ -49,9 +82,10 @@
     }
     const from = cur.getBoundingClientRect();
     const fx = from.left + from.width / 2, fy = from.top + from.height / 2;
-    let best = null, bestScore = Infinity;
+    const ranked = [];
     for (const el of all) {
       if (el === cur || cur.contains(el) || el.contains(cur)) continue;
+      if (el.disabled || el.getAttribute('aria-disabled') === 'true') continue;
       const r = el.getBoundingClientRect();
       const dx = r.left + r.width / 2 - fx, dy = r.top + r.height / 2 - fy;
       let main, cross;
@@ -60,13 +94,18 @@
       else if (key === 'ArrowDown') { main = dy; cross = Math.abs(dx); }
       else { main = -dy; cross = Math.abs(dx); }
       if (main <= 2) continue;
-      const score = main + cross * 2.5;
-      if (score < bestScore) { bestScore = score; best = el; }
+      ranked.push([main + cross * 2.5, el]);
     }
-    if (!best) return false;
-    best.focus({ preventScroll: true });
-    best.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
-    return true;
+    ranked.sort((a, b) => a[0] - b[0]);
+    // Certains éléments refusent le focus (désactivés par le site, masqués…) : on essaie le suivant.
+    for (const [, el] of ranked.slice(0, 6)) {
+      el.focus({ preventScroll: true });
+      if (document.activeElement === el) {
+        el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+        return true;
+      }
+    }
+    return false;
   }
 
   const dist = (el, x, y) => {
@@ -77,9 +116,21 @@
   addEventListener(
     'keydown',
     (e) => {
+      const a = document.activeElement;
+      if (e.isTrusted && e.key === 'Enter' && a && a.dataset && a.dataset.rustvNav) {
+        e.preventDefault();
+        a.click();
+      }
+    },
+    true,
+  );
+
+  addEventListener(
+    'keydown',
+    (e) => {
       if (!e.isTrusted || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
       if (!/^Arrow(Left|Right|Up|Down)$/.test(e.key)) return;
-      if (isTextField(document.activeElement) || videoPlaying()) return;
+      if (textBlocks(document.activeElement, e.key) || videoPlaying()) return;
       if (move(e.key)) {
         e.preventDefault();
         e.stopPropagation();

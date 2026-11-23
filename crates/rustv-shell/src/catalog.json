@@ -186,7 +186,7 @@
     "category": "library",
     "kind": "web",
     "needs_url": true,
-    "url_hint": "http://192.168.1.20:9999",
+    "url_hint": "https://mon-nas.eur81.ug.link",
     "allow_insecure_lan": true,
     "color": "#14a05a",
     "color2": "#05361f",

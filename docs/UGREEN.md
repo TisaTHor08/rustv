@@ -40,3 +40,21 @@ Research notes (2026-11) and what the `ugreen` tile does. No UGREEN NAS was avai
 3. `https://<ip>:9443` loads without a certificate error page.
 4. Open Theater, check arrow-key navigation and Enter; check playback, fullscreen, subtitles, and HEVC/Dolby content.
 5. Report the exact URL of the Theater page so it can be deep-linked.
+
+## Remote access through UGREEN Link (verified 2026-11-23)
+
+A real NAS was reachable from outside the LAN through the UGREEN Link relay:
+
+- Address form: `https://<ugreenlink-id>.<region>.ug.link/` (for example region servers named `eur3`, `eur6`, `eur81`). The **region matters**: on a wrong region the page loads but says "Failed to connect ... UGREENlink ID not found"; on the right one it redirects to `/desktop/` and shows the UGOS login ("Sign in to <NAS name>"). The region is the one shown in the UGREEN desktop/mobile app for that device.
+- The tile accepts this address (hint `https://mon-nas.eur81.ug.link`); it is a public HTTPS host with a valid certificate, so `allow_insecure_lan` does not apply.
+- The login page is a Vue/Arco UI with real `<input>` and `<button>` elements. The **Sign in button is disabled until both fields are filled**.
+- Tested with the phone remote protocol: arrow keys move between the username field, the password field and the Sign in button; text typing and OK (Enter) work; the NAS answered the login attempt.
+- **Not verified**: a successful login, the UGOS desktop, opening Theater and playback (the credentials supplied for the test were rejected by the NAS: "Incorrect account or password").
+
+### Remote-control compatibility (`spatnav.js`)
+
+Fixed while testing this page, useful for every web app:
+
+- Up/Down now leave a single-line text field; Left/Right leave it when the caret is at the edge (multi-line fields keep native behaviour).
+- Disabled elements are skipped, and the next candidate is tried if an element refuses focus.
+- Clickable elements that are not links or buttons (a `<div>` with a pointer cursor, common in NAS dashboards) are reachable and activated with Enter.
