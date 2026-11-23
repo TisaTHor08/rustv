@@ -1,5 +1,7 @@
 # RusTV on Linux
 
+> **1.3.0 note:** only the `.deb` is published for this release. The AppImage build fails in `linuxdeploy` ("Could not find suitable icon for Icon entry: rustv") with the current toolchain and is being investigated; `scripts/build-linux.ps1` still tries it.
+
 RusTV runs on Linux (x86_64) as a Tauri 2 application on WebKitGTK 4.1. This page explains how to install it,
 what has to be set up on the system, what works, what does not, and what was actually verified.
 

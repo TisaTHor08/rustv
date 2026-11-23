@@ -2,6 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "bundle": {
     "targets": ["deb", "appimage"],
+    "icon": ["icons/32x32.png", "icons/64x64.png", "icons/128x128.png"],
     "category": "Video",
     "shortDescription": "TV mode for your PC, controlled by your phone",
     "longDescription": "RusTV turns your PC into a TV system: a home screen with your streaming apps and local media, remote control from the phone (arrows, keyboard, mouse, volume), live TV and recordings, all driven by a phone remote. Key and mouse injection uses /dev/uinput (udev rule and module autoload installed by this package).",
