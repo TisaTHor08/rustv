@@ -11,6 +11,7 @@ mod guard;
 mod gamepad;
 mod ha;
 mod hooks;
+mod hyperion;
 mod lan;
 mod library;
 mod live;
@@ -171,6 +172,21 @@ fn main() {
         .setup(move |app| {
             let h = app.handle().clone();
             dvr::start(app.handle());
+            hyperion::hyperion_get,
+            hyperion::hyperion_set,
+            hyperion::hyperion_install,
+            hyperion::hyperion_start,
+            hyperion::hyperion_stop,
+            hyperion::hyperion_power,
+            hyperion::hyperion_brightness,
+            hyperion::hyperion_effect,
+            hyperion::hyperion_clear,
+            hyperion::hyperion_ambient,
+            hyperion::hyperion_open_web_ui,
+        ])
+        .setup(move |app| {
+            let h = app.handle().clone();
+            hyperion::start(app.handle());
 
             // Icône de la zone de notification.
             let start = MenuItem::with_id(app, "tv", "Démarrer le mode TV", true, None::<&str>)?;

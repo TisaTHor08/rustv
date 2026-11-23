@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
+  import { invoke } from '@tauri-apps/api/core';
   import { cubicOut } from 'svelte/easing';
   import { fade, fly } from 'svelte/transition';
   import { api, type ShellState } from './api';
@@ -76,6 +77,11 @@
 
   const focused = $derived(focus.row >= 0 ? rows[focus.row]?.tiles[focus.col] : undefined);
   const phones = $derived(st ? st.devices.filter((d) => d.connected).length : 0);
+  // Ambilight (Hyperion) : couleur d'ambiance de la tuile ciblée (anti-rebond et filtrage côté Rust).
+  $effect(() => {
+    if (focused) invoke('hyperion_ambient', { color: focused.color, color2: focused.color2 }).catch(() => {});
+  });
+
   const tinted = $derived(prefs.tint && !!focused);
 
   async function refresh() {
