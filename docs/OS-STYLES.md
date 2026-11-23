@@ -23,7 +23,8 @@ Settings > Appearance > Widget position moves the clock / phones / weather / mod
 | `titan` | Titan style | available |
 | `tizen` | Tizen style | available |
 | `webos` | webOS style | available |
-| `fire`, `tvos` | (to come) | ids reserved in the registry, hidden until their files exist |
+| `fire` | Fire TV style | available |
+| `tvos` | Apple TV style | available |
 
 ## Framework contract
 
@@ -103,6 +104,26 @@ Approximated: no theme art background (a purple gradient), no icons in the menu 
 
 Common screens provided: Settings as a left list plus right detail pane, Search with on-screen keyboard, Options panel on the right (tile menu and quick settings), pairing page, horizontal volume OSD at the bottom, bouncing-card screensaver, toast at the top, launch screen with loading bar. Not done: tile reordering, input panel.
 
+### Fire TV style (`fire`)
+
+Font Roboto (OFL). Reproduced: dark navy background (#0f171e), top navigation (search icon, Home, Live, Apps, Library, settings gear at the right, clock and phones), selected entry underlined, focused entry in a light-outlined box, large hero (kicker, title, description, white "Open" button, page dots) that follows the focused tile and scrolls away when the focus goes below the first row, first row "Your apps & channels", "Continue watching" 16:9 cards with progress bar, category rows, focus = scale 1.1 with a white 0.25 rem outline and a faint warm glow, label under the focused card, Up from the first row reaches the nav (zone `nav`), Down returns, Enter on an entry selects it, Apps = grid of all tiles, Library = library rows. Content width is capped (140 rem) on 32:9.
+
+Approximated: the hero art is the tile colour with a large letter or icon (no key art, no carousel auto-advance); the "More info" label is decorative; focus outline colour (white with a warm glow) and nav focus look are from memory; the newer Vega OS home (shared by some Panasonic sets) is not reproduced separately.
+
+Left out: the profile avatar, notifications, the "Find" sub-menu, the Alexa hint bar, the sponsored hero and quick-settings overlay.
+
+Verification: only two photos of the Fire TV remote were available as reference, none of the home screen, so the whole layout is built from knowledge of the real UI.
+
+### Apple TV style (`tvos`)
+
+Font: system stack first (`-apple-system`, SF Pro on Apple devices), then Inter (OFL, bundled variable subsets Latin and Latin-extended, 122 KB, in `ui/public/fonts/inter`). Reproduced: pure black background with the focused tile's colour glowing, centered translucent tab capsule (Home, Apps, Library, Live, search) with a light pill on the focused tab, clock pill and round profile button at the right, full-bleed top shelf (large title, subtitle line, frosted Open button) that follows the focused tile, the first row (all apps) as 16:10 rounded icons docked at about 60 % of the height, other rows below ("Up Next" = continue watching as 16:9 cards with progress, recent, categories), focus = icon lifts, scales 1.16, tilts toward the last arrow key (`model.tilt`) then settles, moving specular highlight, long soft shadow, the glyph layer moves slightly (parallax), the name fades in under it, other icons in the row dim, other rows dimmed, the shelf fades out when the focus goes to a lower row and rows scroll up, Up from the first row reaches the capsule (zone `nav`), Apps tab = grid.
+
+Approximated: tilt follows the arrow keys instead of a touch surface; the top shelf has no key art (tile colour plus a large letter or icon); the real Home screen has no tab capsule (it belongs to the TV app), it is kept because the model needs the tabs; no blur of the wallpaper behind the dock; the icon layers are two (background and glyph).
+
+Left out: Control Center, profile switcher, screensaver, app folders and the jiggle edit mode.
+
+Verification: screenshots of tvOS were available as reference (home with the dock, TV app shelves, rows); the tvOS 26 translucent look is only approximated.
+
 ### VIDAA style (`vidaa`)
 
 Font Roboto (OFL). Reproduced: bright blue-teal background, a status strip with the "Home" label and four shortcut pills (Live TV, Library, Search, Settings), clock, phones and mod widgets at the right, a large rounded promotional banner that follows the focused tile (colours, title, description, Open button, dots), an "Apps" row of 16:9 colourful rounded tiles with the name below, then "Continue watching" and the category rows, focus = scale 1.12 with a white 0.25 rem frame and a cyan glow, vertical anchoring (the banner slides away once you leave the first row), horizontal scrolling that keeps the focused tile visible, Up from the first row focuses the shortcut strip, Down returns, Enter on a pill opens the page, Back from the strip returns to content.
@@ -158,6 +179,7 @@ Profile switcher, input panel, network and PC-sleep tiles in quick settings; scr
 
 Roboto, Montserrat (variable) and Poppins (static 400 to 700, about 54 KB in `ui/public/fonts/poppins`) from the Fontsource packages, SIL Open Font License 1.1, Latin and Latin-extended subsets in `ui/public/fonts` (about 250 KB), declared with `font-display: swap`; licences next to the files. No network access at runtime.
 Roboto, Montserrat, Inter and Noto Sans (variable) from the Fontsource packages, SIL Open Font License 1.1, Latin and Latin-extended subsets in `ui/public/fonts` (about 250 KB for the first two, about 135 KB for Inter and 200 KB for Noto Sans), declared with `font-display: swap`; licences next to the files. No network access at runtime.
+Roboto, Montserrat and Inter (variable) from the Fontsource packages, SIL Open Font License 1.1, Latin and Latin-extended subsets in `ui/public/fonts` (about 250 KB, plus 136 KB for Inter in `fonts/inter`), declared with `font-display: swap`; licences next to the files. No network access at runtime.
 
 ## Developing a style: mock harness
 
