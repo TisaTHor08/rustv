@@ -78,7 +78,8 @@ Full details, including debugging a running TV window, are in [docs/DEVELOPMENT.
 ### Add an app tile
 
 Built-in tiles are entries in [`crates/rustv-shell/src/catalog.json`](crates/rustv-shell/src/catalog.json). Copy a
-neighbor and adapt it:
+neighbor and adapt it, then run `python scripts/gen-apps-doc.py` to refresh the list in [docs/APPS.md](docs/APPS.md)
+(and update its `TESTED` table if you verified the app on a real account):
 
 - Common fields: `id` (unique, lowercase), `name`, `desc`, `category` (`video`, `tv`, `music`, `library`, `games`),
   `kind` (`web` or `native`), `color` and `color2` (gradient), optional `dark_text`.

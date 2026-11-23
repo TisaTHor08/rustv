@@ -89,7 +89,7 @@ On first launch Windows Firewall asks to allow RusTV on your network: accept, ot
 
 The full index is in [docs/README.md](docs/README.md):
 [development guide](docs/DEVELOPMENT.md), [architecture](docs/ARCHITECTURE.md), [protocol](docs/PROTOCOL.md),
-[writing mods](docs/MODS.md), [roadmap](docs/ROADMAP.md).
+[writing mods](docs/MODS.md), [supported apps](docs/APPS.md), [roadmap](docs/ROADMAP.md).
 
 ## Contributing
 
