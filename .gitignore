@@ -14,3 +14,5 @@ crates/rustv-shell/icons/android/
 crates/rustv-shell/icons/ios/
 crates/rustv-shell/gen/
 ui/dist/
+
+dist-macos/
