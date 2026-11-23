@@ -1,0 +1,1 @@
+Dossier rempli par scripts/sync-web-remote (build web de remote/). Voir docs/WEB-REMOTE.md.

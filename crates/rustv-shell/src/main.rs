@@ -31,6 +31,7 @@ mod tv;
 mod update;
 mod usearch;
 mod volume;
+mod webremote;
 
 use rustv_core::{Core, Event};
 use std::sync::{Arc, Mutex};
@@ -208,6 +209,9 @@ fn main() {
             usearch::usearch_scan_cancel,
             usearch::usearch_clear_cache,
             usearch::usearch_test,
+            webremote::webremote_get,
+            webremote::webremote_set,
+            webremote::webremote_pair,
         ])
         .setup(move |app| {
             let h = app.handle().clone();
@@ -216,6 +220,7 @@ fn main() {
             cast::start(app.handle());
             usearch::start(app.handle());
             epg::start(app.handle());
+            webremote::start(app.handle());
 
             // Icône de la zone de notification.
             let start = MenuItem::with_id(app, "tv", "Démarrer le mode TV", true, None::<&str>)?;
@@ -236,6 +241,7 @@ fn main() {
                     "quit" => {
                         tv::exit(app);
                         cast::cast_stop();
+                        webremote::stop();
                         ha::shutdown();
                         app.exit(0);
                     }
