@@ -28,7 +28,7 @@ While TV mode is active and the guard is enabled (default), RusTV watches top-le
 - An unauthorized window is minimized (default, `mode: "minimize"`) or moved to another monitor (`mode: "move"`, falls back to minimizing when there is no other monitor).
 - When something steals the foreground, RusTV gives it back to the last allowed TV window, or the TV home. Every action is throttled: at most 4 actions per window per 5 s, then a pause of 3 s that doubles up to 60 s; foreground restoration is limited to 1 per 300 ms and 5 per 10 s, then a 5 s pause that doubles up to 60 s. The guard never fights a window in a tight loop.
 - The window that has the foreground among the allowed TV windows is kept topmost; the previous one loses topmost.
-- The taskbar of the TV monitor (`Shell_TrayWnd`, `Shell_SecondaryTrayWnd`) is hidden with `ShowWindow(SW_HIDE)` and restored on exit.
+- Off by default (enable it in the settings page): the taskbar of the TV monitor (`Shell_TrayWnd`, `Shell_SecondaryTrayWnd`) is hidden with `ShowWindow(SW_HIDE)` and restored on exit.
 - Windows toast notifications are muted by writing `0` to `HKCU\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings` value `NOC_GLOBAL_SETTING_TOASTS_ENABLED` (previous value saved, restored on exit). This is a per-user setting that Windows does not document as a stable API: some builds of Windows ignore it or only apply it after a delay, and some notifications (system, critical, other desktops) may still appear.
 
 ### Allowed windows
@@ -44,8 +44,8 @@ Command-line/profile-based detection of the browser is not used: the browser is 
 
 ```json
 {
-  "enabled": true, "mode": "minimize", "keepAwake": true, "hideTaskbar": true,
-  "suppressToasts": true, "allowProcesses": [], "allowClasses": [], "bootToTv": "off",
+  "enabled": true, "mode": "minimize", "keepAwake": true, "hideTaskbar": false,
+  "suppressToasts": false, "allowProcesses": [], "allowClasses": [], "bootToTv": "off",
   "recovery": { "taskbarHidden": false, "toasts": null, "session": { "tvActive": false } }
 }
 ```

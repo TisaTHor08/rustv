@@ -44,8 +44,8 @@ impl Default for GuardCfg {
             enabled: true,
             mode: "minimize".into(),
             keep_awake: true,
-            hide_taskbar: true,
-            suppress_toasts: true,
+            hide_taskbar: false,
+            suppress_toasts: false,
             allow_processes: Vec::new(),
             allow_classes: Vec::new(),
             boot_to_tv: "off".into(),
@@ -1549,7 +1549,7 @@ mod tests {
     #[test]
     fn config_defaults_and_roundtrip() {
         let c: GuardFile = serde_json::from_str("{}").unwrap();
-        assert!(c.cfg.enabled && c.cfg.keep_awake && c.cfg.hide_taskbar && c.cfg.suppress_toasts);
+        assert!(c.cfg.enabled && c.cfg.keep_awake && !c.cfg.hide_taskbar && !c.cfg.suppress_toasts);
         assert_eq!(c.cfg.mode, "minimize");
         assert!(c.cfg.allow_processes.is_empty());
         assert_eq!(c.recovery, Recovery::default());
