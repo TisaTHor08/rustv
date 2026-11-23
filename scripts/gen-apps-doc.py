@@ -18,7 +18,31 @@ OUT = ROOT / "docs/APPS.md"
 # id -> (status, note). Anything absent is "not tested yet". Statuses: ok, partial.
 TESTED = {
     "youtube": ("ok", "Guest playback checked on a second display (Vivaldi app mode); search typing and D-pad work. Some letters can be dropped by YouTube TV's on-screen search."),
-    "ugreen": ("ok", "Checked over UGREEN Link: login with two-factor, UGOS desktop, Theater library and film playback (phone remote: arrows on the desktop, touchpad click on Play)."),
+    "ugreen": ("ok", "Checked over UGREEN Link: login with two-factor, UGOS desktop, Theater library and film playback (phone remote: arrows on the desktop, touchpad click on Play). The tile accepts several addresses and uses the first one that answers."),
+    "francetv": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the page loads and the catalog shows behind the cookie banner; playback not tried. First paint can take 15 to 30 s."),
+    "arte": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): home page and featured films load; cookie banner appears first. Free to watch; playback not tried."),
+    "twitch": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the live directory loads without an account; log in to chat or follow. Playback not tried."),
+    "pluto": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the landing page loads (consent banner first), with a Watch free TV button; playback not tried."),
+    "tf1": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): home page loads behind a consent wall; free catalog visible. Many programmes need a free account. Playback not tried."),
+    "m6": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): loads behind a consent wall; part of the catalog is paid (M6+ Max). Playback not tried."),
+    "rmcbfm": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): home page loads behind a consent banner; catalog visible. Playback not tried."),
+    "tubi": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): Tubi answers \"not currently available in your area\" from France: the service is US only."),
+    "vimeo": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the home page loads (slow first paint, around 30 s); cookie banner shown. Playback not tried."),
+    "dailymotion": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): loads, but only the privacy dialog was visible after 25 s; accept it with the remote to continue. Playback not tried."),
+    "odysee": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): loads after about 45 s (cold profile); the Discover page and a consent banner appear. Playback not tried."),
+    "kick": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the live directory and a featured stream load without an account. Playback not tried."),
+    "adn": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the anime catalog loads behind a consent dialog; some titles need an account. Playback not tried."),
+    "rtlplay": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): loads behind a consent dialog; catalog visible. Playback not tried."),
+    "ytmusic": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): loads (Google consent page first); signing in is needed for your library. Playback not tried."),
+    "soundcloud": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the home page loads without an account; consent banner shown. Playback not tried."),
+    "radiofrance": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the home page and live radios load after a consent dialog. Playback not tried."),
+    "rakuten": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the catalog loads without an account (free and paid titles). Playback not tried."),
+    "crunchyroll": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the landing page loads (offers shown first); watching needs an account, free or paid. Not tested further."),
+    "spotify": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the web player loads and shows browsing pages; playing needs an account. Not tested further."),
+    "plex": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the free ad-supported catalog and live TV load without an account (consent dialog first); your own library needs a Plex account. Not tested further."),
+    "emby": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the page stays dark: Emby needs your own server address, nothing to show without one. Not tested further."),
+    "geforcenow": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the landing page loads behind a consent dialog; playing needs an NVIDIA account and a compatible plan. Not tested further."),
+    "deezer": ("partial", "Guest load check (2026-11-23, 1080p, no account, sound muted): the landing page loads behind a cookie dialog; free listening needs an account. Not tested further."),
 }
 
 CATEGORIES = [
@@ -67,7 +91,9 @@ def build():
         "To add one to the built-in catalog, see [CONTRIBUTING.md](../CONTRIBUTING.md).",
         "",
         "**Tested** means someone checked it on a real account or device and the note says what exactly. "
-        "Most services need an account or subscription, so \"Not tested yet\" does not mean broken: please report what you find.",
+        "**Partly tested** means the page was loaded as a guest (no account) and the note says what was visible. "
+        "Paid services were deliberately not tested and most others need an account, so \"Not tested yet\" does not mean broken: please report what you find. "
+        "A cold start of an app window can take 15 to 45 s before the first paint; the window is dark until then.",
         "",
     ]
     seen = set()

@@ -10,6 +10,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - **Universal search** ([docs/SEARCH.md](docs/SEARCH.md)): type a title and see which streaming services have it (with a free TMDB key, data from JustWatch) and open them
   directly, plus matches in your private libraries (UGREEN Theater, Plex, Jellyfin, the local library) and in mapped network drives and folders you choose.
   Mods can add their own search sources with `contributes.search`.
+- **App windows are opaque while loading**: until a page paints (15 to 45 s on a cold profile) the window is dark instead of showing the home screen through it.
 - **Web tiles accept several addresses** (for example the NAS local address followed by its UGREEN Link address): the first one that answers is used.
 
 ## [1.2.0] - 2026-11-23

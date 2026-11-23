@@ -390,6 +390,8 @@ pub(crate) fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tau
         .title(tile["name"].as_str().unwrap_or("RusTV"))
         .data_directory(profile)
         .decorations(false)
+        // Fond opaque dès l'ouverture : tant que la page n'a rien affiché, on ne voit pas l'accueil à travers la fenêtre.
+        .background_color(tauri::window::Color(8, 10, 16, 255))
         .visible(false);
     if insecure {
         // Remplace les arguments par défaut de wry (voir la doc de additional_browser_args) ; profil dédié par tuile.
