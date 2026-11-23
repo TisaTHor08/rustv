@@ -27,6 +27,17 @@ const meta: OsStyleMeta = {
   descKey: 'os.roku.d',
   font: 'Montserrat',
   slots: ['status'],
+  screens: {
+    settings: () => import('./roku.screens/settings.svelte'),
+    search: () => import('./roku.screens/search.svelte'),
+    tileMenu: () => import('./roku.screens/tileMenu.svelte'),
+    pairing: () => import('./roku.screens/pairing.svelte'),
+    quick: () => import('./roku.screens/quick.svelte'),
+    osd: () => import('./roku.screens/osd.svelte'),
+    ambient: () => import('./roku.screens/ambient.svelte'),
+    toast: () => import('./roku.screens/toast.svelte'),
+    launch: () => import('./roku.screens/launch.svelte'),
+  },
   tokens: {
     '--bg': '#13071f',
     '--bg-rgb': '19, 7, 31',
