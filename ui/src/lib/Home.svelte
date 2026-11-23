@@ -20,6 +20,7 @@
   import ModManager from './ModManager.svelte';
   import WidgetDock from './os/WidgetDock.svelte';
   import { osState } from './os/apply.svelte';
+  import { clampFocus, minRow, validZone } from './os/navguard';
   import type { HomeModel, HomeRow } from './os/model.svelte';
   import { mods, pageSrc, type ModTile } from './mods.svelte';
   import PageHost from './PageHost.svelte';
@@ -113,10 +114,28 @@
 
   // garde le focus dans les limites quand les rangées changent (masquage, suppression…)
   $effect(() => {
-    if (!rows.length) return;
-    const row = Math.min(focus.row, rows.length - 1);
-    const col = row >= 0 ? Math.min(focus.col, rows[row].tiles.length - 1) : 0;
-    if (row !== focus.row || col !== focus.col) focus = { row, col };
+    const f = clampFocus(osState.style.id, rows.map((r) => r.tiles.length), focus);
+    if (f.row !== focus.row || f.col !== focus.col) focus = f;
+  });
+
+  // Garde-fou : ramène zone et focus à des valeurs valides pour le style actif (zone inconnue du style, rangée -1 hors RusTV...).
+  function sanitizeNav() {
+    const z = validZone(zone, osState.style.zones);
+    if (z !== zone) zone = z;
+    const f = clampFocus(osState.style.id, rows.map((r) => r.tiles.length), focus);
+    if (f.row !== focus.row || f.col !== focus.col) focus = f;
+  }
+
+  // Changement de style : l'état de navigation de l'ancien style (zone, onglet, index de barre) n'a plus de sens pour le nouveau.
+  let navStyle = osState.style.id;
+  $effect(() => {
+    const id = osState.style.id;
+    if (id === navStyle) return;
+    navStyle = id;
+    zone = 'content';
+    tilt = '';
+    for (const k of Object.keys(ui)) delete ui[k];
+    focus = { row: 0, col: 0 };
   });
 
   const focused = $derived(focus.row >= 0 ? rows[focus.row]?.tiles[focus.col] : undefined);
@@ -143,7 +162,7 @@
     tilt = dirName;
     let { row, col } = focus;
     if (dr !== 0) {
-      const nr = Math.max(-1, Math.min(rows.length - 1, row + dr));
+      const nr = Math.max(minRow(osState.style.id), Math.min(rows.length - 1, row + dr));
       if (nr === row) return;
       row = nr;
       col = row >= 0 ? Math.min(col, rows[row].tiles.length - 1) : 0;
@@ -173,16 +192,19 @@
   // Animation de lancement d'une app web : bloque les entrées jusqu'à ce que la fenêtre de l'app soit affichée.
   let launching = $state<{ id: string; name: string; color: string; color2: string; slow: boolean } | null>(null);
   let launchTimer: number | undefined;
+  let launchMax: number | undefined;
   function endLaunch() {
     clearTimeout(launchTimer);
+    clearTimeout(launchMax);
     launching = null;
   }
   function beginLaunch(tile: DTile) {
     launching = { id: tile.id, name: tile.name, color: tile.color, color2: tile.color2, slow: false };
     clearTimeout(launchTimer);
+    clearTimeout(launchMax);
     launchTimer = window.setTimeout(() => launching && (launching.slow = true), 8000);
     // Sécurité : l'animation ne reste jamais plus de 40 s.
-    window.setTimeout(() => launching?.id === tile.id && endLaunch(), 40000);
+    launchMax = window.setTimeout(endLaunch, 40000);
   }
   const isWebTile = (tile: DTile) => tile.source !== 'builtin' && (tile.raw as any).kind !== 'native' && (tile.raw as any).kind !== 'page';
 
@@ -291,7 +313,36 @@
     idleTimer = window.setTimeout(() => document.documentElement.classList.add('idle'), 3000);
   }
 
+  // Retour de la fenêtre au premier plan (fin d'une app web, du lecteur, de la télécommande...) : on ne fait pas confiance à l'état
+  // d'avant. Animation de lancement terminée, zone et focus revalidés, élément du DOM resté actif relâché (sinon Entrée le « clique »).
+  function resync() {
+    if (document.visibilityState === 'hidden') return;
+    endLaunch();
+    sanitizeNav();
+    if (zone !== 'content' && !modal) zone = 'content';
+    const a = document.activeElement as HTMLElement | null;
+    if (a && a !== document.body && !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) a.blur();
+    wake();
+  }
+  
+  // Une fenêtre modale qui se ferme ne doit pas laisser un élément actif (bouton cliqué à la souris) capter Entrée.
+  $effect(() => {
+    if (modal) return;
+    const a = document.activeElement as HTMLElement | null;
+    if (a && a !== document.body && !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) a.blur();
+  });
+  // Un menu de tuile dont la tuile a disparu (masquée, supprimée) ne doit pas garder la capture des touches.
+  $effect(() => {
+    if (modal?.kind === 'tile' && !menuTile) modal = null;
+    else if (modal?.kind === 'search' && !st) modal = null;
+  });
+
   onMount(() => {
+    const onWinFocus = () => resync();
+    const onVis = () => resync();
+    window.addEventListener('focus', onWinFocus);
+    window.addEventListener('pageshow', onWinFocus);
+    document.addEventListener('visibilitychange', onVis);
     refresh();
     loadCont();
     const unClosed = api.onPlayerClosed(() => loadCont());
@@ -324,6 +375,7 @@
     if ((window as any).__RUSTV_MOCK__) {
       (window as any).__rustvHome = {
         model,
+        setStyle: (id: string) => (prefs.osStyle = id as any),
         show: (k: string) => {
           if (k === 'settings') modal = { kind: 'settings' };
           else if (k === 'display') modal = { kind: 'settings', page: 'display' };
@@ -335,11 +387,18 @@
           else if (k === 'osd') sys?.showVolume(42, false);
           else if (k === 'mute') sys?.showVolume(42, true);
           else if (k === 'toast') note('Exemple de message');
-          else if (k === 'launch') beginLaunch(rows[0].tiles[0]);
+          else if (k === 'launch') beginLaunch(rows.flatMap((r) => r.tiles)[0]);
+          else if (k === 'resync') resync();
         },
       };
     }
     return () => {
+      window.removeEventListener('focus', onWinFocus);
+      window.removeEventListener('pageshow', onWinFocus);
+      document.removeEventListener('visibilitychange', onVis);
+      clearTimeout(idleTimer);
+      clearTimeout(launchTimer);
+      clearTimeout(launchMax);
       clearInterval(clock);
       unLaunch.then((f) => f());
       un.then((f) => f());
