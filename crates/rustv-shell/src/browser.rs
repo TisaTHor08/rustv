@@ -168,6 +168,11 @@ pub fn close() {
     }
 }
 
+/// Vrai si un navigateur lancé par RusTV est en cours (utilisé par le module Hyperion).
+pub fn running() -> bool {
+    RUNNING.lock().map(|r| r.is_some()).unwrap_or(false)
+}
+
 /// Lance `url` dans le navigateur. Retourne Err si le lancement échoue (l'appelant retombe sur WebView2).
 pub fn launch(app: &AppHandle, found: &Found, id: &str, tile: &Value, url: &str) -> Result<(), String> {
     close();
