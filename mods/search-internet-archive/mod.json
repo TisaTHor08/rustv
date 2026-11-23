@@ -1,0 +1,63 @@
+{
+  "id": "search-internet-archive",
+  "name": "Internet Archive search",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "description": "Adds the Internet Archive (free public-domain films) as a tile and as a source of the universal search.",
+  "details": "Adds an Internet Archive tile and registers it as a universal search provider: type a film title in the search and open the Internet Archive already searching for it. Mostly public-domain and freely shared films. It also shows how a mod adds a search provider (contributes.search).",
+  "category": "apps",
+  "tags": [
+    "search",
+    "films",
+    "public domain",
+    "free"
+  ],
+  "dependencies": [],
+  "art": {
+    "from": "#0e7490",
+    "to": "#082f49",
+    "glyph": "film"
+  },
+  "license": "GPL-3.0-or-later",
+  "permissions": [],
+  "contributes": {
+    "tiles": [
+      {
+        "id": "internet-archive",
+        "name": "Internet Archive",
+        "desc": "Free films and videos",
+        "kind": "web",
+        "url": "https://archive.org/details/movies",
+        "category": "video",
+        "color": "#0e7490",
+        "color2": "#082f49",
+        "spatnav": true
+      }
+    ],
+    "search": [
+      {
+        "id": "archive",
+        "name": "Internet Archive",
+        "tile": "internet-archive",
+        "urlTemplate": "https://archive.org/search?query={q}&sin=",
+        "providerNames": [
+          "Internet Archive"
+        ],
+        "kinds": [
+          "movie",
+          "video"
+        ]
+      }
+    ]
+  },
+  "i18n": {
+    "fr": {
+      "name": "Recherche Internet Archive",
+      "description": "Ajoute l'Internet Archive (films libres de droits) en tuile et comme source de la recherche universelle.",
+      "details": "Ajoute une tuile Internet Archive et l'enregistre comme fournisseur de la recherche universelle : saisissez un titre de film et ouvrez l'Internet Archive déjà sur cette recherche. Surtout des films du domaine public ou partagés librement. Sert aussi d'exemple pour ajouter un fournisseur de recherche (contributes.search)."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

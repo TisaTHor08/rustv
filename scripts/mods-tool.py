@@ -60,6 +60,8 @@ GLYPHS = {
 }
 
 HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
+SEARCH_KINDS = ["movie", "series", "anime", "video"]
+CATALOG = ROOT / "crates/rustv-shell/src/catalog.json"
 ID = re.compile(r"^[a-z0-9-]{2,40}$")
 
 
@@ -91,6 +93,50 @@ def referenced_files(m):
         files += [t.get("css")]
     files += [m.get("icon"), m.get("banner")]
     return [f for f in files if f]
+
+
+def valid_search_template(t):
+    """Same rules as the app (usearch/providers.rs): https, a {q} placeholder, never in the host, no credentials."""
+    if not isinstance(t, str) or len(t) > 300 or not t.startswith("https://") or "{q}" not in t:
+        return False
+    if re.search(r"\s", t) or any(ord(c) < 32 or ord(c) == 127 for c in t):
+        return False
+    host = re.split(r"[/?#]", t[len("https://"):], maxsplit=1)[0]
+    return bool(host) and not re.search(r"[{}@]", host) and "." in host
+
+
+def check_search(m, e):
+    """contributes.search: providers of the universal search (docs/MODS.md, docs/SEARCH.md)."""
+    items = m.get("contributes", {}).get("search")
+    if items is None:
+        return
+    if not isinstance(items, list) or len(items) > 8:
+        e("contributes.search must be a list of at most 8 providers")
+        return
+    own = {t.get("id") for t in m.get("contributes", {}).get("tiles", [])}
+    catalog = {t["id"] for t in json.loads(CATALOG.read_text(encoding="utf-8"))}
+    seen = set()
+    for p in items:
+        pid = p.get("id", "")
+        if not re.fullmatch(r"[a-z0-9-]{1,40}", str(pid)) or pid in seen:
+            e(f"search provider id {pid!r} must be unique, a-z 0-9 and dashes (1 to 40 characters)")
+        seen.add(pid)
+        name = p.get("name")
+        if not isinstance(name, str) or not 1 <= len(name) <= 40:
+            e(f"search provider {pid}: name is required (1 to 40 characters)")
+        tile = p.get("tile")
+        if not isinstance(tile, str) or not re.fullmatch(r"[A-Za-z0-9_:-]{1,80}", tile):
+            e(f"search provider {pid}: tile must be a tile id")
+        elif tile not in own and tile not in catalog:
+            e(f"search provider {pid}: tile {tile!r} is neither a tile of this mod nor a catalog tile")
+        if not valid_search_template(p.get("urlTemplate")):
+            e(f"search provider {pid}: urlTemplate must be https with a {{q}} placeholder outside the host (max 300 characters)")
+        names = p.get("providerNames", [])
+        if not isinstance(names, list) or len(names) > 12 or any(not isinstance(n, str) or not 1 <= len(n) <= 40 for n in names):
+            e(f"search provider {pid}: providerNames is at most 12 names of 1 to 40 characters")
+        kinds = p.get("kinds", [])
+        if not isinstance(kinds, list) or any(k not in SEARCH_KINDS for k in kinds):
+            e(f"search provider {pid}: kinds must be among {SEARCH_KINDS}")
 
 
 def check():
@@ -145,8 +191,9 @@ def check():
             if not (d / f).exists():
                 e(f"missing file {f}")
         c = m.get("contributes", {})
-        if not any(c.get(k) for k in ("themes", "tiles", "pages", "widgets", "adapters", "icons", "strings", "remote")):
+        if not any(c.get(k) for k in ("themes", "tiles", "pages", "widgets", "adapters", "icons", "strings", "remote", "search")):
             e("contributes nothing")
+        check_search(m, e)
     for msg in errors:
         print("ERROR", msg)
     print(f"{len(mods)} mods checked, {len(errors)} problem(s)")

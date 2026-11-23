@@ -130,7 +130,8 @@ pub fn list() -> Vec<Value> {
             Ok(m) if m["id"] == dirname.as_str() => {
                 let eff = effective_permissions(&m);
                 let enabled = is_enabled(states.get(&dirname), &eff);
-                out.push(json!({ "id": dirname, "manifest": m, "permissions": eff, "enabled": enabled, "error": null }));
+                let search = sanitize_search(&dirname, &m);
+                out.push(json!({ "id": dirname, "manifest": m, "permissions": eff, "enabled": enabled, "error": null, "search": search }));
             }
             Ok(_) => out.push(json!({ "id": dirname, "manifest": null, "permissions": [], "enabled": false, "error": "le dossier doit porter le même nom que l'id du mod" })),
             Err(err) => out.push(json!({ "id": dirname, "manifest": null, "permissions": [], "enabled": false, "error": err })),
@@ -138,6 +139,46 @@ pub fn list() -> Vec<Value> {
     }
     out.sort_by(|a, b| a["id"].as_str().cmp(&b["id"].as_str()));
     out
+}
+
+// ---------- fournisseurs de la recherche universelle (`contributes.search`) ----------
+
+const SEARCH_KINDS: [&str; 4] = ["movie", "series", "anime", "video"];
+const MAX_SEARCH_PER_MOD: usize = 8;
+const MAX_SEARCH_NAMES: usize = 12;
+
+fn short_text(v: &Value, max: usize) -> Option<String> {
+    let s = v.as_str()?.trim();
+    (!s.is_empty() && s.chars().count() <= max && !s.chars().any(|c| c.is_control())).then(|| s.to_string())
+}
+
+/// Fournisseurs de recherche d'un mod, nettoyés et bornés : `[{ id, mod, name, tile, urlTemplate, providerNames, kinds }]`.
+/// `tile` peut nommer une tuile du mod (résolue en id complet) ou une tuile existante (catalogue, autre mod).
+/// Les entrées invalides sont ignorées (https obligatoire, `{q}` hors du nom d'hôte, tailles bornées).
+pub fn sanitize_search(mod_id: &str, m: &Value) -> Vec<Value> {
+    let mut out: Vec<Value> = vec![];
+    let own: Vec<&str> = m["contributes"]["tiles"].as_array().into_iter().flatten().filter_map(|t| t["id"].as_str()).collect();
+    for e in m["contributes"]["search"].as_array().into_iter().flatten().take(MAX_SEARCH_PER_MOD) {
+        let Some(id) = e["id"].as_str().filter(|i| (1..=40).contains(&i.len()) && i.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')) else { continue };
+        let (Some(name), Some(tile), Some(tpl)) = (short_text(&e["name"], 40), short_text(&e["tile"], 80), e["urlTemplate"].as_str()) else { continue };
+        if !crate::usearch::providers::valid_template(tpl) || !tile.chars().all(|c| c.is_ascii_alphanumeric() || "-_:".contains(c)) {
+            continue;
+        }
+        let full = format!("{mod_id}:{id}");
+        if out.iter().any(|o| o["id"] == full.as_str()) {
+            continue;
+        }
+        let tile = if own.contains(&tile.as_str()) { format!("mod-{mod_id}-{}", tile.chars().map(|c| if c.is_ascii_alphanumeric() || c == '_' || c == '-' { c } else { '-' }).collect::<String>()) } else { tile };
+        let names: Vec<String> = e["providerNames"].as_array().into_iter().flatten().filter_map(|n| short_text(n, 40)).take(MAX_SEARCH_NAMES).collect();
+        let kinds: Vec<&str> = e["kinds"].as_array().into_iter().flatten().filter_map(|k| k.as_str()).filter(|k| SEARCH_KINDS.contains(k)).collect();
+        out.push(json!({ "id": full, "mod": mod_id, "name": name, "tile": tile, "urlTemplate": tpl, "providerNames": names, "kinds": kinds }));
+    }
+    out
+}
+
+/// Fournisseurs de recherche des mods activés (permissions acceptées).
+pub fn search_providers() -> Vec<Value> {
+    list().into_iter().filter(|e| e["enabled"] == true).flat_map(|e| e["search"].as_array().cloned().unwrap_or_default()).collect()
 }
 
 // ---------- contributions à la télécommande du téléphone ----------
@@ -555,6 +596,32 @@ mod tests {
         assert_eq!(sanitize_action(&json!({"t":"setVolume","level":400})).unwrap()["level"], 100);
         assert!(sanitize_action(&json!({"t":"openTile","id":"../x"})).is_none());
         assert!(css_is_safe(".a{color:red}") && !css_is_safe("@import 'x'") && !css_is_safe("a{background:url(https://x)}"));
+    }
+
+
+    #[test]
+    fn search_contributions() {
+        let m = json!({ "contributes": { "tiles": [{ "id": "arte-x" }], "search": [
+            { "id": "arte", "name": "Arte", "tile": "arte-x", "urlTemplate": "https://www.arte.tv/fr/search/?q={q}", "providerNames": ["Arte", ""], "kinds": ["movie", "bogus"] },
+            { "id": "catalog", "name": "Netflix", "tile": "netflix", "urlTemplate": "https://www.netflix.com/search?q={q}" },
+            { "id": "http", "name": "x", "tile": "netflix", "urlTemplate": "http://a.example.org/?q={q}" },
+            { "id": "noq", "name": "x", "tile": "netflix", "urlTemplate": "https://a.example.org/" },
+            { "id": "host", "name": "x", "tile": "netflix", "urlTemplate": "https://{q}.example.org/" },
+            { "id": "Bad Id", "name": "x", "tile": "netflix", "urlTemplate": "https://a.example.org/?q={q}" },
+            { "id": "tile", "name": "x", "tile": "../x", "urlTemplate": "https://a.example.org/?q={q}" },
+            { "id": "arte", "name": "dup", "tile": "netflix", "urlTemplate": "https://a.example.org/?q={q}" },
+            { "id": "long", "name": "n".repeat(41), "tile": "netflix", "urlTemplate": "https://a.example.org/?q={q}" }
+        ] } });
+        let s = sanitize_search("m", &m);
+        assert_eq!(s.len(), 2);
+        assert_eq!(s[0]["id"], "m:arte");
+        assert_eq!(s[0]["tile"], "mod-m-arte-x");
+        assert_eq!(s[0]["providerNames"], json!(["Arte"]));
+        assert_eq!(s[0]["kinds"], json!(["movie"]));
+        assert_eq!(s[1]["tile"], "netflix");
+        assert!(sanitize_search("m", &json!({})).is_empty());
+        let many: Vec<Value> = (0..20).map(|i| json!({ "id": format!("p{i}"), "name": "n", "tile": "t", "urlTemplate": "https://a.example.org/?q={q}" })).collect();
+        assert_eq!(sanitize_search("m", &json!({ "contributes": { "search": many } })).len(), MAX_SEARCH_PER_MOD);
     }
 
     #[test]

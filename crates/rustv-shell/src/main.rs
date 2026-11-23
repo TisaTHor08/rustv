@@ -24,6 +24,7 @@ mod store;
 mod tuner;
 mod tv;
 mod update;
+mod usearch;
 
 use rustv_core::{Core, Event};
 use std::sync::{Arc, Mutex};
@@ -181,12 +182,22 @@ fn main() {
             hyperion::hyperion_clear,
             hyperion::hyperion_ambient,
             hyperion::hyperion_open_web_ui,
+            usearch::usearch_query,
+            usearch::usearch_launch,
+            usearch::usearch_get_config,
+            usearch::usearch_set_config,
+            usearch::usearch_status,
+            usearch::usearch_scan,
+            usearch::usearch_scan_cancel,
+            usearch::usearch_clear_cache,
+            usearch::usearch_test,
         ])
         .setup(move |app| {
             let h = app.handle().clone();
             dvr::start(app.handle());
             hyperion::start(app.handle());
             cast::start(app.handle());
+            usearch::start(app.handle());
 
             // Icône de la zone de notification.
             let start = MenuItem::with_id(app, "tv", "Démarrer le mode TV", true, None::<&str>)?;

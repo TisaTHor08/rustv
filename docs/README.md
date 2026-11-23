@@ -20,6 +20,7 @@
 | [DISPLAY-AUDIO.md](DISPLAY-AUDIO.md) | Everyone | Audio output, resolution, refresh rate, HDR |
 | [GAMEPAD.md](GAMEPAD.md) | Everyone | Game controller mapping and safety |
 | [HOME-ASSISTANT.md](HOME-ASSISTANT.md) | Everyone | MQTT entities, commands, ready-made package |
+| [SEARCH.md](SEARCH.md) | Everyone | Universal search: where to watch, Plex, Jellyfin, mapped folders, mod providers |
 | [MODS.md](MODS.md) | Mod authors | Manifest, permissions, SDK, publishing in the catalog |
 | [ROADMAP.md](ROADMAP.md) | Everyone | What is done, what is next, where help is wanted |
 | [../SECURITY.md](../SECURITY.md) | Everyone | How to report a vulnerability |
