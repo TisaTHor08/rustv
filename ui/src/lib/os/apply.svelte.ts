@@ -1,5 +1,6 @@
 // Applique le style d'interface choisi : jetons CSS, attribut data-os, police, composant de mise en page.
 // Le changement est « à chaud » : le composant est chargé d'abord, puis tout bascule d'un coup (fondu côté Home).
+import { invoke } from '@tauri-apps/api/core';
 import type { Component } from 'svelte';
 import { osAccent, prefs } from '../prefs.svelte';
 import type { HomeModel } from './model.svelte';
@@ -48,5 +49,10 @@ async function apply(id: string) {
 $effect.root(() => {
   $effect(() => {
     void apply(prefs.osStyle);
+  });
+  // Annonce le style au PC : la télécommande du téléphone prend le modèle de télécommande assorti (aussi au démarrage).
+  $effect(() => {
+    const id = osState.style?.id ?? prefs.osStyle;
+    invoke('set_os_style', { id }).catch(() => {});
   });
 });
