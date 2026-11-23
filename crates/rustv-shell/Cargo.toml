@@ -29,41 +29,31 @@ sha2 = "0.10"
 quick-xml = "0.37"
 flate2 = "1.1.11"
 windows-core = "0.62"
-
-[dependencies.windows]
-version = "0.62"
-features = [
-    "Win32_Foundation",
-    "Win32_Graphics_Dwm",
-    "Win32_System_Diagnostics_ToolHelp",
-    "Win32_System_Power",
-    "Win32_System_Threading",
-    "Win32_UI_Accessibility",
-    "Win32_UI_WindowsAndMessaging",
-    "Win32_Devices_Display",
-    "Win32_Devices_FunctionDiscovery",
-    "Win32_Foundation",
-    "Win32_Graphics_Gdi",
-    "Win32_Media_Audio",
-    "Win32_Media_Audio_Endpoints",
-    "Win32_System_Com",
-    "Win32_System_Com_StructuredStorage",
-    "Win32_UI_Shell_PropertiesSystem",
-    "Win32_System_Diagnostics_ToolHelp",
-    "Win32_System_LibraryLoader",
-    "Win32_System_Threading",
-    "Win32_UI_Input_XboxController",
-    "Win32_UI_WindowsAndMessaging",
-]
 socket2 = { version = "0.6", features = ["all"] }
 if-addrs = "0.15"
-# Home Assistant (MQTT) : client bloquant, TLS rustls (ring) pour les courtiers publics ; DPAPI pour le mot de passe.
+# Home Assistant (MQTT) : client bloquant, TLS rustls (ring) ; DPAPI pour le mot de passe.
 rumqttc = { version = "0.24", default-features = false, features = ["use-rustls"] }
 
 [dependencies.windows]
 version = "0.62"
-features = ["Win32_Foundation", "Win32_Security_Cryptography"]
-
-[target.'cfg(windows)'.dependencies.windows]
-version = "0.62"
-features = ["Win32_Foundation", "Win32_Security_Cryptography", "Win32_System_JobObjects"]
+features = [
+    "Win32_Devices_Display",
+    "Win32_Devices_FunctionDiscovery",
+    "Win32_Foundation",
+    "Win32_Graphics_Dwm",
+    "Win32_Graphics_Gdi",
+    "Win32_Media_Audio",
+    "Win32_Media_Audio_Endpoints",
+    "Win32_Security_Cryptography",
+    "Win32_System_Com",
+    "Win32_System_Com_StructuredStorage",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_JobObjects",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Power",
+    "Win32_System_Threading",
+    "Win32_UI_Accessibility",
+    "Win32_UI_Input_XboxController",
+    "Win32_UI_Shell_PropertiesSystem",
+    "Win32_UI_WindowsAndMessaging",
+]

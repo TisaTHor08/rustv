@@ -168,10 +168,8 @@ fn main() {
             ha::ha_test,
             ha::ha_publish_discovery,
             ha::ha_remove_discovery,
-        ])
-        .setup(move |app| {
-            let h = app.handle().clone();
-            dvr::start(app.handle());
+            cast::cast_get,
+            cast::cast_set,
             hyperion::hyperion_get,
             hyperion::hyperion_set,
             hyperion::hyperion_install,
@@ -186,7 +184,9 @@ fn main() {
         ])
         .setup(move |app| {
             let h = app.handle().clone();
+            dvr::start(app.handle());
             hyperion::start(app.handle());
+            cast::start(app.handle());
 
             // Icône de la zone de notification.
             let start = MenuItem::with_id(app, "tv", "Démarrer le mode TV", true, None::<&str>)?;
@@ -206,6 +206,8 @@ fn main() {
                     "pair" => open_pairing_window(app),
                     "quit" => {
                         tv::exit(app);
+                        cast::cast_stop();
+                        ha::shutdown();
                         app.exit(0);
                     }
                     _ => {}

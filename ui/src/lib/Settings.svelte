@@ -10,6 +10,15 @@
   import { scanLibrary } from './library.svelte';
   import { loadLive } from './live.svelte';
   import { play } from './sounds';
+  import { onDestroy } from 'svelte';
+  import { createPage as createCast } from './settings/cast.svelte';
+  import { createPage as createDisplay } from './settings/display.svelte';
+  import { createPage as createDvr } from './settings/dvr.svelte';
+  import { createPage as createGamepad } from './settings/gamepad.svelte';
+  import { createPage as createGuard } from './settings/guard.svelte';
+  import { createPage as createHa } from './settings/ha.svelte';
+  import { createPage as createHyperion } from './settings/hyperion.svelte';
+  import { createPage as createPlayer } from './settings/player.svelte';
 
   let {
     st,
@@ -20,7 +29,10 @@
     note,
   }: { st: ShellState | null; refresh: () => Promise<void>; onclose: () => void; onpairing: () => void; onmods: () => void; note: (m: string) => void } = $props();
 
-  type Page = 'root' | 'appearance' | 'wallpaper' | 'tiles' | 'weather' | 'live' | 'library' | 'apps' | 'vault' | 'system';
+  type Page = 'root' | 'appearance' | 'wallpaper' | 'tiles' | 'weather' | 'live' | 'library' | 'apps' | 'vault' | 'system' | 'ext' | ExtKey;
+  // Pages issues des modules intégrés (voir src/lib/settings/*.svelte.ts), regroupées sous « Intégrations ».
+  type ExtKey = 'guard' | 'display' | 'gamepad' | 'player' | 'dvr' | 'hyperion' | 'ha' | 'cast';
+  const EXT: ExtKey[] = ['guard', 'display', 'gamepad', 'player', 'dvr', 'hyperion', 'ha', 'cast'];
   interface Row {
     label: string;
     value?: string;
@@ -30,6 +42,24 @@
     enter?: () => void | Promise<void>;
     arrows?: boolean;
   }
+
+  const ctx = { note: (m: string) => note(m) };
+  const ext: Record<ExtKey, { titleKey: string; load(): Promise<void>; rows(): Row[] }> = {
+    guard: createGuard(ctx),
+    display: createDisplay(ctx),
+    gamepad: createGamepad(ctx),
+    player: createPlayer(ctx),
+    dvr: createDvr(ctx),
+    hyperion: createHyperion(ctx),
+    ha: createHa(ctx),
+    cast: createCast(ctx),
+  };
+  const isExt = (p: Page): p is ExtKey => (EXT as string[]).includes(p);
+  // Mise à jour périodique des pages « vivantes » (manettes branchées, état des services).
+  const poll = setInterval(() => {
+    if (page === 'gamepad' || page === 'dvr' || page === 'hyperion') void ext[page].load().catch(() => {});
+  }, 2500);
+  onDestroy(() => clearInterval(poll));
 
   let page = $state<Page>('root');
   let idx = $state(0);
@@ -213,7 +243,10 @@
           { label: t('settings.phones'), enter: onpairing },
           { label: t('settings.apps'), enter: () => go('apps') },
           { label: t('settings.screens'), enter: () => go('system') },
+          { label: t('settings.ext'), enter: () => go('ext') },
         ];
+      case 'ext':
+        return EXT.map((k) => ({ label: t(`settings.${k}`), value: t(`settings.${k}.d`), enter: () => go(k) }));
       case 'appearance':
         return [
           choice(t('settings.language'),['fr', 'en'] as const, () => prefs.lang, (v) => set('lang', v), (v) => (v === 'fr' ? 'Français' : 'English')),
@@ -350,16 +383,19 @@
           { label: t('sys.exit'), enter: () => api.tvExit() },
           { label: t('sys.quit'), enter: () => api.quit() },
         ];
+      default:
+        return isExt(page) ? ext[page].rows() : [];
     }
   });
 
-  const titles: Record<Page, string> = { root: 'settings.title', appearance: 'settings.appearance', wallpaper: 'settings.wallpaper', tiles: 'settings.tiles', weather: 'settings.weather', live: 'settings.live', library: 'settings.library', apps: 'settings.apps', vault: 'settings.vault', system: 'settings.screens' };
+  const titles: Record<string, string> = { ext: 'settings.ext', root: 'settings.title', appearance: 'settings.appearance', wallpaper: 'settings.wallpaper', tiles: 'settings.tiles', weather: 'settings.weather', live: 'settings.live', library: 'settings.library', apps: 'settings.apps', vault: 'settings.vault', system: 'settings.screens' };
 
   function go(p: Page) {
     page = p;
     idx = 0;
     if (p === 'apps') void api.browsersDetected().then((l) => (detected = l.map((b) => (b.kind === 'brave' ? 'Brave' : 'Vivaldi')).join(', '))).catch(() => {});
     if (p === 'vault') void vaultRefresh();
+    if (isExt(p)) void ext[p].load().catch(() => {});
     confirmReset = false;
   }
 
@@ -374,7 +410,7 @@
     else if (e.key === 'Escape' || e.key === 'Backspace') {
       play('back');
       if (page === 'root') onclose();
-      else go('root');
+      else go(isExt(page) ? 'ext' : 'root');
     } else return;
     if (idx >= rows.length) idx = rows.length - 1;
     if (idx !== before) play('move');
@@ -385,7 +421,7 @@
 <svelte:window onkeydown={onKey} />
 
 <div class="sheet" in:fly={{ y: 30, duration: 360, easing: cubicOut }}>
-  <h3>{t(titles[page])}</h3>
+  <h3>{t(isExt(page) ? ext[page].titleKey : titles[page])}</h3>
   <div class="rows">
     {#each rows as r, i}
       <button class="item" class:sel={i === idx} onmouseenter={() => (idx = i)} onclick={() => r.enter?.()}>

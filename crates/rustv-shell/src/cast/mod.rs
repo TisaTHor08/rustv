@@ -93,7 +93,7 @@ struct AppHost {
 impl Host for AppHost {
     fn play(&self, kind: &str, title: &str, url: &str) -> Result<(), String> {
         let kind = if kind == "audio" { "audio" } else { "video" };
-        crate::player::play(&self.app, crate::player::PlayRequest { kind: kind.into(), items: vec![crate::player::Item { name: title.to_string(), url: url.to_string() }], index: 0 })
+        crate::player::play(&self.app, crate::player::PlayRequest { kind: kind.into(), items: vec![crate::player::Item { name: title.to_string(), url: url.to_string(), poster: None }], index: 0, start: None, lang: None })
     }
     fn stop(&self) {
         crate::player::stop(&self.app);

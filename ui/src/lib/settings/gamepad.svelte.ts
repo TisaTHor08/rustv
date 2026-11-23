@@ -73,7 +73,26 @@ export function createPage(ctx: { note: (m: string) => void }) {
     else if (!pads.length) out.push({ label: t('gamepad.none') });
     for (const p of pads) {
       const bat = p.batteryType === 'wired' ? t('gamepad.bat.wired') : t(`gamepad.bat.${p.batteryLevel}`);
-      out.push({ label: t('gamepad.deadzone'), value: `${Math.round(c.deadzone * 100)} %`, arrows: true, left: () => dz(-0.05), right: () => dz(0.05) });
+      out.push({ label: t('gamepad.pad', { n: String(p.slot + 1) }), value: bat });
+    }
+    if (info.paused) out.push({ label: t('gamepad.paused') });
+    out.push(toggle(t('gamepad.enabled'), 'enabled'));
+    const vib = (d: number) => save({ vibration: step(c.vibration, d, 3) });
+    out.push({ label: t('gamepad.vibration'), value: t(`gamepad.vib.${c.vibration}`), arrows: true, left: () => vib(-1), right: () => vib(1) });
+    out.push({
+      label: t('gamepad.test'),
+      enter: async () => {
+        const p = pads[0];
+        if (!p) return ctx.note(t('gamepad.testfail'));
+        try {
+          await invoke('gamepad_test_vibration', { slot: p.slot });
+        } catch {
+          ctx.note(t('gamepad.testfail'));
+        }
+      },
+    });
+    const dz = (d: number) => save({ deadzone: Math.round(Math.max(0.1, Math.min(0.8, c.deadzone + d)) * 100) / 100 });
+    out.push({ label: t('gamepad.deadzone'), value: `${Math.round(c.deadzone * 100)} %`, arrows: true, left: () => dz(-0.05), right: () => dz(0.05) });
     const ri = Math.max(0, REPEATS.findIndex((r) => r <= c.repeatRateMs));
     const rep = (d: number) => save({ repeatRateMs: REPEATS[Math.max(0, Math.min(REPEATS.length - 1, ri + d))] });
     out.push({ label: t('gamepad.repeat'), value: `${c.repeatRateMs} ms`, arrows: true, left: () => rep(-1), right: () => rep(1) });
