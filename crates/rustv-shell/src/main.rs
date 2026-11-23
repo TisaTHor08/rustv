@@ -3,6 +3,7 @@
 mod autostart;
 mod browser;
 mod commands;
+mod display;
 mod fs;
 mod hooks;
 mod lan;
@@ -117,6 +118,15 @@ fn main() {
             commands::set_blackout,
             commands::set_autostart,
             commands::quit_app,
+            display::audio_outputs,
+            display::audio_set_default,
+            display::audio_set_output_volume,
+            display::audio_cycle_output,
+            display::display_info,
+            display::display_set_mode,
+            display::display_confirm,
+            display::display_revert,
+            display::display_set_hdr,
         ])
         .setup(move |app| {
             let h = app.handle().clone();
