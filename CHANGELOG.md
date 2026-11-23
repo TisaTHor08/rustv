@@ -7,6 +7,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **Web remote** ([docs/WEB-REMOTE.md](docs/WEB-REMOTE.md)): use the remote from a browser without installing the APK, installable as a PWA when the browser allows it. Off by default; Settings > Integrations > Web remote starts and stops a small HTTP + WebSocket server on the private network (port 47822, configurable) that serves the remote and carries the same encrypted, paired protocol as the Android app (no new way in: unpaired devices are refused, per-address rate limits, LAN only, `Host` and `Origin` checks). Pairing by QR link, pasted code or camera. Over plain HTTP, where `crypto.subtle`, the service worker and the camera are unavailable, it falls back to a pure JavaScript implementation of the cipher, and pairing by a link scanned with the phone's camera app or a pasted code.
 - **Phone remote models** ([docs/REMOTE-MODELS.md](docs/REMOTE-MODELS.md)): the phone remote can take the shape of the remote that ships with the chosen TV style (Google TV, Samsung, LG, Hisense, Philips, Fire TV, Apple TV, Roku).
   The PC announces its TV style in `state.osStyle`; the phone follows it automatically, or you pick a model in the phone settings.
 - **Tizen and webOS interface styles** ([docs/OS-STYLES.md](docs/OS-STYLES.md)): a Samsung-like launcher bar with previews and an ambient clock mode, and an LG-like rotating banner with a wide-card launcher (Inter and Noto Sans, OFL, bundled).

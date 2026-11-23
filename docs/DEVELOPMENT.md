@@ -52,6 +52,8 @@ npx cap open android                         # then Build > Build APK in Android
 Run `rustv.exe` for tray mode, or `rustv.exe --tv --screen N` to start directly in TV mode on screen number `N`.
 `npm run dev` in `ui/` or `remote/` starts a Vite dev server for the web part only.
 
+The web remote ([WEB-REMOTE.md](WEB-REMOTE.md)) is the `remote/` build served by the TV app: run `scripts/sync-web-remote.ps1` (or `.sh`) before `cargo tauri build` so `crates/rustv-shell/remote-web/` is packaged as a resource.
+
 ### Linux packages and smoke test in Docker
 
 `.\scripts\build-linux.ps1` builds the `.deb` and the `.AppImage` inside the build image and copies them to `dist-linux/`

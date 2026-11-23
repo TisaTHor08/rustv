@@ -88,6 +88,7 @@ The step-by-step guide is [docs/USER-GUIDE.md](docs/USER-GUIDE.md).
   (long-press OK on the phone: rename, recolor, set an icon, move, hide; add websites and Windows apps).
   Preferences live in `%APPDATA%\RusTV\prefs.json`.
 - **Live TV and media**: your own M3U playlists and XMLTV guides (now/next, zapping with the remote), a local library of movies, shows, photos and music, a file explorer, Windows settings shortcuts and a universal search. Playback uses mpv, installed on demand after you agree (checksum verified). No channel list is bundled.
+- **Web remote** ([docs/WEB-REMOTE.md](docs/WEB-REMOTE.md)): control the PC from a phone or tablet browser (installable as a PWA) without the Android app. Off by default, same encrypted and paired protocol, private network only.
 - **Bitwarden** ([docs/BITWARDEN.md](docs/BITWARDEN.md)): fill logins from your vault with one tap on the phone, using the official `bw` CLI (also works with Vaultwarden). Passwords never leave the PC except as injected keystrokes; auto-lock included.
 - **Mods** ([docs/MODS.md](docs/MODS.md)): themes, tiles, full-screen pages, top-bar widgets, site adapters, icon sets and phone remote themes and panels, with declared and user-approved permissions, sandboxed execution and an in-app mod store (categories, search, local ratings, install and uninstall, dependencies) installing pinned GitHub commits.
 - **UGREEN Theater** ([docs/UGREEN.md](docs/UGREEN.md)): local address or UGREEN Link remote access, verified with login, two-factor step and playback.

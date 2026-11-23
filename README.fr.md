@@ -30,6 +30,7 @@ Le guide pas à pas (en anglais) est dans le [guide d'utilisation](docs/USER-GUI
 - **TV en direct complète** : grille des programmes, enregistreur (DVR), tuners HDHomeRun et TVHeadend, pause et retour en direct.
 - **Lecteur complet** : pistes audio et sous-titres, reprise, « Reprendre la lecture », file d'attente et épisode suivant.
 - **Réception cast** (DIAL et DLNA), **ambilight Hyperion**, **Home Assistant** (MQTT).
+- **Télécommande web** ([docs/WEB-REMOTE.md](docs/WEB-REMOTE.md), en anglais) : commander le PC depuis le navigateur d'un téléphone, sans installer l'appli (installable en PWA). Désactivée par défaut, même protocole chiffré et jumelé, réseau local uniquement.
 - **Écran et son** : sortie audio, résolution, fréquence, HDR ; **manette** XInput.
 - Interface adaptée aux écrans ultra-larges, 16:10, 4:3 et portrait.
 
@@ -64,7 +65,7 @@ Le guide pas à pas (en anglais) est dans le [guide d'utilisation](docs/USER-GUI
 
 - [Applications prises en charge](docs/APPS.md) et leur état de test
 - [Écrire des mods](docs/MODS.md) (thèmes, widgets, pages, adaptateurs, mods de télécommande)
-- [UGREEN Theater](docs/UGREEN.md) · [Bitwarden](docs/BITWARDEN.md) · [Garde TV](docs/TV-GUARD.md) · [TV en direct](docs/LIVE-TV.md) · [Lecteur](docs/PLAYER.md) · [Cast](docs/CAST.md) · [Ambilight](docs/AMBILIGHT.md) · [Home Assistant](docs/HOME-ASSISTANT.md) · [Manette](docs/GAMEPAD.md) · [Écran et son](docs/DISPLAY-AUDIO.md)
+- [UGREEN Theater](docs/UGREEN.md) · [Bitwarden](docs/BITWARDEN.md) · [Garde TV](docs/TV-GUARD.md) · [TV en direct](docs/LIVE-TV.md) · [Lecteur](docs/PLAYER.md) · [Cast](docs/CAST.md) · [Télécommande web](docs/WEB-REMOTE.md) · [Ambilight](docs/AMBILIGHT.md) · [Home Assistant](docs/HOME-ASSISTANT.md) · [Manette](docs/GAMEPAD.md) · [Écran et son](docs/DISPLAY-AUDIO.md)
 - Le détail technique, la compilation et la contribution sont dans le [README principal](README.md).
 
 Licence : [GPL-3.0-or-later](LICENSE) : les forks restent ouverts.

@@ -59,6 +59,14 @@ Each phone has its own secret key. In **Phones & pairing** you can create a new 
 The phone tries the last known address, a discovery beacon on the local network, the addresses in the QR code and Bluetooth,
 and uses the first path that authenticates.
 
+## Use the remote from a browser
+
+No Android phone? Settings > Integrations > **Web remote** (off by default) serves the remote on your private network. Open the address
+it shows in any browser on the same network, choose **Pair a browser** on the TV and scan the QR code with the phone's camera app, or paste
+the pairing code into the page. The browser then behaves like a phone: same buttons, own key, revocable in **Phones & pairing**.
+Over plain HTTP the page cannot be installed and cannot scan with its own camera; [WEB-REMOTE.md](WEB-REMOTE.md) explains the options
+(localhost, a browser flag, or HTTPS through a reverse proxy) and the security model. Use it only on a network you trust.
+
 ## Choose the TV screen
 
 When TV mode starts, RusTV asks which screen is your TV: move to it and press OK. The other screens can be **blacked out**
@@ -243,6 +251,7 @@ Settings, Integrations and hardware groups the optional features. Each one is do
 - **Ambilight (Hyperion)**: [AMBILIGHT.md](AMBILIGHT.md)
 - **Home Assistant**: [HOME-ASSISTANT.md](HOME-ASSISTANT.md)
 - **Cast and DLNA**: [CAST.md](CAST.md)
+- **Web remote** (use the remote from a browser): [WEB-REMOTE.md](WEB-REMOTE.md)
 
 ## Updates
 
