@@ -34,7 +34,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/focus-ring"
       }
     },
@@ -72,7 +72,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/game-2048"
       }
     },
@@ -108,7 +108,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/game-memory"
       }
     },
@@ -143,7 +143,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/game-minesweeper"
       }
     },
@@ -181,7 +181,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/game-snake"
       }
     },
@@ -217,7 +217,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/hide-cursor"
       }
     },
@@ -255,7 +255,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/page-calendar"
       }
     },
@@ -295,7 +295,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/page-news"
       }
     },
@@ -331,7 +331,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/page-remote-help"
       }
     },
@@ -366,7 +366,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/page-timer"
       }
     },
@@ -405,7 +405,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/page-weather"
       }
     },
@@ -441,8 +441,161 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/real-icons"
+      }
+    },
+    {
+      "id": "remote-demo",
+      "name": "Remote demo",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "remote",
+      "description": "Tutorial mod for the phone remote: a Neon theme and a Demo panel showing every kind of action.",
+      "details": "Reference example for mod authors. Theme Neon: sets 8 variables (vars) and adds a short theme.css that restyles the ring, buttons and volume bar. Panel Demo: 7 buttons, one per action type: key (Menu), media (play/pause), setVolume (25), openTile (YouTube), text (types Hello from a mod into the focused field of the PC), a chain of key and wait actions, and home. Actions run in order. Everything is declarative and checked by the PC, then by the phone. See the README.md in the mod folder.",
+      "tags": [
+        "remote",
+        "phone",
+        "demo",
+        "tutorial",
+        "example",
+        "developer"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Demo telecommande",
+          "description": "Mod tutoriel pour la telecommande du telephone : un theme Neon et un panneau Demo qui montre chaque type d'action.",
+          "details": "Exemple de reference pour les auteurs de mods. Theme Neon : 8 variables (vars) et un theme.css court qui restyle l'anneau, les boutons et la barre de volume. Panneau Demo : 7 boutons, un par type d'action : key (Menu), media (lecture/pause), setVolume (25), openTile (YouTube), text (tape Hello from a mod dans le champ actif du PC), une chaine de key et wait, et home. Les actions s'executent dans l'ordre. Tout est declaratif, verifie par le PC puis par le telephone. Voir le README.md du dossier."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#ff2bd6",
+        "to": "#3a1a9e",
+        "glyph": "bolt"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
+        "path": "mods/remote-demo"
+      }
+    },
+    {
+      "id": "remote-panel-launch",
+      "name": "Quick launch",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "remote",
+      "description": "A Mods tab panel with 12 big buttons that open YouTube, Netflix, Plex, Spotify and more on the TV in one tap.",
+      "details": "Adds a Quick launch panel to the phone Mods tab with 12 buttons: YouTube, Netflix, Prime Video, Disney+, Max, Plex, Jellyfin, UGREEN Theater, Arte, Twitch, Spotify and Apple TV+. Each button sends a single openTile command, so it opens that tile on the TV home exactly like selecting it with the remote. The phone only sends a command to your PC over your local network: no internet access is needed by the mod itself.",
+      "tags": [
+        "remote",
+        "phone",
+        "launch",
+        "apps",
+        "shortcuts",
+        "streaming"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Lancement rapide",
+          "description": "Un panneau de l'onglet Mods avec 12 gros boutons pour ouvrir YouTube, Netflix, Plex, Spotify... sur la TV en un geste.",
+          "details": "Ajoute un panneau Lancement rapide a l'onglet Mods du telephone avec 12 boutons : YouTube, Netflix, Prime Video, Disney+, Max, Plex, Jellyfin, UGREEN Theater, Arte, Twitch, Spotify et Apple TV+. Chaque bouton envoie une seule commande openTile : la tuile s'ouvre sur l'accueil de la TV comme avec la telecommande. Le telephone envoie juste une commande a votre PC sur le reseau local : le mod n'a besoin d'aucun acces internet."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#e5484d",
+        "to": "#7a1c3a",
+        "glyph": "grid"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
+        "path": "mods/remote-panel-launch"
+      }
+    },
+    {
+      "id": "remote-panel-scenes",
+      "name": "Scenes",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "remote",
+      "description": "A Mods tab panel of one-tap scenes: Movie night, Quiet, Party, Back to home, Next episode and TV off.",
+      "details": "Adds a Scenes panel with 6 buttons. Movie night: volume 35, then opens Plex. Quiet: volume 12. Party: volume 70, then play/pause. Back to home: goes to the TV home. Next episode: presses right, waits 0.4 s, presses OK (it only works if the player's Next button is focused after Right, which depends on the app). TV off: turns the TV session off. Nothing else is sent.",
+      "tags": [
+        "remote",
+        "phone",
+        "scenes",
+        "macros",
+        "volume",
+        "shortcuts"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Scenes",
+          "description": "Un panneau de l'onglet Mods avec des scenes en un geste : Soiree cinema, Silence, Fete, Accueil, Episode suivant, TV off.",
+          "details": "Ajoute un panneau Scenes de 6 boutons. Soiree cinema : volume 35 puis ouvre Plex. Silence : volume 12. Fete : volume 70 puis lecture/pause. Accueil : retour a l'accueil de la TV. Episode suivant : touche droite, pause de 0,4 s, touche OK (ne marche que si le bouton Suivant du lecteur est selectionne apres Droite, selon l'application). TV off : eteint la session TV. Rien d'autre n'est envoye."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#7c5cff",
+        "to": "#2a1a6e",
+        "glyph": "sparkles"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
+        "path": "mods/remote-panel-scenes"
+      }
+    },
+    {
+      "id": "remote-theme-amoled",
+      "name": "Pure black (OLED)",
+      "version": "1.0.0",
+      "author": "RusTV",
+      "publisher": "RusTV",
+      "category": "remote",
+      "description": "A pure-black phone remote theme for OLED screens: black background, near-black panels and soft borders.",
+      "details": "Phone remote theme. The background is true black (#000) so OLED pixels switch off, panels and buttons are near black with a thin soft border, the directional ring and the OK button are darkened, and the volume bar is filled in light grey while the primary buttons keep the blue accent. Pick it in the phone settings, Theme. Purely visual: no code runs on the phone.",
+      "tags": [
+        "remote",
+        "phone",
+        "theme",
+        "oled",
+        "black",
+        "dark",
+        "amoled"
+      ],
+      "i18n": {
+        "fr": {
+          "name": "Noir pur (OLED)",
+          "description": "Un theme noir pur pour la telecommande du telephone, ideal sur ecran OLED : fond noir, panneaux quasi noirs.",
+          "details": "Theme de la telecommande du telephone. Le fond est noir pur (#000) : les pixels OLED s'eteignent. Panneaux et boutons quasi noirs avec une fine bordure discrete, anneau directionnel et bouton OK assombris, barre de volume grise claire, boutons principaux gardant l'accent bleu. A choisir dans les reglages du telephone, Theme. Purement visuel : aucun code ne s'execute sur le telephone."
+        }
+      },
+      "icon": "icon.svg",
+      "banner": "banner.svg",
+      "art": {
+        "from": "#2a2a2a",
+        "to": "#000000",
+        "glyph": "moon"
+      },
+      "license": "GPL-3.0-or-later",
+      "source": {
+        "repo": "TisaTHor08/rustv",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
+        "path": "mods/remote-theme-amoled"
       }
     },
     {
@@ -478,7 +631,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/skip-intro"
       }
     },
@@ -514,7 +667,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/theme-aurora"
       }
     },
@@ -551,7 +704,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/theme-cinema"
       }
     },
@@ -588,7 +741,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/theme-contrast"
       }
     },
@@ -625,7 +778,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/theme-dracula"
       }
     },
@@ -661,7 +814,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/theme-midnight"
       }
     },
@@ -698,7 +851,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/theme-mono"
       }
     },
@@ -735,7 +888,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/theme-nord"
       }
     },
@@ -772,7 +925,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/theme-paper"
       }
     },
@@ -809,7 +962,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/theme-sunset"
       }
     },
@@ -845,7 +998,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/tiles-anime"
       }
     },
@@ -881,7 +1034,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/tiles-community"
       }
     },
@@ -917,7 +1070,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/tiles-kids"
       }
     },
@@ -953,7 +1106,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/tiles-learning"
       }
     },
@@ -1006,7 +1159,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/tiles-media-tools"
       }
     },
@@ -1042,7 +1195,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/tiles-music-radio"
       }
     },
@@ -1078,7 +1231,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/tiles-news"
       }
     },
@@ -1145,7 +1298,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/tiles-pc-gaming"
       }
     },
@@ -1181,7 +1334,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/tiles-sports"
       }
     },
@@ -1217,7 +1370,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/tiles-world-tv"
       }
     },
@@ -1254,7 +1407,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/tv-zoom"
       }
     },
@@ -1289,7 +1442,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/widget-analog-clock"
       }
     },
@@ -1324,7 +1477,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/widget-daily-quote"
       }
     },
@@ -1359,7 +1512,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/widget-date"
       }
     },
@@ -1394,7 +1547,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/widget-moon-phase"
       }
     },
@@ -1430,7 +1583,7 @@
       "license": "GPL-3.0-or-later",
       "source": {
         "repo": "TisaTHor08/rustv",
-        "commit": "b3237dc28b86596f7fafcc91fda585c0ef066320",
+        "commit": "299ebfdffe5a93fa87e267e4f1bca51433c40dcc",
         "path": "mods/widget-world-clocks"
       }
     }
