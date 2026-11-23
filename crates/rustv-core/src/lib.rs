@@ -1,22 +1,28 @@
 //! RusTV core: remote-control server, input injection, pairing, Bluetooth, text-field detection.
 //! Embedded by the TV shell (`rustv-shell`); contains no UI.
-#[cfg_attr(not(windows), path = "platform/stub/apps.rs")]
+#[cfg_attr(target_os = "linux", path = "platform/linux/apps.rs")]
+#[cfg_attr(all(not(windows), not(target_os = "linux")), path = "platform/stub/apps.rs")]
 pub mod apps;
-#[cfg_attr(not(windows), path = "platform/stub/audio.rs")]
+#[cfg_attr(target_os = "linux", path = "platform/linux/audio.rs")]
+#[cfg_attr(all(not(windows), not(target_os = "linux")), path = "platform/stub/audio.rs")]
 pub mod audio;
 #[cfg_attr(not(windows), path = "platform/stub/bluetooth.rs")]
 pub mod bluetooth;
 pub mod config;
 pub mod core;
-#[cfg_attr(not(windows), path = "platform/stub/icons.rs")]
+#[cfg_attr(target_os = "linux", path = "platform/linux/icons.rs")]
+#[cfg_attr(all(not(windows), not(target_os = "linux")), path = "platform/stub/icons.rs")]
 pub mod icons;
-#[cfg_attr(not(windows), path = "platform/stub/input.rs")]
+#[cfg_attr(target_os = "linux", path = "platform/linux/input.rs")]
+#[cfg_attr(all(not(windows), not(target_os = "linux")), path = "platform/stub/input.rs")]
 pub mod input;
 pub mod platform;
 pub mod server;
-#[cfg_attr(not(windows), path = "platform/stub/smtc.rs")]
+#[cfg_attr(target_os = "linux", path = "platform/linux/smtc.rs")]
+#[cfg_attr(all(not(windows), not(target_os = "linux")), path = "platform/stub/smtc.rs")]
 pub mod smtc;
-#[cfg_attr(not(windows), path = "platform/stub/uia.rs")]
+#[cfg_attr(target_os = "linux", path = "platform/linux/uia.rs")]
+#[cfg_attr(all(not(windows), not(target_os = "linux")), path = "platform/stub/uia.rs")]
 pub mod uia;
 pub mod vault;
 
