@@ -49,7 +49,9 @@ A real NAS was reachable from outside the LAN through the UGREEN Link relay:
 - The tile accepts this address (hint `https://mon-nas.eur81.ug.link`); it is a public HTTPS host with a valid certificate, so `allow_insecure_lan` does not apply.
 - The login page is a Vue/Arco UI with real `<input>` and `<button>` elements. The **Sign in button is disabled until both fields are filled**.
 - Tested with the phone remote protocol: arrow keys move between the username field, the password field and the Sign in button; text typing and OK (Enter) work; the NAS answered the login attempt.
-- **Not verified**: a successful login, the UGOS desktop, opening Theater and playback (the credentials supplied for the test were rejected by the NAS: "Incorrect account or password").
+- Login went through the **two-factor step** (6 digit OTP, with a "Trust this device" box, which the remote can tick with its space key). After that the tile reopens straight on the UGOS desktop: the trusted session is kept in the tile's own profile.
+- **Verified end to end**: UGOS desktop, opening **Theater** (library, posters, Play) and **film playback** over UGREEN Link, driven with the phone remote protocol (arrows between desktop icons, touchpad click on Play). Sound was muted during the test.
+- Rough edges: on the UGOS desktop each icon is two focus stops (the image, then its name), and Theater's own window handles keys itself, so the pointer (phone touchpad mode) is the reliable way to press Play there for now.
 
 ### Remote-control compatibility (`spatnav.js`)
 

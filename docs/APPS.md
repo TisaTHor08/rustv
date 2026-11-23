@@ -62,7 +62,7 @@ Apps you add yourself (custom tiles) and apps provided by mods are not listed he
 |---|---|---|---|---|---|
 | Plex | Votre médiathèque | app.plex.tv | D-pad navigation | Not tested yet |  |
 | Jellyfin | Votre serveur Jellyfin | 192.168.1.10 | asks for your server address | Not tested yet |  |
-| UGREEN Theater | Theater sur votre NAS UGREEN (UGOS) | mon-nas.eur81.ug.link | asks for your server address; accepts self-signed HTTPS on private addresses; D-pad navigation | Partly tested | UGREEN Link login page, typing and D-pad checked up to the two-factor step. Theater itself not yet checked. |
+| UGREEN Theater | Theater sur votre NAS UGREEN (UGOS) | mon-nas.eur81.ug.link | asks for your server address; accepts self-signed HTTPS on private addresses; D-pad navigation | Tested | Checked over UGREEN Link: login with two-factor, UGOS desktop, Theater library and film playback (phone remote: arrows on the desktop, touchpad click on Play). |
 | VLC | Lecteur multimédia | Windows app |  | Not tested yet |  |
 | Emby | Votre médiathèque | app.emby.media | D-pad navigation | Not tested yet |  |
 

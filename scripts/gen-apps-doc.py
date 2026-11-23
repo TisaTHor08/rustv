@@ -18,7 +18,7 @@ OUT = ROOT / "docs/APPS.md"
 # id -> (status, note). Anything absent is "not tested yet". Statuses: ok, partial.
 TESTED = {
     "youtube": ("ok", "Guest playback checked on a second display (Vivaldi app mode); search typing and D-pad work. Some letters can be dropped by YouTube TV's on-screen search."),
-    "ugreen": ("partial", "UGREEN Link login page, typing and D-pad checked up to the two-factor step. Theater itself not yet checked."),
+    "ugreen": ("ok", "Checked over UGREEN Link: login with two-factor, UGOS desktop, Theater library and film playback (phone remote: arrows on the desktop, touchpad click on Play)."),
 }
 
 CATEGORIES = [
