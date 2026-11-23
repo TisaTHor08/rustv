@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { fade } from 'svelte/transition';
   import type { LiveChannel } from './api';
   import { t } from './i18n';
@@ -8,6 +8,7 @@
     type EpgProg, type Recording,
   } from './live.svelte';
   import { invoke } from '@tauri-apps/api/core';
+  import { eg, enableEpg, fetchBuiltinGuide, guideTarget, hideBroken, loadEpg, safeImg, tonightTs } from './epg.svelte';
   import { askConfirm, askText } from './overlays.svelte';
   import { playMedia } from './player.svelte';
   import { prefs, savePrefs } from './prefs.svelte';
@@ -30,7 +31,7 @@
   // guide
   let wStart = $state(Math.floor(Date.now() / 1000 / STEP) * STEP - STEP);
   let selT = $state(Date.now() / 1000);
-  let epg = $state<Record<string, EpgProg[]>>({});
+  let gprogs = $state<Record<string, EpgProg[]>>({});
   let reqId = 0;
 
   // enregistrements
@@ -60,6 +61,11 @@
   const viewLabel = $derived(t(`lv.view.${mode}`));
   const actionRows = $derived.by<GRow[]>(() => {
     const rows: GRow[] = [{ label: t('lv.view', { v: viewLabel }), run: cycleView }];
+    if (mode === 'guide' && guideKind !== 'off') {
+      rows.push({ label: t('epg.tonight'), run: goTonight });
+      rows.push({ label: t('epg.day.prev'), run: () => jump(selT - 86400) });
+      rows.push({ label: t('epg.day.next'), run: () => jump(selT + 86400) });
+    }
     const srcs = prefs.live.sources;
     if (srcs.length > 1) {
       const s = activeSource();
@@ -78,11 +84,32 @@
   });
   const start = $derived(Math.max(0, Math.min(ci - 4, Math.max(0, list.length - VISIBLE))));
   const shown = $derived(list.slice(start, start + VISIBLE));
-  const gStart = $derived(Math.max(0, Math.min(ci - 3, Math.max(0, list.length - G_VIS))));
-  const gShown = $derived(list.slice(gStart, gStart + G_VIS));
 
-  const progsOf = (c?: LiveChannel) => (c ? (epg[c.id] ?? []) : []);
-  const curProg = $derived(progsOf(list[ci]).find((p) => p.start <= selT && selT < p.stop) ?? null);
+  // Guide : le guide de la source de l'utilisateur (XMLTV) prime ; sinon le guide TV automatique (epg.rs).
+  interface GCh {
+    id: string;
+    name: string;
+    logo: string;
+    live: LiveChannel | null;
+  }
+  const guideKind = $derived<'own' | 'builtin' | 'off'>(live.hasEpg ? 'own' : eg.enabled && eg.loaded ? 'builtin' : 'off');
+  const glist = $derived.by<GCh[]>(() => {
+    if (guideKind === 'builtin') {
+      const byId = new Map(live.channels.map((c) => [c.id, c]));
+      let ch = eg.channels;
+      if (gi === FAV_ROW) ch = ch.filter((c) => favs.names.includes(c.name));
+      return ch.map((c) => ({ id: c.id, name: c.name, logo: safeImg(c.icon) || (c.liveChannelId ? (byId.get(c.liveChannelId)?.logo ?? '') : ''), live: c.liveChannelId ? (byId.get(c.liveChannelId) ?? null) : null }));
+    }
+    return list.map((c) => ({ id: c.id, name: c.name, logo: c.logo, live: c }));
+  });
+  const gc = $derived(glist[ci]);
+  const lo = $derived(guideKind === 'builtin' && eg.from ? eg.from : now - 6 * 3600);
+  const hi = $derived(guideKind === 'builtin' && eg.to ? eg.to : now + 47 * 3600);
+  const gStart = $derived(Math.max(0, Math.min(ci - 3, Math.max(0, glist.length - G_VIS))));
+  const gShown = $derived(glist.slice(gStart, gStart + G_VIS));
+
+  const progsOf = (c?: { id: string }) => (c ? (gprogs[c.id] ?? []) : []);
+  const curProg = $derived(progsOf(gc).find((p) => p.start <= selT && selT < p.stop) ?? null);
   const ticks = $derived(Array.from({ length: SPAN / STEP }, (_, i) => ({ ts: wStart + i * STEP, left: (i * STEP * 100) / SPAN })));
   const nowLeft = $derived(((now - wStart) / SPAN) * 100);
   const recs = $derived([...dvr.recs].sort((a, b) => b.start - a.start));
@@ -147,6 +174,25 @@
     await playMedia('live', list.map((x) => ({ name: x.name, url: x.url })), ci, note);
   }
 
+  /** Regarde la chaîne du guide si elle correspond à une chaîne en direct de l'utilisateur. */
+  async function playG(g?: GCh) {
+    const c = g?.live;
+    if (!c) return note(t('epg.noplay'));
+    await playMedia('live', live.channels.map((x) => ({ name: x.name, url: x.url })), live.channels.findIndex((x) => x.id === c.id), note);
+  }
+
+  /** Place le guide sur l'instant `ts` (borné à la plage connue). */
+  function jump(ts: number) {
+    selT = Math.max(lo, Math.min(hi - 60, ts));
+    wStart = Math.floor((selT - 3600) / STEP) * STEP;
+  }
+  async function goTonight() {
+    try {
+      jump(await tonightTs());
+    } catch {}
+    zone = 'channels';
+  }
+
   const run = async (fn: () => Promise<unknown>, ok = '') => {
     try {
       await fn();
@@ -181,19 +227,21 @@
   }
 
   function openProgMenu() {
-    const c = list[ci];
-    if (!c) return;
+    const g = gc;
+    if (!g) return;
+    const c = g.live;
     const p = curProg;
-    const items: MenuItem[] = [{ label: p && p.start <= now && now < p.stop ? t('lv.menu.play') : t('lv.menu.playprog'), run: play }];
-    if (p && p.stop > now) {
+    const items: MenuItem[] = [];
+    if (c) items.push({ label: p && p.start <= now && now < p.stop ? t('lv.menu.play') : t('lv.menu.playprog'), run: () => playG(g) });
+    if (c && p && p.stop > now) {
       if (!isScheduled(c.name, p.start)) items.push({ label: t('lv.menu.record'), run: () => run(async () => note(await scheduleProg(c, p))) });
       if (p.title) items.push({ label: t('lv.menu.series'), run: () => run(async () => (await addSeries(c, p.title), await scheduleProg(c, p).catch(() => ''), note(t('lv.rec.series.ok')))) });
     }
-    if (p && p.start > now) items.push({ label: t('lv.menu.remind'), run: () => (addReminder({ channelName: c.name, title: p.title, start: p.start }), note(t('lv.remind.ok'))) });
-    items.push({ label: t('lv.menu.recordnow'), run: () => recNow(c) });
-    items.push({ label: isFav(c.name) ? t('lv.fav.del') : t('lv.fav.add'), run: () => toggleFav(c.name) });
+    if (p && p.start > now) items.push({ label: t('lv.menu.remind'), run: () => (addReminder({ channelName: g.name, title: p.title, start: p.start }), note(t('lv.remind.ok'))) });
+    if (c) items.push({ label: t('lv.menu.recordnow'), run: () => recNow(c) });
+    items.push({ label: isFav(g.name) ? t('lv.fav.del') : t('lv.fav.add'), run: () => toggleFav(g.name) });
     items.push({ label: t('lv.menu.close'), run: () => {} });
-    menu = { title: p?.title || c.name, i: 0, items };
+    menu = { title: p?.title || g.name, i: 0, items };
   }
 
   function openRecMenu() {
@@ -239,11 +287,19 @@
   }
 
   function guideKey(e: KeyboardEvent): boolean {
-    if (e.key === 'ArrowDown') ci = Math.min(list.length - 1, ci + 1);
+    if (guideKind === 'off') {
+      if (e.key === 'Enter') enableEpg(note).then((ok) => ok && (jump(now), (zone = 'channels')));
+      else if (e.key === 'ArrowLeft') zone = 'groups';
+      else return false;
+      return true;
+    }
+    if (e.key === 'PageDown') jump(selT + 86400);
+    else if (e.key === 'PageUp') jump(selT - 86400);
+    else if (e.key === 'ArrowDown') ci = Math.min(glist.length - 1, ci + 1);
     else if (e.key === 'ArrowUp') ci = Math.max(0, ci - 1);
     else if (e.key === 'ArrowLeft') {
       const p = curProg;
-      const row = progsOf(list[ci]);
+      const row = progsOf(gc);
       const prev = p ? [...row].reverse().find((x) => x.stop <= p.start) : undefined;
       if (prev) {
         selT = prev.start;
@@ -252,15 +308,16 @@
       else zone = 'groups';
     } else if (e.key === 'ArrowRight') {
       const p = curProg;
-      const next = progsOf(list[ci]).find((x) => x.start >= (p ? p.stop : selT) && x.start > selT);
+      const next = progsOf(gc).find((x) => x.start >= (p ? p.stop : selT) && x.start > selT);
       if (next) {
         selT = next.start;
         ensureVisible();
-      } else if (selT < now + 47 * 3600) shiftWindow(1);
+      } else if (selT < hi - STEP) shiftWindow(1);
     } else if (e.key === 'Enter') {
       const p = curProg;
-      if (!p || (p.start <= now && now < p.stop)) play();
-      else openProgMenu();
+      if (!p ? !!gc?.live : p.start <= now && now < p.stop && !!gc?.live) playG(gc);
+      else if (p) openProgMenu();
+      else if (gc) note(t('epg.noplay'));
     } else if (e.key === 'ContextMenu') openProgMenu();
     else return false;
     return true;
@@ -306,20 +363,33 @@
 
   // Charge les programmes de la fenêtre pour les chaînes visibles (avec une marge pour naviguer).
   $effect(() => {
-    if (mode !== 'guide' || !live.hasEpg) return;
-    const ids = list.slice(Math.max(0, gStart - 1), gStart + G_VIS + 1).map((c) => c.id);
+    if (mode !== 'guide' || guideKind === 'off') return;
+    const ids = glist.slice(Math.max(0, gStart - 1), gStart + G_VIS + 1).map((c) => c.id);
     const from = wStart - 3600;
     const to = wStart + SPAN + 4 * 3600;
     const my = ++reqId;
-    fetchEpg(from, to, ids)
+    (guideKind === 'builtin' ? fetchBuiltinGuide : fetchEpg)(from, to, ids)
       .then((r) => {
-        if (my === reqId) epg = { ...epg, ...r };
+        if (my === reqId) gprogs = { ...gprogs, ...r };
       })
       .catch(() => {});
   });
+  // « Voir dans le guide » depuis la recherche : se place sur la chaîne et l'heure du programme.
+  $effect(() => {
+    const tg = guideTarget.v;
+    if (!tg || mode !== 'guide' || guideKind === 'off' || !glist.length) return;
+    const i = glist.findIndex((g) => g.id === tg.channelId || (!!tg.liveChannelId && g.live?.id === tg.liveChannelId));
+    untrack(() => {
+      if (i >= 0) ci = i;
+      jump(tg.start);
+      zone = 'channels';
+      guideTarget.v = null;
+    });
+  });
   $effect(() => {
     void gi;
-    if (ci >= list.length) ci = Math.max(0, list.length - 1);
+    const n = mode === 'guide' ? glist.length : list.length;
+    if (ci >= n) ci = Math.max(0, n - 1);
   });
 
   const prog = (id: string) => {
@@ -333,7 +403,9 @@
   const statusText = (r: Recording) => t(`lv.rec.${r.status}`) + (r.status === 'failed' && r.error ? ` · ${dvrError(r.error)}` : '');
 
   onMount(() => {
+    if (guideTarget.v) mode = 'guide';
     loadLive();
+    loadEpg().then(() => refreshGuide());
     loadDvr();
     startReminders(note);
     const a = setInterval(() => (now = Date.now() / 1000), 20000);
@@ -381,14 +453,22 @@
             {/each}
           </div>
         {/if}
-      {:else if live.loading}
+      {:else if mode === 'guide' && guideKind === 'off' && !(live.loading && prefs.live.sources.length)}
+        <div class="cta">
+          <h2>{t('epg.cta.title')}</h2>
+          <p>{t('epg.cta.sub')}</p>
+          {#if !prefs.live.sources.length}<p>{t('epg.cta.nosource')}</p>{/if}
+          <p class="dim">{t('epg.cta.notice')}</p>
+          {#if eg.enabled}<p class="msg">{t('epg.empty', { e: '' })}</p>{:else}<button class="ctab" class:sel={zone === 'channels'} onclick={() => enableEpg(note)}>{t('epg.cta.enter')}</button>{/if}
+        </div>
+      {:else if guideKind !== 'builtin' && live.loading}
         <p class="msg">{t('live.loading')}</p>
-      {:else if !prefs.live.sources.length}
+      {:else if guideKind !== 'builtin' && !prefs.live.sources.length}
         <p class="msg">{t('live.empty')}</p>
-      {:else if live.error && !live.channels.length}
+      {:else if guideKind !== 'builtin' && live.error && !live.channels.length}
         <p class="msg err">{live.error}</p>
       {:else if mode === 'guide'}
-        {#if !live.hasEpg}
+        {#if false}
           <p class="msg">{t('lv.guide.empty')}</p>
         {:else}
           <div class="guide">
@@ -403,7 +483,7 @@
               {@const idx = gStart + i}
               <div class="grow" class:cur={idx === ci}>
                 <div class="lab">
-                  <span class="logo">{#if c.logo}<img src={c.logo} alt="" loading="lazy" />{:else}{c.name[0]}{/if}</span>
+                  <span class="logo">{#if c.logo}<img src={c.logo} alt="" loading="lazy" onerror={hideBroken} />{:else}{c.name[0]}{/if}</span>
                   <b>{isFav(c.name) ? '★ ' : ''}{c.name}</b>
                 </div>
                 <div class="track">
@@ -418,9 +498,9 @@
                         style:left="{pos.left}%"
                         style:width="calc({pos.width}% - 0.2rem)"
                         onmouseenter={() => ((ci = idx), (selT = Math.max(p.start, wStart)), (zone = 'channels'))}
-                        onclick={() => ((ci = idx), (selT = Math.max(p.start, wStart)), p.start <= now && now < p.stop ? play() : openProgMenu())}
+                        onclick={() => ((ci = idx), (selT = Math.max(p.start, wStart)), p.start <= now && now < p.stop && c.live ? playG(c) : openProgMenu())}
                       >
-                        {#if isScheduled(c.name, p.start)}<i class="reddot"></i>{/if}
+                        {#if c.live && isScheduled(c.live.name, p.start)}<i class="reddot"></i>{/if}
                         <span class="t">{p.title}</span>
                       </button>
                     {/if}
@@ -433,11 +513,13 @@
             {/each}
             <div class="details">
               {#if curProg}
+                {#if safeImg(curProg.icon)}<img class="pic" src={safeImg(curProg.icon)} alt="" loading="lazy" onerror={hideBroken} />{/if}
                 <h2>{curProg.title}</h2>
-                <p class="when">{dayhm(curProg.start)} – {hm(curProg.stop)} · {list[ci]?.name}{isScheduled(list[ci]?.name ?? '', curProg.start) ? ' · ● ' + t('lv.rec.scheduled') : ''}</p>
+                <p class="when">{dayhm(curProg.start)} – {hm(curProg.stop)} · {t('epg.min', { n: Math.round((curProg.stop - curProg.start) / 60) })} · {gc?.name}{curProg.category ? ' · ' + curProg.category : ''}{curProg.rating ? ' · ' + curProg.rating : ''}{gc?.live && isScheduled(gc.live.name, curProg.start) ? ' · ● ' + t('lv.rec.scheduled') : ''}</p>
                 <p class="desc">{curProg.desc}</p>
-              {:else if list[ci]}
-                <h2>{list[ci].name}</h2>
+                {#if gc && !gc.live}<p class="when">{t('epg.guide.readonly')}</p>{/if}
+              {:else if gc}
+                <h2>{gc.name}</h2>
                 <p class="when">{t('lv.guide.noepg')}</p>
               {/if}
             </div>
@@ -467,7 +549,7 @@
       {/if}
     </section>
   </div>
-  <p class="hint">{mode === 'guide' ? t('lv.guide.hint') : mode === 'rec' ? t('lv.rec.hint') : t('live.hint')} · {t('live.zap')}</p>
+  <p class="hint">{mode === 'guide' ? (guideKind === 'off' ? t('epg.cta.enter') : t('epg.guide.hint')) : mode === 'rec' ? t('lv.rec.hint') : t('live.hint')} · {t('live.zap')}</p>
 
   {#if menu}
     <div class="menuwrap" transition:fade={{ duration: 120 }}>
@@ -529,6 +611,13 @@
   .blk.onair { background: var(--glass-strong); }
   .blk.sel { background: var(--accent); color: #fff; opacity: 1; font-weight: 600; z-index: 2; }
   .reddot { flex: none; width: 0.8rem; height: 0.8rem; border-radius: 50%; background: #ff3b3b; box-shadow: 0 0 0 0.12rem rgba(255, 255, 255, 0.7); }
+  .cta { max-width: 56rem; padding: 1rem 0; }
+  .cta h2 { margin: 0 0 0.8rem; font-size: 2rem; }
+  .cta p { margin: 0.4rem 0; font-size: 1.3rem; line-height: 1.5; color: var(--muted); }
+  .cta .dim { font-size: 1.05rem; }
+  .ctab { margin-top: 1rem; padding: 0.9rem 1.6rem; border: 0; border-radius: 1rem; background: var(--glass-strong); color: var(--text); font: inherit; font-size: 1.3rem; }
+  .ctab.sel { background: var(--accent); color: #fff; font-weight: 600; }
+  .details .pic { float: right; max-height: 7rem; max-width: 12rem; margin-left: 1rem; border-radius: 0.6rem; object-fit: cover; }
   .noepg { position: absolute; inset: 0; display: flex; align-items: center; padding-left: 0.8rem; color: var(--muted); font-size: 1rem; border-radius: 0.7rem; background: rgba(255, 255, 255, 0.04); }
   .details { margin-top: 0.8rem; padding: 0.9rem 1.2rem; border-radius: 1rem; background: var(--glass); flex: 1; min-height: 0; overflow: hidden; }
   .details h2 { margin: 0; font-size: 1.5rem; }

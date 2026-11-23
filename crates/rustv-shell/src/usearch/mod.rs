@@ -22,6 +22,7 @@ use tauri::{AppHandle, Emitter, Manager};
 const MAX_QUERY: usize = 100;
 const MAX_FOLDERS: usize = 32;
 const MAX_FILE_HITS: usize = 30;
+const MAX_TV_HITS: usize = 8;
 
 pub fn dir() -> PathBuf {
     settings::dir().join("search")
@@ -264,7 +265,7 @@ fn run_query(app: &AppHandle, q: &str, seq: u64, lang: &str, ui_country: &str) -
     let q = q.trim();
     let n = q.chars().count();
     if !(2..=MAX_QUERY).contains(&n) {
-        return Ok(json!({ "seq": seq, "titles": [], "library": [], "files": [], "services": [], "tmdb": "idle" }));
+        return Ok(json!({ "seq": seq, "titles": [], "library": [], "files": [], "services": [], "programmes": [], "epg": "off", "tmdb": "idle" }));
     }
     let cfg = load_config();
     let provs = providers::all();
@@ -279,9 +280,12 @@ fn run_query(app: &AppHandle, q: &str, seq: u64, lang: &str, ui_country: &str) -
         );
     }
     let services: Vec<Value> = provs.iter().map(|p| json!({ "id": p.id, "name": p.name, "tileId": p.tile, "url": p.url(q, lang), "origin": p.origin, "kinds": p.kinds })).collect();
+    // Programmes TV du guide (cache local, aucun réseau) : « À la TV ».
+    let programmes = crate::epg::search_json(app, q, MAX_TV_HITS);
+    let epg_state = crate::epg::state_label(app);
     let _ = app.emit(
         "usearch-partial",
-        json!({ "seq": seq, "files": files, "library": library, "services": services }),
+        json!({ "seq": seq, "files": files, "library": library, "services": services, "programmes": programmes, "epg": epg_state }),
     );
 
     // ---- partie distante, en parallèle ----
@@ -355,6 +359,8 @@ fn run_query(app: &AppHandle, q: &str, seq: u64, lang: &str, ui_country: &str) -
         "library": library,
         "files": files,
         "services": services,
+        "programmes": programmes,
+        "epg": epg_state,
         "tmdb": tmdb_state,
         "country": country,
         "errors": errors,
@@ -368,7 +374,8 @@ fn run_query(app: &AppHandle, q: &str, seq: u64, lang: &str, ui_country: &str) -
 /// `{ seq, titles:[{id,kind,title,year,poster,overview,providers:[{name,kind,id?,tileId?,url?,mapped}]}],
 ///    library:[{source,title,year?,kind,parent?,tileId,url}], files:[{source:"files",title,year,kind,sub,path,playable}],
 ///    services:[{id,name,tileId,url,origin}], tmdb:"idle|off|nokey|ok|error", country, errors:{tmdb?,plex?,jellyfin?}, attribution }`.
-/// Un événement `usearch-partial` `{ seq, files, library, services }` part avant la partie réseau.
+/// `programmes` : programmes du guide TV (voir `epg_search`), `epg` : "off" | "empty" | "ok".
+/// Un événement `usearch-partial` `{ seq, files, library, services, programmes, epg }` part avant la partie réseau.
 /// `Err("cancelled")` si une recherche plus récente a été lancée.
 #[tauri::command]
 pub async fn usearch_query(app: AppHandle, q: String, opts: Option<Value>) -> Result<Value, String> {

@@ -5,7 +5,8 @@
   import { api } from './api';
   import { t } from './i18n';
   import { lib, scanLibrary } from './library.svelte';
-  import { live, loadLive } from './live.svelte';
+  import { enableEpg, guideTarget, hideBroken, loadEpg, safeImg, whenLabel, type EpgHit } from './epg.svelte';
+  import { addReminder, dvrError, live, loadLive, recordNow, scheduleProg, startReminders } from './live.svelte';
   import { playMedia } from './player.svelte';
   import { prefs } from './prefs.svelte';
   import './settings/usearch.strings';
@@ -21,7 +22,7 @@
     note,
   }: { tiles: DTile[]; onclose: () => void; onopen: (t: DTile) => void; onmedia: (tab: 'movies' | 'series' | 'photos' | 'music') => void; note: (m: string) => void } = $props();
 
-  type Section = 'where' | 'libs' | 'apps' | 'channels' | 'inapp';
+  type Section = 'where' | 'libs' | 'tv' | 'apps' | 'channels' | 'inapp';
   interface Chip {
     label: string;
     sub?: string;
@@ -36,6 +37,7 @@
     color?: string;
     icon?: string;
     poster?: string;
+    img?: string;
     chips?: Chip[];
     run?: () => void;
   }
@@ -50,6 +52,8 @@
   let seq = 0; // numéro de la dernière recherche envoyée (non réactif : sert à ignorer les réponses périmées)
   let timer: ReturnType<typeof setTimeout> | undefined;
   let unlisten: (() => void) | undefined;
+  let bump = $state(0); // incremente pour relancer la recherche (guide TV active)
+  let menu = $state<{ title: string; items: { label: string; run: () => void | Promise<void> }[]; i: number } | null>(null);
   let libOn = $state(true); // source « médiathèque locale » activée dans les réglages
 
   onMount(() => {
@@ -57,6 +61,7 @@
     // Les chaînes et la médiathèque sont chargées en arrière-plan pour pouvoir être cherchées.
     if (prefs.live.sources.length) loadLive().catch(() => {});
     scanLibrary().catch(() => {});
+    loadEpg().catch(() => {});
     usearch.getConfig().then((c) => (libOn = c.sources.library)).catch(() => {});
     usearch.scan(false).catch(() => {}); // met à jour l'index des dossiers si besoin (au plus une fois par heure)
     usearch.onPartial((p) => {
@@ -72,6 +77,7 @@
   // Saisie → recherche distante après 350 ms sans frappe ; une nouvelle saisie rend la précédente caduque.
   $effect(() => {
     const s = q.trim();
+    void bump;
     clearTimeout(timer);
     ri = 0;
     ci = 0;
@@ -156,8 +162,8 @@
   };
 
   // ---------- lignes ----------
-  const view = $derived<{ titles: UResult['titles']; library: ULib[]; files: UFile[]; services: UService[] } | null>(
-    res ? res : partial ? { titles: [], library: partial.library, files: partial.files, services: partial.services } : null,
+  const view = $derived<{ titles: UResult['titles']; library: ULib[]; files: UFile[]; services: UService[]; programmes: EpgHit[]; epg: UResult['epg'] } | null>(
+    res ? res : partial ? { titles: [], library: partial.library, files: partial.files, services: partial.services, programmes: partial.programmes ?? [], epg: partial.epg ?? 'off' } : null,
   );
 
   const rows = $derived.by<Row[]>(() => {
@@ -213,6 +219,21 @@
     }
     out.push(...libs);
 
+    // 2b) A la TV : programmes du guide (cache local), ou invitation a activer le guide
+    for (const h of view?.programmes ?? []) {
+      out.push({
+        section: 'tv',
+        title: h.title,
+        sub: [whenLabel(h.start, h.stop), h.category].filter(Boolean).join(' \u00b7 '),
+        badge: h.channelName,
+        img: safeImg(h.channelIcon) || undefined,
+        run: () => (h.now && h.playable ? playHit(h) : openHitMenu(h)),
+      });
+    }
+    if (view && view.epg === 'off' && q.trim().length >= 2) {
+      out.push({ section: 'tv', title: t('epg.cta.title'), sub: t('epg.cta.sub'), run: () => enableEpg(note).then((ok) => ok && bump++) });
+    }
+
     // 3) Applications
     for (const x of tiles) {
       if (fold(x.name).includes(s)) out.push({ section: 'apps', title: x.name, sub: x.desc, color: x.color, icon: x.icon, run: () => (onclose(), onopen(x)) });
@@ -249,7 +270,7 @@
   };
   const selChip = $derived(chipIdx(row));
 
-  const label = (s: Section) => t(s === 'where' ? 'usearch.where' : s === 'libs' ? 'usearch.libs' : s === 'apps' ? 'search.apps' : s === 'channels' ? 'search.channels' : 'usearch.inapp');
+  const label = (s: Section) => t(s === 'where' ? 'usearch.where' : s === 'libs' ? 'usearch.libs' : s === 'tv' ? 'epg.search.group' : s === 'apps' ? 'search.apps' : s === 'channels' ? 'search.channels' : 'usearch.inapp');
 
   const hasTitles = $derived(!!res && res.titles.length > 0);
   const nokey = $derived(res?.tmdb === 'nokey' && q.trim().length >= 2);
@@ -259,6 +280,46 @@
     const k = Object.values(e)[0];
     return k ? t(`usearch.err.${k}`) : '';
   });
+
+  // ---------- programmes TV ----------
+  function playHit(h: EpgHit) {
+    const list = live.channels;
+    const i = list.findIndex((x) => x.id === h.liveChannelId);
+    if (i < 0) return note(t('epg.noplay'));
+    onclose();
+    playMedia('live', list.map((x) => ({ name: x.name, url: x.url })), i, note);
+  }
+
+  async function recordHit(h: EpgHit) {
+    const c = live.channels.find((x) => x.id === h.liveChannelId);
+    if (!c) return note(t('epg.noplay'));
+    try {
+      if (h.now) await recordNow(c, Math.max(1, Math.min(720, Math.ceil((h.stop - Date.now() / 1000) / 60) + 1)));
+      else await scheduleProg(c, h);
+      note(t('lv.rec.ok'));
+    } catch (e) {
+      note(dvrError(e));
+    }
+  }
+
+  function showInGuide(h: EpgHit) {
+    const tile = tiles.find((x) => x.id === 'live');
+    if (!tile) return note(t('epg.noguidetile'));
+    guideTarget.v = { channelId: h.channelId, liveChannelId: h.liveChannelId, start: h.start };
+    onclose();
+    onopen(tile);
+  }
+
+  function openHitMenu(h: EpgHit) {
+    const items: { label: string; run: () => void | Promise<void> }[] = [];
+    const nowTs = Date.now() / 1000;
+    if (h.playable) items.push({ label: t('epg.menu.watch'), run: () => playHit(h) });
+    if (h.start > nowTs) items.push({ label: t('epg.menu.remind'), run: () => (startReminders(note), addReminder({ channelName: h.channelName, title: h.title, start: h.start }), note(t('lv.remind.ok'))) });
+    if (h.playable && h.stop > nowTs) items.push({ label: t('epg.menu.record'), run: () => recordHit(h) });
+    items.push({ label: t('epg.menu.guide'), run: () => showInGuide(h) });
+    items.push({ label: t('epg.menu.close'), run: () => {} });
+    menu = { title: `${h.title} \u00b7 ${h.channelName}`, items, i: 0 };
+  }
 
   function moveChip(dir: -1 | 1) {
     const cs = row?.chips;
@@ -275,6 +336,17 @@
 
   function onKey(e: KeyboardEvent) {
     const stop = () => (e.preventDefault(), e.stopImmediatePropagation());
+    if (menu) {
+      stop();
+      if (e.key === 'ArrowDown') menu.i = Math.min(menu.items.length - 1, menu.i + 1);
+      else if (e.key === 'ArrowUp') menu.i = Math.max(0, menu.i - 1);
+      else if (e.key === 'Enter') {
+        const it = menu.items[menu.i];
+        menu = null;
+        it?.run();
+      } else if (e.key === 'Escape' || e.key === 'Backspace' || e.key === 'ContextMenu') menu = null;
+      return;
+    }
     if (e.key === 'Escape') {
       stop();
       play('back');
@@ -329,7 +401,7 @@
         <div class="row" class:sel={i === sel} class:wide={!!h.chips} onmouseenter={() => (ri = i)} role="presentation">
           <button class="hit" onclick={() => (h.chips ? h.chips.find((c) => c.enabled)?.run() : h.run?.())}>
             <span class="ic" class:poster={!!h.poster} style:background={h.color ?? 'var(--glass-strong)'}>
-              {#if h.poster}<img src={h.poster} alt="" />{:else if h.icon}<img src={iconSrc(h.icon)} alt="" />{:else}{h.title[0]}{/if}
+              {#if h.poster}<img src={h.poster} alt="" />{:else if h.img}<img src={h.img} alt="" onerror={hideBroken} />{:else if h.icon}<img src={iconSrc(h.icon)} alt="" />{:else}{h.title[0]}{/if}
             </span>
             <span class="tx"><b>{h.title}</b>{#if h.sub}<small>{h.sub}</small>{/if}</span>
             {#if h.badge}<span class="badge">{h.badge}</span>{/if}
@@ -350,6 +422,16 @@
       {#if hasTitles}<p class="attr"><b>TMDB</b> · <b>JustWatch</b> — {t('usearch.attr')}</p>{/if}
     </div>
     <p class="hint">{t('search.hint')}</p>
+    {#if menu}
+      <div class="menuwrap" transition:fade={{ duration: 120 }}>
+        <div class="menu">
+          <h3>{menu.title}</h3>
+          {#each menu.items as it, i}
+            <button class:sel={i === menu.i} onmouseenter={() => menu && (menu.i = i)} onclick={() => ((menu = null), it.run())}>{it.label}</button>
+          {/each}
+        </div>
+      </div>
+    {/if}
   </div>
 </div>
 
@@ -380,5 +462,11 @@
   .none { color: var(--muted); font-size: 1.3rem; padding: 1rem 0.4rem; }
   .note { color: var(--muted); font-size: 0.95rem; padding: 0.5rem 0.4rem 0; margin: 0; }
   .attr { color: var(--muted); font-size: 0.78rem; padding: 0.8rem 0.4rem 0; margin: 0; opacity: 0.8; }
+  .sheet { position: relative; }
+  .menuwrap { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; border-radius: 1.8rem; background: rgba(0, 0, 0, 0.55); }
+  .menu { min-width: 34rem; max-width: 90%; padding: 1.4rem; border-radius: 1.4rem; background: var(--bg); border: 0.1rem solid var(--glass-strong); }
+  .menu h3 { margin: 0 0 0.9rem; font-size: 1.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .menu button { display: block; width: 100%; padding: 0.8rem 1.1rem; margin: 0.15rem 0; border: 0; border-radius: 0.8rem; background: transparent; color: var(--text); font: inherit; font-size: 1.25rem; text-align: left; }
+  .menu button.sel { background: var(--accent); color: #fff; font-weight: 600; }
   .hint { margin: 1rem 0 0; font-size: 0.95rem; color: var(--muted); }
 </style>

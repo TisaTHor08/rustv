@@ -11,6 +11,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
   directly, plus matches in your private libraries (UGREEN Theater, Plex, Jellyfin, the local library) and in mapped network drives and folders you choose.
   Mods can add their own search sources with `contributes.search`.
 - **Launch animation for web apps**: the app window stays hidden until its page has loaded, the home screen shows an animation, ignores clicks and keys while it waits (Back cancels), and a slow site gets a hint after 8 s and a 25 s limit. This also removes the empty window through which the home screen used to show.
+- **Automatic TV guide** ([docs/LIVE-TV.md](docs/LIVE-TV.md)): an optional, off-by-default programme guide (XML-TV-Fr, French TNT) that needs no source or account, with day navigation and a "Tonight" jump in Live TV, an "On TV" group in universal search, reminders, and playing or recording when the channel matches one of your tuner or M3U channels. Third-party data with no explicit licence; one download per day at most.
 - **Web tiles accept several addresses** (for example the NAS local address followed by its UGREEN Link address): the first one that answers is used.
 
 ## [1.2.0] - 2026-11-23
