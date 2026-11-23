@@ -3,7 +3,7 @@
 RusTV is made of four parts that talk to each other over a small, encrypted protocol.
 
 ```
- Phone (remote/)  ──TCP / Bluetooth──▶  rustv-service  ◀──▶  rustv-shell (Tauri, planned)
+ Phone (remote/)  ──TCP / Bluetooth──▶  rustv-core  ◀──▶  rustv-shell (Tauri)
                                           │  input injection, pairing, UI Automation
                                           ▼
                                   Windows apps / web apps / VLC
@@ -19,7 +19,7 @@ Specified in [PROTOCOL.md](PROTOCOL.md).
 ### `crates/rustv-core`
 Library embedded by the shell: accepts phone connections (TCP port 47820, Bluetooth RFCOMM,
 UDP discovery beacon on 47821), injects keyboard/mouse input with `SendInput`, launches apps, detects focused
-text fields with UI Automation, handles Alt+Tab and "pin on top", extracts app icons. It reports phone
+text fields with UI Automation, handles Alt+Tab and "pin on top", extracts app icons, and drives the Windows master volume (`audio.rs`, Core Audio: read, set and watch, so the phone's volume bar follows the PC through `setVolume` and `volume`). The Bitwarden driver lives in `vault.rs`. It reports phone
 commands that concern the TV (Home, start/stop TV mode, device changes) to the shell through an event channel.
 
 Design note: the phone is "just a keyboard" for the TV interface. Arrow keys sent by the remote are real key
@@ -48,6 +48,10 @@ pages, top-bar widgets, site adapters and translations. Execution model:
   permissions the user accepted (stored in `mods-state.json`).
 - Site adapters are injected into web app windows as initialization scripts, only if the user approved the matching `inject:` permission.
 - The catalog installs a *full commit* of a GitHub repository (content-addressed), previews the real manifest, then asks for approval.
+
+**Remote mods bundle.** `mods.rs` also builds the bundle of phone remote contributions (`remote_bundle()`): it reads `contributes.remote` of the
+enabled mods, whitelists and clamps every action, sanitizes theme variables and CSS (64 KB max, no network), and hands the result to the core, which sends it to
+phones as `remoteMods` (on request with `getRemoteMods`, and when mods change). `openTile` from a panel button reaches the shell as an event that launches the tile.
 
 ### Ad-blocking browser for YouTube (`crates/rustv-shell/src/browser.rs`)
 Tiles flagged `"adblock_browser": true` in `catalog.json` (YouTube only for now) open in an installed Chromium browser instead of WebView2.
