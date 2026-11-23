@@ -105,13 +105,15 @@ export interface ModWidget {
   modId: string;
   src: string;
   width: number;
+  /** Emplacement demandé par le manifeste : topbar (défaut), hero, bar, corner-bl, corner-br. */
+  slot: string;
 }
 
 export function modWidgets(): ModWidget[] {
   return enabled().flatMap((m) =>
     ((m.manifest.contributes?.widgets as any[]) ?? [])
-      .filter((w) => (w.slot ?? 'topbar') === 'topbar' && w.entry)
-      .map((w) => ({ key: `${m.id}/${w.id}`, modId: m.id, src: m.base + String(w.entry).replace(/^\/+/, ''), width: Number(w.width) || 12 })),
+      .filter((w) => w.entry)
+      .map((w) => ({ key: `${m.id}/${w.id}`, modId: m.id, src: m.base + String(w.entry).replace(/^\/+/, ''), width: Number(w.width) || 12, slot: String(w.slot ?? 'topbar') })),
   );
 }
 

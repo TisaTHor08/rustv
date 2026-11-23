@@ -7,6 +7,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **Interface styles** ([docs/OS-STYLES.md](docs/OS-STYLES.md)): Settings > Appearance > Interface style switches the home screen live between the original RusTV look and recreations of the Google TV and Roku home screens (layout, motion, palette, radius and font also re-skin the other screens), plus a framework to add more styles with two files, and a Widget position setting (auto, four corners, hidden).
 - **Universal search** ([docs/SEARCH.md](docs/SEARCH.md)): type a title and see which streaming services have it (with a free TMDB key, data from JustWatch) and open them
   directly, plus matches in your private libraries (UGREEN Theater, Plex, Jellyfin, the local library) and in mapped network drives and folders you choose.
   Mods can add their own search sources with `contributes.search`.

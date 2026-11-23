@@ -9,6 +9,7 @@
 | [DEVELOPMENT.md](DEVELOPMENT.md) | Contributors | Setup, repository map, build/test/debug workflow, user data, safety |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Contributors | Components and how they talk to each other |
 | [PROTOCOL.md](PROTOCOL.md) | Contributors, auditors | Wire protocol: handshake, encryption, messages |
+| [OS-STYLES.md](OS-STYLES.md) | Everyone, contributors | Interface styles (Google TV, Roku...), widget positions, how to add a style |
 | [APPS.md](APPS.md) | Everyone | Natively supported apps and how well each one is tested (generated) |
 | [BUILD-MACOS.md](BUILD-MACOS.md) | Contributors with a Mac | Build the macOS app, fix macOS-only problems, send a pull request |
 | [AGENT-BUILD-MACOS.md](AGENT-BUILD-MACOS.md) | AI agents and their owners | Ready-to-paste block that builds the macOS version and sends the result back |
