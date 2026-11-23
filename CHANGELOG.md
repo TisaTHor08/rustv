@@ -7,6 +7,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **Google account sharing** ([docs/GOOGLE-ACCOUNT.md](docs/GOOGLE-ACCOUNT.md)), opt-in: Settings > Integrations > Google account opens a Google sign-in window (own `google` profile, standard Chromium user agent, password typed on Google's page and never seen by RusTV). Once connected, the Google session cookies (google.com, youtube.com) are copied into the profile of each allowed web app at launch so "Sign in with Google" popups and One Tap find the session; popups to accounts.google.com open in a RusTV window, a small script picks the only listed account and accepts identity-only consent (never other scopes). Per-app switch (catalog and mods can declare `googleSignIn`), Disconnect erases the Google cookies everywhere. Untested with a real account; Google may refuse copied sessions.
 - **Phone remote models** ([docs/REMOTE-MODELS.md](docs/REMOTE-MODELS.md)): the phone remote can take the shape of the remote that ships with the chosen TV style (Google TV, Samsung, LG, Hisense, Philips, Fire TV, Apple TV, Roku).
   The PC announces its TV style in `state.osStyle`; the phone follows it automatically, or you pick a model in the phone settings.
 - **Tizen and webOS interface styles** ([docs/OS-STYLES.md](docs/OS-STYLES.md)): a Samsung-like launcher bar with previews and an ambient clock mode, and an LG-like rotating banner with a wide-card launcher (Inter and Noto Sans, OFL, bundled).

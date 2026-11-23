@@ -34,7 +34,7 @@ Working examples are in [`mods/`](../mods).
 ```
 
 Rules: `id` is `a-z`, `0-9` and `-` (2 to 40 characters) and **must equal the folder name**. `name` and `version` are
-required. Categories are `video`, `tv`, `music`, `library`, `games`. Tile `kind` is `web`, `native` (an executable or URI,
+required. Categories are `video`, `tv`, `music`, `library`, `games`. A web tile can declare `"googleSignIn": true` so it is listed in Settings > Google account and receives the shared Google session when the user has enabled it ([GOOGLE-ACCOUNT.md](GOOGLE-ACCOUNT.md)). Tile `kind` is `web`, `native` (an executable or URI,
 needs the `launch` permission) or implied `page` for entries under `pages`.
 
 ## Contributions
