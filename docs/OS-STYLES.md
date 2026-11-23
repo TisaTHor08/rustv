@@ -21,10 +21,9 @@ Settings > Appearance > Widget position moves the clock / phones / weather / mod
 | `roku` | Roku style | available |
 | `vidaa` | VIDAA style | available |
 | `titan` | Titan style | available |
-| `tizen`, `webos`, `fire`, `tvos` | (to come) | ids reserved in the registry, hidden until their files exist |
 | `tizen` | Tizen style | available |
 | `webos` | webOS style | available |
-| `vidaa`, `titan`, `fire`, `tvos` | (to come) | ids reserved in the registry, hidden until their files exist |
+| `fire`, `tvos` | (to come) | ids reserved in the registry, hidden until their files exist |
 
 ## Framework contract
 
