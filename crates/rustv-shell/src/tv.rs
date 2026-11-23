@@ -5,7 +5,7 @@ use serde_json::Value;
 use tauri::{AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize, Url, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 
 const CATALOG: &str = include_str!("catalog.json");
-const SPATNAV: &str = include_str!("spatnav.js");
+pub(crate) const SPATNAV: &str = include_str!("spatnav.js");
 
 pub fn catalog() -> Vec<Value> {
     serde_json::from_str(CATALOG).expect("catalog.json valide")
@@ -43,10 +43,23 @@ pub fn monitors(app: &AppHandle) -> Vec<MonInfo> {
     v
 }
 
-fn place_full(win: &WebviewWindow, m: &MonInfo) {
+pub(crate) fn place_full(win: &WebviewWindow, m: &MonInfo) {
     let _ = win.set_position(PhysicalPosition::new(m.x, m.y));
     let _ = win.set_size(PhysicalSize::new(m.w, m.h));
     let _ = win.set_fullscreen(true);
+}
+
+/// Place une fenêtre en plein écran sur l'écran de la TV (ou le premier écran).
+pub(crate) fn place_on_tv(app: &AppHandle, w: &WebviewWindow) {
+    let shell = app.state::<Shell>();
+    let mons = monitors(app);
+    let idx = {
+        let tv = shell.tv.lock().unwrap();
+        if tv.active { tv.monitor } else { 0 }
+    };
+    if let Some(m) = mons.get(idx) {
+        place_full(w, m);
+    }
 }
 
 /// Windows refuse souvent de donner le focus à un process en arrière-plan : on passe par rustv-core.
@@ -227,7 +240,7 @@ pub fn reflow(app: &AppHandle) {
 pub fn go_home(app: &AppHandle) {
     crate::browser::close();
     for (label, w) in app.webview_windows() {
-        if label.starts_with("app-") {
+        if label.starts_with("app-") || label == "gauth" {
             let _ = w.destroy();
         }
     }
@@ -303,7 +316,7 @@ pub fn launch_value(app: &AppHandle, tile: &Value, url: Option<String>) -> Resul
             {
                 if let Some(found) = crate::browser::select(id, &tile) {
                     for (label, w) in app.webview_windows() {
-                        if label.starts_with("app-") {
+                        if label.starts_with("app-") || label == "gauth" {
                             let _ = w.destroy();
                         }
                     }
@@ -386,7 +399,7 @@ pub(crate) fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tau
     crate::browser::close();
     let shell = app.state::<Shell>();
     for (label, w) in app.webview_windows() {
-        if label.starts_with("app-") {
+        if label.starts_with("app-") || label == "gauth" {
             let _ = w.destroy();
         }
     }
@@ -401,8 +414,17 @@ pub(crate) fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tau
     let t0 = std::time::Instant::now();
     let shown = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
     let (shown_pl, id_pl) = (shown.clone(), id.to_string());
-    let mut b = WebviewWindowBuilder::new(app, &label, WebviewUrl::External(url))
+    // Compte Google partagé : la page ne se charge qu'après la copie des cookies de session (voir google.rs).
+    let google = crate::google::wants(id, tile);
+    let target = url.clone();
+    let first = if google { "about:blank".parse::<Url>().expect("url") } else { url };
+    let (app_nw, id_nw) = (app.clone(), id.to_string());
+    let mut b = WebviewWindowBuilder::new(app, &label, WebviewUrl::External(first))
+        .on_new_window(move |u, f| crate::google::on_new_window(&app_nw, &id_nw, google, u, f))
         .on_page_load(move |w, payload| {
+            if payload.url().scheme() == "about" {
+                return; // page vide intermédiaire (Google) : ni animation de lancement ni affichage de la fenêtre
+            }
             let phase = match payload.event() {
                 tauri::webview::PageLoadEvent::Started => "started",
                 tauri::webview::PageLoadEvent::Finished => "finished",
@@ -439,10 +461,16 @@ pub(crate) fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tau
     if !mod_scripts.is_empty() {
         b = b.initialization_script(&mod_scripts);
     }
+    if google {
+        b = b.initialization_script(crate::google::SIGNIN_JS);
+    }
     if let Some(ua) = tile["ua"].as_str() {
         b = b.user_agent(ua);
     }
     let w = b.build()?;
+    if google {
+        crate::google::prepare_and_navigate(app, id, w.clone(), target);
+    }
     let mons = monitors(app);
     let idx = if shell.tv.lock().unwrap().active { shell.tv.lock().unwrap().monitor } else { 0 };
     if let Some(m) = mons.get(idx) {
@@ -473,7 +501,7 @@ fn reveal(w: &WebviewWindow) {
 #[tauri::command]
 pub async fn launch_cancel(app: AppHandle) -> Result<(), String> {
     for (label, w) in app.webview_windows() {
-        if label.starts_with("app-") {
+        if label.starts_with("app-") || label == "gauth" {
             let _ = w.destroy();
         }
     }

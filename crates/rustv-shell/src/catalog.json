@@ -1,6 +1,7 @@
 [
   {
     "id": "youtube",
+    "googleSignIn": true,
     "name": "YouTube",
     "desc": "Vidéos, en mode TV",
     "category": "video",
@@ -147,6 +148,7 @@
   },
   {
     "id": "spotify",
+    "googleSignIn": true,
     "name": "Spotify",
     "desc": "Musique et podcasts",
     "category": "music",
@@ -158,6 +160,7 @@
   },
   {
     "id": "plex",
+    "googleSignIn": true,
     "name": "Plex",
     "desc": "Votre médiathèque",
     "category": "library",
@@ -259,6 +262,7 @@
   },
   {
     "id": "tubi",
+    "googleSignIn": true,
     "name": "Tubi",
     "desc": "Films et séries gratuits",
     "category": "video",
@@ -270,6 +274,7 @@
   },
   {
     "id": "rakuten",
+    "googleSignIn": true,
     "name": "Rakuten TV",
     "desc": "Films gratuits et location",
     "category": "video",
@@ -303,6 +308,7 @@
   },
   {
     "id": "vimeo",
+    "googleSignIn": true,
     "name": "Vimeo",
     "desc": "Vidéos indépendantes",
     "category": "video",
@@ -314,6 +320,7 @@
   },
   {
     "id": "dailymotion",
+    "googleSignIn": true,
     "name": "Dailymotion",
     "desc": "Vidéos et actualités",
     "category": "video",
@@ -336,6 +343,7 @@
   },
   {
     "id": "kick",
+    "googleSignIn": true,
     "name": "Kick",
     "desc": "Streaming en direct",
     "category": "video",
@@ -370,6 +378,7 @@
   },
   {
     "id": "ytmusic",
+    "googleSignIn": true,
     "name": "YouTube Music",
     "desc": "Musique en streaming",
     "category": "music",
@@ -381,6 +390,7 @@
   },
   {
     "id": "deezer",
+    "googleSignIn": true,
     "name": "Deezer",
     "desc": "Musique en streaming",
     "category": "music",
@@ -392,6 +402,7 @@
   },
   {
     "id": "soundcloud",
+    "googleSignIn": true,
     "name": "SoundCloud",
     "desc": "Musique et créateurs",
     "category": "music",
@@ -414,6 +425,7 @@
   },
   {
     "id": "tidal",
+    "googleSignIn": true,
     "name": "TIDAL",
     "desc": "Musique haute qualité",
     "category": "music",
