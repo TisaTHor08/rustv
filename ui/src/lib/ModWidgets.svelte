@@ -1,9 +1,12 @@
 <script lang="ts">
   import { attachHost } from './modHost';
   import { modWidgets } from './mods.svelte';
+  import { resolveWidgetSlot, type WidgetSlot } from './os/registry';
 
-  let { toast }: { toast: (m: string) => void } = $props();
-  const widgets = $derived(modWidgets());
+  // `at` + `provided` : n'affiche que les widgets dont l'emplacement (demandé par le manifeste, ramené à l'emplacement
+  // fourni par le style le plus proche) est `at`. Sans `at` : tous les widgets (comportement d'origine / dock).
+  let { toast, at, provided = ['status'] }: { toast: (m: string) => void; at?: WidgetSlot; provided?: WidgetSlot[] } = $props();
+  const widgets = $derived(modWidgets().filter((w) => !at || resolveWidgetSlot(w.slot, provided) === at));
 
   /** Action Svelte : branche l'hôte RPC sur l'iframe du widget. */
   function host(node: HTMLIFrameElement, modId: string) {

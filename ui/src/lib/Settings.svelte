@@ -21,6 +21,8 @@
   import { createPage as createPlayer } from './settings/player.svelte';
   import { createPage as createUsearch } from './settings/usearch.svelte';
   import { createPage as createEpg } from './settings/epg.svelte';
+  import { availableStyles, resolveStyle } from './os/registry';
+  import '../lib/os/strings';
 
   let {
     st,
@@ -254,6 +256,8 @@
       case 'appearance':
         return [
           choice(t('settings.language'),['fr', 'en'] as const, () => prefs.lang, (v) => set('lang', v), (v) => (v === 'fr' ? 'Français' : 'English')),
+          choice(`${t('os.label')} · ${t(resolveStyle(prefs.osStyle).descKey)}`, availableStyles().map((x) => x.id) as string[], () => resolveStyle(prefs.osStyle).id as string, (v) => set('osStyle', v), (v) => t(resolveStyle(v).nameKey)),
+          choice(t('os.widgets'), ['auto', 'tr', 'tl', 'br', 'bl', 'hidden'] as const, () => prefs.widgetPos, (v) => set('widgetPos', v), (v) => t(`os.wp.${v}`)),
           choice(t('settings.theme'), ['dark', 'light', 'auto'] as const, () => prefs.theme, (v) => set('theme', v), (v) => t(`theme.${v}`)),
           { ...choice(t('settings.accent'), ACCENTS, () => prefs.accent, (v) => set('accent', v), () => ''), swatch: prefs.accent },
           ...(modThemes().length

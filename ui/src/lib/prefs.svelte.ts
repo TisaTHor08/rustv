@@ -25,6 +25,10 @@ export interface Prefs {
   /** Notes personnelles des mods (1 à 5 étoiles), stockées uniquement sur ce PC. */
   modRatings: Record<string, number>;
   tint: boolean;
+  /** Style d'interface (« façon OS TV », voir src/lib/os). */
+  osStyle: string;
+  /** Position du groupe de widgets (horloge, météo, téléphones, widgets de mods) : 'auto' = celle du style. */
+  widgetPos: 'auto' | 'tr' | 'tl' | 'br' | 'bl' | 'hidden';
   clock24: boolean;
   /** Sons de navigation synthétisés. */
   sounds: boolean;
@@ -79,6 +83,8 @@ function defaults(): Prefs {
     modTheme: '',
     modRatings: {},
     tint: true,
+    osStyle: 'rustv',
+    widgetPos: 'auto',
     clock24: true,
     sounds: true,
     soundVolume: 40,
@@ -95,6 +101,8 @@ function defaults(): Prefs {
 }
 
 export const prefs: Prefs = $state(defaults());
+/** Posé par os/apply : vrai quand le style actif impose sa propre couleur d'accent (tant que l'accent choisi est celui par défaut). */
+export const osAccent = $state({ owned: false });
 export const ready = $state({ loaded: false });
 
 function merge(dst: Record<string, any>, src: Record<string, any>) {
@@ -133,7 +141,9 @@ $effect.root(() => {
     return () => mq.removeEventListener('change', apply);
   });
   $effect(() => {
-    document.documentElement.style.setProperty('--accent', prefs.accent);
+    // Ordre des couches : jetons du style, puis thème de mod (!important), puis accent choisi (ici, en ligne).
+    if (osAccent.owned && prefs.accent === ACCENTS[0]) document.documentElement.style.removeProperty('--accent');
+    else document.documentElement.style.setProperty('--accent', prefs.accent);
   });
   $effect(() => {
     document.documentElement.style.setProperty('--ui-scale', String(prefs.uiScale / 100));

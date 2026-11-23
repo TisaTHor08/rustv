@@ -9,6 +9,10 @@
   --sheet: rgba(30, 34, 44, 0.94);
   --field: rgba(0, 0, 0, 0.35);
   --ring: #ffffff;
+  --r: 1.2rem;
+  --font: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  --focus-scale: 1.16;
+  --focus-ring: 0.22rem;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   color-scheme: dark;
 }
@@ -51,8 +55,14 @@ body,
   overflow: hidden;
   background: var(--bg);
   color: var(--text);
-  font-family: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--font);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Styles d'interface « façon OS TV » : les écrans communs (feuilles Réglages, Recherche, Live, Médiathèque...)
+   suivent le rayon du style. RusTV garde ses valeurs d'origine. */
+html[data-os]:not([data-os='rustv']) .sheet {
+  border-radius: calc(var(--r) * 1.5);
 }
 
 /* Écrans secondaires */
