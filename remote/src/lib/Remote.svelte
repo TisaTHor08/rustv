@@ -77,6 +77,7 @@
   }
 
   const connected = $derived(app.status === 'connected');
+  // Pendant une reconnexion on garde l'interface (onglet, champ de saisie) au lieu de la remplacer par un spinner.
 
   // Boutons de volume du téléphone = volume du PC (l'appli Android intercepte les touches quand elle est connectée).
   $effect(() => {
@@ -93,7 +94,7 @@
       native?.setVolumeCapture?.(false);
     };
   });
-  const showKeyboard = $derived(connected && (app.textFocus || manualKeyboard));
+  const showKeyboard = $derived((connected || (app.wasConnected && app.status === 'connecting')) && (app.textFocus || manualKeyboard));
 </script>
 
 <div class="screen">
@@ -108,7 +109,7 @@
     <button class="small" onclick={() => (settingsOpen = true)} aria-label={t('settings.title')}>⚙</button>
   </header>
 
-  {#if !connected}
+  {#if !connected && !(app.wasConnected && app.status === 'connecting')}
     <div class="center">
       {#if app.status === 'idle'}
         <button class="primary activate" onclick={activate}>{t('activate')}</button>

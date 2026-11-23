@@ -335,17 +335,41 @@ fn reachable(u: &str) -> bool {
     let Some(host) = parsed.host_str() else { return false };
     let Some(port) = parsed.port_or_known_default() else { return false };
     let Ok(addrs) = (host, port).to_socket_addrs() else { return false };
-    addrs.take(4).any(|a| std::net::TcpStream::connect_timeout(&a, std::time::Duration::from_millis(2000)).is_ok())
+    addrs.take(4).any(|a| std::net::TcpStream::connect_timeout(&a, std::time::Duration::from_millis(1200)).is_ok())
 }
 
-/// Choisit la première adresse qui répond. Une seule adresse : on la garde telle quelle (la fenêtre affichera son erreur).
+/// Choisit la première adresse (dans l'ordre saisi) qui répond. Les adresses sont testées en parallèle et l'attente totale est
+/// bornée (1,5 s) : un nom introuvable ne bloque donc pas le lancement. Une seule adresse : gardée telle quelle.
 fn pick_reachable(stored: &str) -> Result<String, String> {
     let list = split_addresses(stored);
     match list.len() {
-        0 => Err("Adresse invalide".into()),
-        1 => Ok(list.into_iter().next().unwrap()),
-        _ => list.iter().find(|u| reachable(u)).cloned().ok_or_else(|| "Aucune des adresses ne répond (NAS éteint ou hors réseau ?)".to_string()),
+        0 => return Err("Adresse invalide".into()),
+        1 => return Ok(list.into_iter().next().unwrap()),
+        _ => {}
     }
+    let (tx, rx) = std::sync::mpsc::channel::<(usize, bool)>();
+    for (i, u) in list.iter().enumerate() {
+        let (tx, u) = (tx.clone(), u.clone());
+        std::thread::spawn(move || {
+            let _ = tx.send((i, reachable(&u)));
+        });
+    }
+    drop(tx);
+    let deadline = std::time::Instant::now() + std::time::Duration::from_millis(1500);
+    let mut res: Vec<Option<bool>> = vec![None; list.len()];
+    while let Ok((i, ok)) = rx.recv_timeout(deadline.saturating_duration_since(std::time::Instant::now())) {
+        res[i] = Some(ok);
+        // Gagnante : la première adresse positive dont toutes les précédentes ont déjà échoué.
+        for (j, r) in res.iter().enumerate() {
+            match r {
+                Some(true) => return Ok(list[j].clone()),
+                Some(false) => continue,
+                None => break,
+            }
+        }
+    }
+    // Délai écoulé : on prend la première qui a répondu, même si une adresse plus prioritaire n'a pas encore répondu.
+    res.iter().position(|r| *r == Some(true)).map(|j| list[j].clone()).ok_or_else(|| "Aucune des adresses ne répond (NAS éteint ou hors réseau ?)".to_string())
 }
 
 pub(crate) fn open_web(app: &AppHandle, id: &str, tile: &Value, url: Url) -> tauri::Result<()> {

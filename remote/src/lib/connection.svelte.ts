@@ -19,6 +19,8 @@ export const app = $state({
   error: '',
   pinned: false,
   textFocus: false,
+  /** Vrai dès que la télécommande a été connectée (jusqu'à l'arrêt manuel) : l'interface reste affichée pendant une reconnexion. */
+  wasConnected: false,
   tvMode: false,
   now: { active: false, title: '', artist: '', playing: false, position: 0, duration: 0, source: '' },
   volume: { level: 0, muted: false, known: false },
@@ -179,6 +181,7 @@ export function activate() {
         session = won.session;
         app.via = won.via;
         app.status = 'connected';
+        app.wasConnected = true;
         app.error = '';
         backoff = 500;
         const ip = won.via.match(/(\d+\.\d+\.\d+\.\d+)/)?.[1];
@@ -203,10 +206,24 @@ export function activate() {
 
 async function serve(s: Session, active: () => boolean) {
   let lastRx = Date.now();
+  let lastTick = Date.now();
   const ping = setInterval(() => {
-    if (Date.now() - lastRx > DEAD_MS) s.close();
+    const now = Date.now();
+    // L'appli a été suspendue (écran éteint, autre appli au premier plan) : les minuteurs de la WebView étaient arrêtés,
+    // pas la liaison. On repart d'une fenêtre neuve au lieu de couper une connexion probablement saine.
+    if (now - lastTick > PING_MS * 2) lastRx = now;
+    lastTick = now;
+    if (now - lastRx > DEAD_MS) s.close();
     else void s.send({ t: 'ping' }).catch(() => s.close());
   }, PING_MS);
+  // Retour au premier plan : un ping immédiat vérifie la liaison tout de suite (échec = reconnexion rapide).
+  const onVisible = () => {
+    if (document.visibilityState !== 'visible') return;
+    lastRx = Date.now();
+    lastTick = lastRx;
+    void s.send({ t: 'ping' }).catch(() => s.close());
+  };
+  document.addEventListener('visibilitychange', onVisible);
   try {
     while (active()) {
       const m = await s.recv();
@@ -239,8 +256,9 @@ async function serve(s: Session, active: () => boolean) {
     }
   } finally {
     clearInterval(ping);
+    document.removeEventListener('visibilitychange', onVisible);
     s.close();
-    app.textFocus = false;
+    // textFocus est conservé : la prochaine connexion renvoie l'état réel (évite de perdre le champ de saisie pendant une reconnexion).
     resetVault();
   }
 }
@@ -250,6 +268,7 @@ export function deactivate() {
   session?.close();
   session = null;
   app.status = 'idle';
+  app.wasConnected = false;
   app.via = '';
 }
 
