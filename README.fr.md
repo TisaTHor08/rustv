@@ -64,7 +64,7 @@ Le guide pas à pas (en anglais) est dans le [guide d'utilisation](docs/USER-GUI
 
 - [Applications prises en charge](docs/APPS.md) et leur état de test
 - [Écrire des mods](docs/MODS.md) (thèmes, widgets, pages, adaptateurs, mods de télécommande)
-- [UGREEN Theater](docs/UGREEN.md) · [Bitwarden](docs/BITWARDEN.md) · [Garde TV](docs/TV-GUARD.md) · [TV en direct](docs/LIVE-TV.md) · [Lecteur](docs/PLAYER.md) · [Cast](docs/CAST.md) · [Ambilight](docs/AMBILIGHT.md) · [Home Assistant](docs/HOME-ASSISTANT.md) · [Manette](docs/GAMEPAD.md) · [Écran et son](docs/DISPLAY-AUDIO.md)
+- [UGREEN Theater](docs/UGREEN.md) · [Bitwarden](docs/BITWARDEN.md) · [Garde TV](docs/TV-GUARD.md) · [TV en direct](docs/LIVE-TV.md) · [Lecteur](docs/PLAYER.md) · [Cast](docs/CAST.md) · [Ambilight](docs/AMBILIGHT.md) · [Home Assistant](docs/HOME-ASSISTANT.md) · [Compte Google](docs/GOOGLE-ACCOUNT.md) · [Manette](docs/GAMEPAD.md) · [Écran et son](docs/DISPLAY-AUDIO.md)
 - Le détail technique, la compilation et la contribution sont dans le [README principal](README.md).
 
 Licence : [GPL-3.0-or-later](LICENSE) : les forks restent ouverts.

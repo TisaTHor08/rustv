@@ -12,6 +12,7 @@ mod fs;
 mod guard;
 mod gamepad;
 mod ha;
+mod google;
 mod hooks;
 mod hyperion;
 mod lan;
@@ -199,6 +200,11 @@ fn main() {
             hyperion::hyperion_clear,
             hyperion::hyperion_ambient,
             hyperion::hyperion_open_web_ui,
+            google::google_get,
+            google::google_set_enabled,
+            google::google_connect,
+            google::google_disconnect,
+            google::google_set_app,
             usearch::usearch_query,
             usearch::usearch_launch,
             usearch::usearch_get_config,

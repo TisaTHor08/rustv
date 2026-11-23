@@ -14,6 +14,7 @@ export interface CustomTile {
   color2: string;
   icon?: string;
   spatnav?: boolean;
+  googleSignIn?: boolean;
 }
 
 export interface Prefs {

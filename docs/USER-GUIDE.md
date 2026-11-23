@@ -243,6 +243,7 @@ Settings, Integrations and hardware groups the optional features. Each one is do
 - **Ambilight (Hyperion)**: [AMBILIGHT.md](AMBILIGHT.md)
 - **Home Assistant**: [HOME-ASSISTANT.md](HOME-ASSISTANT.md)
 - **Cast and DLNA**: [CAST.md](CAST.md)
+- **Google account** (sign in once for "Sign in with Google" in your apps, opt-in): [GOOGLE-ACCOUNT.md](GOOGLE-ACCOUNT.md)
 
 ## Updates
 
@@ -259,6 +260,7 @@ newer APK from the same release page.
 - Network use is limited to what you ask for: the streaming sites you open, the weather lookup if enabled, the mod catalog,
   the mpv download you approve, and the update check.
 - Streaming apps keep their own cookies in separate per-app profiles under `%APPDATA%\RusTV\profiles`.
+- The optional Google account sharing (off by default) copies your Google session cookies into the apps you allow; RusTV never sees your password. Disconnect erases them. Limits and risks: [GOOGLE-ACCOUNT.md](GOOGLE-ACCOUNT.md).
 
 ## Troubleshooting
 

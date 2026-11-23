@@ -61,6 +61,7 @@ export interface ModTile {
   color2: string;
   icon?: string;
   spatnav?: boolean;
+  googleSignIn?: boolean;
   modId: string;
   source: 'mod';
 }
@@ -85,6 +86,7 @@ export function modTiles(): ModTile[] {
         color2: t.color2 ?? '#1b1f2a',
         icon: t.icon ? m.base + String(t.icon).replace(/^\/+/, '') : undefined,
         spatnav: t.spatnav ?? true,
+        googleSignIn: t.googleSignIn === true,
         modId: m.id,
         source: 'mod' as const,
       })),
