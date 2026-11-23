@@ -246,7 +246,7 @@
           { label: t('settings.ext'), enter: () => go('ext') },
         ];
       case 'ext':
-        return EXT.map((k) => ({ label: t(`settings.${k}`), value: t(`settings.${k}.d`), enter: () => go(k) }));
+        return EXT.map((k) => ({ label: t(`settings.${k}`), enter: () => go(k) }));
       case 'appearance':
         return [
           choice(t('settings.language'),['fr', 'en'] as const, () => prefs.lang, (v) => set('lang', v), (v) => (v === 'fr' ? 'Français' : 'English')),

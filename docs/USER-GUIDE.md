@@ -231,6 +231,19 @@ Everything is driven with the remote.
 | Live TV, Library | Playlists and folders |
 | Mods & extensions | Mod theme, installed mods, catalog |
 
+## Integrations and hardware
+
+Settings, Integrations and hardware groups the optional features. Each one is documented separately and is safe by default:
+
+- **TV guard and boot to TV**: [TV-GUARD.md](TV-GUARD.md)
+- **Screen and sound** (audio output, resolution, refresh rate, HDR): [DISPLAY-AUDIO.md](DISPLAY-AUDIO.md)
+- **Game controller**: [GAMEPAD.md](GAMEPAD.md)
+- **Player** (tracks, resume, queue): [PLAYER.md](PLAYER.md)
+- **Recording and tuners**: [LIVE-TV.md](LIVE-TV.md)
+- **Ambilight (Hyperion)**: [AMBILIGHT.md](AMBILIGHT.md)
+- **Home Assistant**: [HOME-ASSISTANT.md](HOME-ASSISTANT.md)
+- **Cast and DLNA**: [CAST.md](CAST.md)
+
 ## Updates
 
 RusTV checks GitHub Releases for a new version (you can switch the automatic check off in Settings, Screens & startup). If

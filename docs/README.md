@@ -12,6 +12,14 @@
 | [APPS.md](APPS.md) | Everyone | Natively supported apps and how well each one is tested (generated) |
 | [UGREEN.md](UGREEN.md) | Everyone | UGREEN Theater on a NAS, local and UGREEN Link access, what was verified |
 | [BITWARDEN.md](BITWARDEN.md) | Everyone | Filling logins from your vault, how it works, threat model |
+| [TV-GUARD.md](TV-GUARD.md) | Everyone | Boot to TV, keep other windows off the TV, recovery |
+| [LIVE-TV.md](LIVE-TV.md) | Everyone | Guide grid, DVR, HDHomeRun and TVHeadend, timeshift |
+| [PLAYER.md](PLAYER.md) | Everyone | Tracks, resume, Continue watching, queue, keys |
+| [CAST.md](CAST.md) | Everyone | DLNA and DIAL receiver, security model |
+| [AMBILIGHT.md](AMBILIGHT.md) | Everyone | Hyperion ambilight setup |
+| [DISPLAY-AUDIO.md](DISPLAY-AUDIO.md) | Everyone | Audio output, resolution, refresh rate, HDR |
+| [GAMEPAD.md](GAMEPAD.md) | Everyone | Game controller mapping and safety |
+| [HOME-ASSISTANT.md](HOME-ASSISTANT.md) | Everyone | MQTT entities, commands, ready-made package |
 | [MODS.md](MODS.md) | Mod authors | Manifest, permissions, SDK, publishing in the catalog |
 | [ROADMAP.md](ROADMAP.md) | Everyone | What is done, what is next, where help is wanted |
 | [../SECURITY.md](../SECURITY.md) | Everyone | How to report a vulnerability |

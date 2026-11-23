@@ -8,10 +8,12 @@
 - [x] **v0.5 Live TV and library**: mpv player (on-demand install, IPC), live TV from M3U + XMLTV with now/next, local library (movies, shows, photos, music), file explorer, Windows settings shortcuts, now-playing on the phone (SMTC), universal search
 - [x] **v1.0 Polish**: NSIS installer, update check via GitHub Releases, interface size and reduced motion, Bitwarden integration, YouTube in Brave or Vivaldi, UGREEN Theater tile, 42 app tiles, documentation
 - [x] **v1.1 Remote and mod store**: Google TV style phone remote with PC volume sync and haptics, navigation sounds, real key presses and keyboard-layout aware typing, spatial navigation fixes for web apps, UGREEN Link verified, generated [APPS.md](APPS.md), mod store redesign (categories, search, local ratings, install and uninstall, publisher, dependencies, icon and banner) with catalog format v2 and `scripts/mods-tool.py`, 42 mods, `icons` contribution, mods for the phone remote (themes and button panels), see the [changelog](../CHANGELOG.md)
+- [x] **v1.2 A complete TV**: boot to TV and TV guard, complete live TV (guide, DVR, tuners, timeshift), complete player (tracks, resume, continue watching, queue), DLNA/DIAL cast receiver, Hyperion ambilight, audio output / resolution / refresh / HDR settings, game controller, Home Assistant over MQTT, ultrawide-ready interface, see the [changelog](../CHANGELOG.md)
 
 Ideas for later:
 
-- Gamepad support, per-profile layouts, voice dictation from the phone.
+- Universal search across streaming services (with availability data), private libraries and mapped folders, extensible by mods (planned for v1.3).
+- HDMI-CEC, per-profile gamepad layouts, voice dictation from the phone.
 - Wake-on-LAN from the phone.
 - More mod categories (for example subtitles, screensavers, sound packs).
 - A signed installer and a release-signed APK (today the installer is unsigned and the APK is debug-signed).

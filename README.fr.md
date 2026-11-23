@@ -10,7 +10,7 @@ RusTV transforme un PC Windows en TV connectée : écran d'accueil façon Google
 (YouTube, Netflix, Prime Video, Disney+, Plex, Jellyfin, UGREEN Theater…), TV en direct, médiathèque locale, et une appli
 Android qui sert de télécommande. Tout est personnalisable et extensible par des **mods**.
 
-> Version actuelle : **1.1.0**. Voir les [nouveautés](CHANGELOG.md), la [feuille de route](docs/ROADMAP.md) et
+> Version actuelle : **1.2.0**. Voir les [nouveautés](CHANGELOG.md), la [feuille de route](docs/ROADMAP.md) et
 > l'[architecture](docs/ARCHITECTURE.md).
 
 ## Installer
@@ -22,6 +22,16 @@ Android qui sert de télécommande. Tout est personnalisable et extensible par d
 3. Choisissez l'écran de la TV : les autres peuvent être masqués.
 
 Le guide pas à pas (en anglais) est dans le [guide d'utilisation](docs/USER-GUIDE.md).
+
+## Nouveautés de la 1.2.0
+
+- **Démarrage sur la TV et garde TV** : RusTV démarre à l'ouverture de session directement en mode TV, empêche la mise en veille et
+  empêche les autres fenêtres d'apparaître par-dessus.
+- **TV en direct complète** : grille des programmes, enregistreur (DVR), tuners HDHomeRun et TVHeadend, pause et retour en direct.
+- **Lecteur complet** : pistes audio et sous-titres, reprise, « Reprendre la lecture », file d'attente et épisode suivant.
+- **Réception cast** (DIAL et DLNA), **ambilight Hyperion**, **Home Assistant** (MQTT).
+- **Écran et son** : sortie audio, résolution, fréquence, HDR ; **manette** XInput.
+- Interface adaptée aux écrans ultra-larges, 16:10, 4:3 et portrait.
 
 ## Nouveautés de la 1.1.0
 
@@ -54,7 +64,7 @@ Le guide pas à pas (en anglais) est dans le [guide d'utilisation](docs/USER-GUI
 
 - [Applications prises en charge](docs/APPS.md) et leur état de test
 - [Écrire des mods](docs/MODS.md) (thèmes, widgets, pages, adaptateurs, mods de télécommande)
-- [UGREEN Theater](docs/UGREEN.md) · [Bitwarden](docs/BITWARDEN.md)
+- [UGREEN Theater](docs/UGREEN.md) · [Bitwarden](docs/BITWARDEN.md) · [Garde TV](docs/TV-GUARD.md) · [TV en direct](docs/LIVE-TV.md) · [Lecteur](docs/PLAYER.md) · [Cast](docs/CAST.md) · [Ambilight](docs/AMBILIGHT.md) · [Home Assistant](docs/HOME-ASSISTANT.md) · [Manette](docs/GAMEPAD.md) · [Écran et son](docs/DISPLAY-AUDIO.md)
 - Le détail technique, la compilation et la contribution sont dans le [README principal](README.md).
 
 Licence : [GPL-3.0-or-later](LICENSE) : les forks restent ouverts.

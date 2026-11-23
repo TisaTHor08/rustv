@@ -3,6 +3,39 @@
 All notable changes to RusTV are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-11-23
+
+### Added
+
+- **Boot to TV and TV guard** ([docs/TV-GUARD.md](docs/TV-GUARD.md)): RusTV can start at sign-in straight into TV mode on the right screen
+  (it waits up to 60 s for the TV to wake), keeps the PC awake, and stops other windows from appearing over the TV
+  (minimize or move, with an allow list). Hiding the taskbar and muting Windows notifications are optional and always restored,
+  including after a crash. A panic row in Settings undoes everything.
+- **Complete live TV** ([docs/LIVE-TV.md](docs/LIVE-TV.md)): a program guide grid, reminders, favourites, a DVR (record now, record a
+  programme, record a series, retention and free-space rules), HDHomeRun discovery and TVHeadend sources, and timeshift in the player.
+- **Complete player** ([docs/PLAYER.md](docs/PLAYER.md)): audio and subtitle track menu, resume where you stopped, a Continue watching row
+  on the home screen, a queue with automatic next episode, and a live-TV pause and rewind buffer.
+- **Cast receiver** ([docs/CAST.md](docs/CAST.md)): receive YouTube (DIAL) and media (DLNA/UPnP) from a phone or another PC. Off by default.
+- **Ambilight with Hyperion** ([docs/AMBILIGHT.md](docs/AMBILIGHT.md)): RusTV can install and run Hyperion, light the LEDs with the focused tile,
+  and hand over to screen capture during video. Off by default.
+- **Screen and sound** ([docs/DISPLAY-AUDIO.md](docs/DISPLAY-AUDIO.md)): choose the audio output and its volume, the resolution, the refresh rate and HDR,
+  with a 15 second automatic revert.
+- **Game controller** ([docs/GAMEPAD.md](docs/GAMEPAD.md)): XInput pads drive the home screen, apps and the player, with haptic feedback,
+  Alt+Tab on the bumpers and a pointer mode. It only acts on RusTV and the programs it launched.
+- **Home Assistant** ([docs/HOME-ASSISTANT.md](docs/HOME-ASSISTANT.md)): MQTT discovery exposes RusTV as a device (state, now playing, volume, current app,
+  buttons, app launcher) and accepts commands (launch, volume, open an app, key presses). A ready-made package and Lovelace card are included.
+- **Settings, Integrations and hardware** groups the new pages. They are all usable with the remote.
+
+### Changed
+
+- The interface scales with the smaller of the screen height and width, so it fits ultrawide, 16:10, 4:3 and portrait screens as well as 16:9.
+
+### Notes
+
+- Hyperion and Home Assistant are built-in modules, not mods: mods cannot start processes or open sockets.
+- The new code that touches hardware or the network (display and audio APIs, XInput, SSDP, MQTT, Hyperion, tuners) is covered by unit tests of the
+  logic only. Each documentation page lists what has not been verified on real hardware.
+
 ## [1.1.0] - 2026-11-23
 
 ### Added
