@@ -2,7 +2,8 @@ import { registerStrings } from '../../i18n';
 
 registerStrings('fr', {
   'os.fire': 'Style Fire TV',
-  'os.fire.d': 'Barre de navigation, grand héros, rangées de cartes 16:9',
+  'os.fire.d': 'Héros en haut, barre d icônes et applis, rangées 16:9',
+  'os.fire.profile': 'Profil',
   'os.fire.search': 'Rechercher',
   'os.fire.home': 'Accueil',
   'os.fire.live': 'En direct',
@@ -13,10 +14,17 @@ registerStrings('fr', {
   'os.fire.open': 'Ouvrir',
   'os.fire.more': 'Plus d\'infos',
   'os.fire.allapps': 'Toutes les applis',
+  'fire.search.start': 'Tapez pour chercher une appli, une chaîne ou un média',
+  'fire.kb.space': 'Espace',
+  'fire.kb.delete': 'Effacer',
+  'fire.kb.clear': 'Tout effacer',
+  'fire.settings.pick': 'Choisissez une catégorie de réglages',
+  'fire.quick': 'Réglages rapides',
 });
 registerStrings('en', {
   'os.fire': 'Fire TV style',
-  'os.fire.d': 'Top navigation, large hero, rows of 16:9 cards',
+  'os.fire.d': 'Hero on top, icon and app bar, rows of 16:9 cards',
+  'os.fire.profile': 'Profile',
   'os.fire.search': 'Search',
   'os.fire.home': 'Home',
   'os.fire.live': 'Live',
@@ -27,4 +35,10 @@ registerStrings('en', {
   'os.fire.open': 'Open',
   'os.fire.more': 'More info',
   'os.fire.allapps': 'All apps',
+  'fire.search.start': 'Type to search apps, channels and media',
+  'fire.kb.space': 'Space',
+  'fire.kb.delete': 'Delete',
+  'fire.kb.clear': 'Clear',
+  'fire.settings.pick': 'Pick a settings category',
+  'fire.quick': 'Quick settings',
 });

@@ -13,6 +13,10 @@ registerStrings('fr', {
   'os.tvos.yourapps': 'Applis',
   'os.tvos.open': 'Ouvrir',
   'os.tvos.play': 'Reprendre',
+  'tvos.search.start': 'Saisissez le nom d une appli, d une chaîne ou d un média',
+  'tvos.kb.space': 'espace',
+  'tvos.kb.delete': 'effacer',
+  'tvos.kb.clear': 'tout effacer',
 });
 registerStrings('en', {
   'os.tvos': 'Apple TV style',
@@ -27,4 +31,8 @@ registerStrings('en', {
   'os.tvos.yourapps': 'Apps',
   'os.tvos.open': 'Open',
   'os.tvos.play': 'Resume',
+  'tvos.search.start': 'Type the name of an app, channel or media',
+  'tvos.kb.space': 'space',
+  'tvos.kb.delete': 'delete',
+  'tvos.kb.clear': 'clear all',
 });
