@@ -15,6 +15,11 @@ registerStrings('fr', {
   'roku.ok': 'Ouvrir',
   'roku.empty': 'Rien à afficher ici',
   'roku.items': 'éléments',
+  'roku.kb.space': 'Espace',
+  'roku.kb.delete': 'Effacer',
+  'roku.kb.clear': 'Tout effacer',
+  'roku.search.start': 'Tapez pour rechercher',
+  'roku.settings.open': 'Choisissez un réglage',
 });
 registerStrings('en', {
   'os.roku': 'Roku style',
@@ -31,4 +36,9 @@ registerStrings('en', {
   'roku.ok': 'Open',
   'roku.empty': 'Nothing to show here',
   'roku.items': 'Items',
+  'roku.kb.space': 'Space',
+  'roku.kb.delete': 'Delete',
+  'roku.kb.clear': 'Clear',
+  'roku.search.start': 'Type to search',
+  'roku.settings.open': 'Choose a setting',
 });
