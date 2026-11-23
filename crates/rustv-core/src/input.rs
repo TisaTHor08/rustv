@@ -54,8 +54,8 @@ pub fn chord(mods: &[VIRTUAL_KEY], vk: VIRTUAL_KEY) {
 /// Injecte du texte Unicode (fonctionne indépendamment de la disposition clavier).
 /// Vraie touche (selon la disposition de clavier courante) pour un caractère, avec l'état de Maj.
 /// `None` si le caractère exige Ctrl/Alt/AltGr ou n'existe pas sur ce clavier : on retombe alors sur l'Unicode.
-fn real_key(u: u16) -> Option<(VIRTUAL_KEY, bool)> {
-    let r = unsafe { VkKeyScanW(u) };
+fn real_key(u: u16, hkl: HKL) -> Option<(VIRTUAL_KEY, bool)> {
+    let r = unsafe { VkKeyScanExW(u, hkl) };
     if r == -1 {
         return None;
     }
@@ -71,8 +71,14 @@ fn real_key(u: u16) -> Option<(VIRTUAL_KEY, bool)> {
 /// interfaces TV) ignorent les événements Unicode et n'écoutent que les codes de touches. Le reste est injecté en Unicode.
 pub fn type_text(text: &str) {
     let mut v = Vec::new();
+    // La disposition de clavier est propre à la fenêtre qui reçoit les touches (AZERTY, QWERTY…) : un « 7 » ou un
+    // « @ » n'ont pas la même touche partout. On calcule donc avec celle de la fenêtre au premier plan.
+    let hkl = unsafe {
+        let tid = GetWindowThreadProcessId(GetForegroundWindow(), None);
+        GetKeyboardLayout(tid)
+    };
     for u in text.encode_utf16() {
-        match real_key(u) {
+        match real_key(u, hkl) {
             Some((vk, shift)) => {
                 if !v.is_empty() {
                     send(&v);
