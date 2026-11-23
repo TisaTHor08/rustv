@@ -9,6 +9,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 - **Phone remote models** ([docs/REMOTE-MODELS.md](docs/REMOTE-MODELS.md)): the phone remote can take the shape of the remote that ships with the chosen TV style (Google TV, Samsung, LG, Hisense, Philips, Fire TV, Apple TV, Roku).
   The PC announces its TV style in `state.osStyle`; the phone follows it automatically, or you pick a model in the phone settings.
+- **Tizen and webOS interface styles** ([docs/OS-STYLES.md](docs/OS-STYLES.md)): a Samsung-like launcher bar with previews and an ambient clock mode, and an LG-like rotating banner with a wide-card launcher (Inter and Noto Sans, OFL, bundled).
 - **Interface styles** ([docs/OS-STYLES.md](docs/OS-STYLES.md)): Settings > Appearance > Interface style switches the home screen live between the original RusTV look and recreations of the Google TV and Roku home screens (layout, motion, palette, radius and font also re-skin the other screens), plus a framework to add more styles with two files, and a Widget position setting (auto, four corners, hidden).
 - **VIDAA and Titan interface styles** ([docs/OS-STYLES.md](docs/OS-STYLES.md)): two more home screens, a bright shortcut-strip-and-banner layout inspired by Hisense VIDAA and an icon bar with hero carousel and square app tiles inspired by Philips Titan OS (Poppins font added, OFL).
 - **Universal search** ([docs/SEARCH.md](docs/SEARCH.md)): type a title and see which streaming services have it (with a free TMDB key, data from JustWatch) and open them

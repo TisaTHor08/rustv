@@ -22,6 +22,9 @@ Settings > Appearance > Widget position moves the clock / phones / weather / mod
 | `vidaa` | VIDAA style | available |
 | `titan` | Titan style | available |
 | `tizen`, `webos`, `fire`, `tvos` | (to come) | ids reserved in the registry, hidden until their files exist |
+| `tizen` | Tizen style | available |
+| `webos` | webOS style | available |
+| `vidaa`, `titan`, `fire`, `tvos` | (to come) | ids reserved in the registry, hidden until their files exist |
 
 ## Framework contract
 
@@ -118,6 +121,21 @@ Approximated: hero art is the tile colour with a large letter or icon (no key ar
 Left out: Titan's account/profile entry, the "Gaming" and "Sport" style category pages, the Ambilight-linked background, Settings layout, screensaver.
 
 Both styles share a small helper `styles/trackfit.ts` (horizontal scroll fitting). No shared framework file was edited.
+### Tizen style (`tizen`)
+
+Font Inter (OFL). Reproduced: full-bleed ambient hero of the focused app in the upper part with title and description, a dark translucent launcher bar over the lower fifth of the screen, a fixed group of five round buttons at its left (Settings, Sources, Search, Ambient, Options) then 16:9 app tiles (recent first, then all, no duplicates), focused tile scaled 1.12 with a white outline and its name below, spring-like easing, a preview strip above the bar for the focused app (continue-watching entries with progress for video, TV and library apps, then other tiles of the same category), small bell and profile buttons at the top right with the clock, anchored horizontal scrolling of the bar. D-pad: Left from the first tile goes to the round buttons, Up goes to the previews then to the bell/profile, Down returns, Enter opens, ContextMenu opens the tile menu (of the focused bar tile), Back returns to the bar. Ambient button: dark full-screen clock (any key or Back leaves it). Sources opens the file library, Options opens the tile menu, Search and Settings open RusTV's.
+
+Approximated: no key art (tile colour with a large letter or icon); previews are left-aligned at a fixed place, not under the focused tile; the bell only shows a "no notifications" toast; the ambient mode is a clock, not art/weather scenes; a bottom widget dock sits above the bar and may cover part of the previews.
+
+Left out: Samsung's quick settings panel, Game/Media/Daily+ hubs, voice assistant, real Source list (inputs do not exist on a PC), Art mode.
+
+### webOS style (`webos`)
+
+Font Noto Sans (OFL). Reproduced: blurred soft-colour wallpaper, rotating banner (8 s, cross-fade, dots, "Watch" or "Open" pill button, progress bar for resumable media), status icons at the top right (search, settings, profile, clock, phones), a "Home" label and the launcher in the lower third: system cards (Live TV, Library, Search, Settings) then 2:1 rounded app cards, focused card scaled 1.1 with a white outline and bold label below, centred label, anchored horizontal scrolling. D-pad: Left from the first app reaches the system cards, Up goes to the banner (Left/Right change the banner item, Enter opens it) then to the status icons, Down returns, ContextMenu opens the tile menu, Back returns to the launcher.
+
+Approximated: no promotional artwork (tile colour with a large letter or icon); banner items are resume entries and a few video/TV/library/music tiles, not editorial content; the profile icon only shows the phones label; no pointer-reveal behaviour of the Magic Remote.
+
+Left out: Home Hub quick cards, input list, app edit mode (drag to reorder), screen saver.
 
 ### Not done for all styles (needs further work)
 
@@ -126,6 +144,7 @@ Style-specific variants of Settings, Search, tile menu and pairing; volume and m
 ## Fonts and licences
 
 Roboto, Montserrat (variable) and Poppins (static 400 to 700, about 54 KB in `ui/public/fonts/poppins`) from the Fontsource packages, SIL Open Font License 1.1, Latin and Latin-extended subsets in `ui/public/fonts` (about 250 KB), declared with `font-display: swap`; licences next to the files. No network access at runtime.
+Roboto, Montserrat, Inter and Noto Sans (variable) from the Fontsource packages, SIL Open Font License 1.1, Latin and Latin-extended subsets in `ui/public/fonts` (about 250 KB for the first two, about 135 KB for Inter and 200 KB for Noto Sans), declared with `font-display: swap`; licences next to the files. No network access at runtime.
 
 ## Developing a style: mock harness
 
