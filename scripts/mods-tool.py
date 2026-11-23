@@ -19,7 +19,7 @@ MODS = ROOT / "mods"
 REGISTRY = ROOT / "registry/index.json"
 REPO = "TisaTHor08/rustv"
 
-CATEGORIES = ["themes", "widgets", "pages", "games", "apps", "enhancements", "icons"]
+CATEGORIES = ["themes", "widgets", "pages", "games", "apps", "enhancements", "icons", "remote"]
 PERMISSIONS = re.compile(r"^(storage|launch|network:https://[a-z0-9.\-]+(:\d+)?|inject:.+)$")
 
 # 24x24 line glyphs (stroke is drawn by the generator). Several sub-paths are separated by "|".
@@ -87,6 +87,8 @@ def referenced_files(m):
         files += [a.get("js"), a.get("css")]
     for i in c.get("icons", []):
         files += [i.get("src")]
+    for t in (c.get("remote") or {}).get("themes", []):
+        files += [t.get("css")]
     files += [m.get("icon"), m.get("banner")]
     return [f for f in files if f]
 
@@ -143,7 +145,7 @@ def check():
             if not (d / f).exists():
                 e(f"missing file {f}")
         c = m.get("contributes", {})
-        if not any(c.get(k) for k in ("themes", "tiles", "pages", "widgets", "adapters", "icons", "strings")):
+        if not any(c.get(k) for k in ("themes", "tiles", "pages", "widgets", "adapters", "icons", "strings", "remote")):
             e("contributes nothing")
     for msg in errors:
         print("ERROR", msg)

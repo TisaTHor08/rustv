@@ -35,7 +35,7 @@ const s = await Session.connect(wrap(sock), unb64(key), deviceId);
   try {
     for (;;) {
       const m = await s.recv();
-      if (m.t === 'state' || m.t === 'nowPlaying') console.log('<-', JSON.stringify(m));
+      if (m.t !== 'apps' && m.t !== 'icons') console.log('<-', JSON.stringify(m).slice(0, Number(process.env.SEND_MAX ?? 1500)));
     }
   } catch {}
 })();

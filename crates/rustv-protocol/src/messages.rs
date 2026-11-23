@@ -43,6 +43,10 @@ pub enum PhoneMsg {
     Media { a: MediaAction },
     /// Règle le volume du PC (0 à 100).
     SetVolume { level: u8 },
+    /// Demande les contributions des mods actifs à la télécommande (thèmes, panneaux de boutons).
+    GetRemoteMods,
+    /// Ouvre une tuile de l'accueil TV (par identifiant), comme un OK sur la tuile.
+    OpenTile { id: String },
     /// Coffre Bitwarden : interroge l'état (CLI présente, connecté, verrouillé).
     VaultStatus,
     /// Déverrouille avec le mot de passe maître (jamais conservé côté PC).
@@ -110,6 +114,9 @@ pub enum PcMsg {
     State { pinned: bool, text_focus: bool, tv_mode: bool },
     /// Média en cours de lecture sur le PC (lecteur RusTV ou n'importe quelle appli via les contrôles média Windows).
     NowPlaying { active: bool, title: String, artist: String, playing: bool, position: f64, duration: f64, source: String },
+    /// Contributions des mods actifs pour la télécommande : liste de `{id, name, themes, panels}` (voir docs/MODS.md).
+    /// Envoyé à la demande et à chaque changement des mods.
+    RemoteMods { mods: serde_json::Value },
     /// Volume principal du PC (0 à 100) et muet : le téléphone s'aligne dessus.
     Volume { level: u8, muted: bool },
     Pong,
@@ -252,6 +259,14 @@ mod vault_tests {
         assert_eq!(parse(json!({"t":"setVolume","level":42})), PhoneMsg::SetVolume { level: 42 });
         let v = serde_json::to_value(PcMsg::Volume { level: 30, muted: true }).unwrap();
         assert_eq!(v, json!({"t":"volume","level":30,"muted":true}));
+    }
+
+    #[test]
+    fn remote_mod_messages() {
+        assert_eq!(parse(json!({"t":"getRemoteMods"})), PhoneMsg::GetRemoteMods);
+        assert_eq!(parse(json!({"t":"openTile","id":"youtube"})), PhoneMsg::OpenTile { id: "youtube".into() });
+        let v = serde_json::to_value(PcMsg::RemoteMods { mods: json!([{"id":"x"}]) }).unwrap();
+        assert_eq!(v, json!({"t":"remoteMods","mods":[{"id":"x"}]}));
     }
 
     #[test]

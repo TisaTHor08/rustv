@@ -212,13 +212,17 @@ pub async fn mods_list() -> Result<Value, String> {
 }
 
 #[tauri::command]
-pub async fn mod_set_enabled(id: String, enabled: bool) -> Result<(), String> {
-    crate::mods::set_enabled(&id, enabled)
+pub async fn mod_set_enabled(shell: State<'_, Shell>, id: String, enabled: bool) -> Result<(), String> {
+    crate::mods::set_enabled(&id, enabled)?;
+    shell.core.set_remote_mods(crate::mods::remote_bundle());
+    Ok(())
 }
 
 #[tauri::command]
-pub async fn mod_uninstall(id: String) -> Result<(), String> {
-    crate::mods::uninstall(&id)
+pub async fn mod_uninstall(shell: State<'_, Shell>, id: String) -> Result<(), String> {
+    crate::mods::uninstall(&id)?;
+    shell.core.set_remote_mods(crate::mods::remote_bundle());
+    Ok(())
 }
 
 #[tauri::command]
@@ -261,8 +265,10 @@ pub async fn mod_install_prepare(entry: Value) -> Result<Value, String> {
 }
 
 #[tauri::command]
-pub async fn mod_install_commit(id: String) -> Result<(), String> {
-    crate::mods::install_commit(&id)
+pub async fn mod_install_commit(shell: State<'_, Shell>, id: String) -> Result<(), String> {
+    crate::mods::install_commit(&id)?;
+    shell.core.set_remote_mods(crate::mods::remote_bundle());
+    Ok(())
 }
 
 #[tauri::command]

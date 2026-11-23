@@ -140,6 +140,118 @@ pub fn list() -> Vec<Value> {
     out
 }
 
+// ---------- contributions à la télécommande du téléphone ----------
+
+const REMOTE_KEYS: [&str; 9] = ["up", "down", "left", "right", "enter", "back", "backlong", "menu", "search"];
+const REMOTE_MEDIA: [&str; 7] = ["playPause", "next", "prev", "stop", "volUp", "volDown", "mute"];
+const MAX_REMOTE_CSS: u64 = 64 * 1024;
+
+/// Une action de bouton : uniquement des commandes déclaratives connues (jamais de code).
+fn sanitize_action(a: &Value) -> Option<Value> {
+    let t = a["t"].as_str()?;
+    match t {
+        "key" => REMOTE_KEYS.contains(&a["k"].as_str()?).then(|| json!({"t":"key","k":a["k"]})),
+        "media" => REMOTE_MEDIA.contains(&a["a"].as_str()?).then(|| json!({"t":"media","a":a["a"]})),
+        "setVolume" => Some(json!({"t":"setVolume","level":a["level"].as_u64()?.min(100)})),
+        "openTile" => {
+            let id = a["id"].as_str()?;
+            (id.len() <= 80 && id.chars().all(|c| c.is_ascii_alphanumeric() || "-_:".contains(c))).then(|| json!({"t":"openTile","id":id}))
+        }
+        "home" => Some(json!({"t":"home"})),
+        "tv" => Some(json!({"t":"tv","on":a["on"].as_bool()?})),
+        "altTab" => ["open", "left", "right", "confirm"].contains(&a["a"].as_str()?).then(|| json!({"t":"altTab","a":a["a"]})),
+        "text" => {
+            let s = a["text"].as_str()?;
+            (s.chars().count() <= 200).then(|| json!({"t":"text","backspaces":0,"text":s}))
+        }
+        "wait" => Some(json!({"t":"wait","ms":a["ms"].as_u64()?.min(5000)})),
+        _ => None,
+    }
+}
+
+/// Texte court ou `{ "fr": "...", "en": "..." }`.
+fn sanitize_label(v: &Value, max: usize) -> Option<Value> {
+    match v {
+        Value::String(s) if !s.is_empty() && s.chars().count() <= max => Some(v.clone()),
+        Value::Object(o) => {
+            let m: serde_json::Map<String, Value> = o
+                .iter()
+                .filter(|(k, x)| k.len() <= 5 && x.as_str().map(|s| s.chars().count() <= max).unwrap_or(false))
+                .map(|(k, x)| (k.clone(), x.clone()))
+                .collect();
+            (!m.is_empty()).then(|| Value::Object(m))
+        }
+        _ => None,
+    }
+}
+
+fn css_is_safe(css: &str) -> bool {
+    let l = css.to_ascii_lowercase();
+    !l.contains("@import") && !l.contains("http:") && !l.contains("https:") && !l.contains("//")
+}
+
+/// Thèmes et panneaux de boutons des mods actifs, nettoyés, prêts à être envoyés au téléphone.
+pub fn remote_bundle() -> Value {
+    let mut out = vec![];
+    for entry in list() {
+        if entry["enabled"] != true {
+            continue;
+        }
+        let m = &entry["manifest"];
+        let r = &m["contributes"]["remote"];
+        if !r.is_object() {
+            continue;
+        }
+        let id = entry["id"].as_str().unwrap_or_default();
+        let dir = root().join(id);
+        let mut themes = vec![];
+        for t in r["themes"].as_array().into_iter().flatten().take(8) {
+            let (Some(tid), Some(name)) = (t["id"].as_str(), sanitize_label(&t["name"], 40)) else { continue };
+            let vars: serde_json::Map<String, Value> = t["vars"]
+                .as_object()
+                .into_iter()
+                .flatten()
+                .filter(|(k, v)| {
+                    k.starts_with("--") && k.len() <= 40 && v.as_str().map(|s| s.len() <= 120 && css_is_safe(s) && !s.contains(['{', '}', ';'])).unwrap_or(false)
+                })
+                .map(|(k, v)| (k.clone(), v.clone()))
+                .collect();
+            let css = t["css"]
+                .as_str()
+                .and_then(safe_rel)
+                .map(|p| dir.join(p))
+                .filter(|p| std::fs::metadata(p).map(|md| md.len() <= MAX_REMOTE_CSS).unwrap_or(false))
+                .and_then(|p| std::fs::read_to_string(p).ok())
+                .filter(|c| css_is_safe(c))
+                .unwrap_or_default();
+            themes.push(json!({ "id": tid, "name": name, "vars": vars, "css": css }));
+        }
+        let mut panels = vec![];
+        for p in r["panels"].as_array().into_iter().flatten().take(6) {
+            let (Some(pid), Some(name)) = (p["id"].as_str(), sanitize_label(&p["name"], 30)) else { continue };
+            let buttons: Vec<Value> = p["buttons"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .take(24)
+                .filter_map(|b| {
+                    let label = sanitize_label(&b["label"], 24)?;
+                    let actions: Vec<Value> = b["actions"].as_array()?.iter().take(20).filter_map(sanitize_action).collect();
+                    (!actions.is_empty()).then(|| json!({ "label": label, "glyph": b["glyph"].as_str().unwrap_or(""), "actions": actions }))
+                })
+                .collect();
+            if !buttons.is_empty() {
+                panels.push(json!({ "id": pid, "name": name, "glyph": p["glyph"].as_str().unwrap_or(""), "buttons": buttons }));
+            }
+        }
+        if themes.is_empty() && panels.is_empty() {
+            continue;
+        }
+        out.push(json!({ "id": id, "name": m["name"], "i18n": m["i18n"], "themes": themes, "panels": panels }));
+    }
+    Value::Array(out)
+}
+
 pub fn set_enabled(id: &str, enabled: bool) -> Result<(), String> {
     if !valid_id(id) {
         return Err("id invalide".into());
@@ -431,6 +543,18 @@ mod tests {
         assert!(safe_rel("../x").is_none() && safe_rel("C:\\x").is_none() && safe_rel("/etc").is_none());
         assert_eq!(origin_of("https://a.b/c?d").as_deref(), Some("https://a.b"));
         assert!(origin_of("http://a.b").is_none() && origin_of("https://u@a.b/").is_none());
+    }
+
+    #[test]
+    fn remote_actions_are_whitelisted() {
+        assert!(sanitize_action(&json!({"t":"key","k":"enter"})).is_some());
+        assert!(sanitize_action(&json!({"t":"key","k":"f4"})).is_none());
+        assert!(sanitize_action(&json!({"t":"vaultFill","id":"x"})).is_none());
+        assert!(sanitize_action(&json!({"t":"launch","appId":"calc"})).is_none());
+        assert_eq!(sanitize_action(&json!({"t":"wait","ms":999999})).unwrap()["ms"], 5000);
+        assert_eq!(sanitize_action(&json!({"t":"setVolume","level":400})).unwrap()["level"], 100);
+        assert!(sanitize_action(&json!({"t":"openTile","id":"../x"})).is_none());
+        assert!(css_is_safe(".a{color:red}") && !css_is_safe("@import 'x'") && !css_is_safe("a{background:url(https://x)}"));
     }
 
     #[test]

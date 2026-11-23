@@ -23,6 +23,12 @@ const fr: Record<string, string> = {
   'tab.prev': '◀ Onglet',
   'tab.next': 'Onglet ▶',
   forget: 'Oublier ce PC ?',
+  'tab.mods': 'Mods',
+  'settings.title': 'Réglages',
+  'settings.theme': 'Thème de la télécommande',
+  'settings.default': 'Par défaut',
+  'settings.forget': 'Oublier ce PC',
+  'settings.close': 'Fermer',
   'surface.1': 'Glisser pour naviguer',
   'surface.2': 'Toucher pour valider',
   'surface.3': 'Maintenir pour les options',
@@ -100,6 +106,12 @@ const en: Record<string, string> = {
   'tab.prev': '◀ Tab',
   'tab.next': 'Tab ▶',
   forget: 'Forget this PC?',
+  'tab.mods': 'Mods',
+  'settings.title': 'Settings',
+  'settings.theme': 'Remote theme',
+  'settings.default': 'Default',
+  'settings.forget': 'Forget this PC',
+  'settings.close': 'Close',
   'surface.1': 'Swipe to navigate',
   'surface.2': 'Tap to select',
   'surface.3': 'Hold for options',
@@ -154,5 +166,5 @@ const en: Record<string, string> = {
   'vault.err.failed': 'Operation failed.',
 };
 
-const lang: 'fr' | 'en' = typeof navigator !== 'undefined' && navigator.language?.toLowerCase().startsWith('fr') ? 'fr' : 'en';
+export const lang: 'fr' | 'en' = typeof navigator !== 'undefined' && navigator.language?.toLowerCase().startsWith('fr') ? 'fr' : 'en';
 export const t = (key: string): string => (lang === 'fr' ? fr : en)[key] ?? fr[key] ?? key;

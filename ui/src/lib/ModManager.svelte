@@ -12,7 +12,7 @@
 
   // ---------- données ----------
 
-  const CATS = ['themes', 'widgets', 'pages', 'games', 'apps', 'enhancements', 'icons'] as const;
+  const CATS = ['themes', 'widgets', 'pages', 'games', 'apps', 'enhancements', 'icons', 'remote'] as const;
   type Filter = 'all' | 'installed' | (typeof CATS)[number];
 
   interface Card {

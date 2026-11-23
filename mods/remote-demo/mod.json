@@ -1,0 +1,176 @@
+{
+  "id": "remote-demo",
+  "name": "Remote demo",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "remote",
+  "description": "Tutorial mod for the phone remote: a Neon theme and a Demo panel showing every kind of action.",
+  "details": "Reference example for mod authors. Theme Neon: sets 8 variables (vars) and adds a short theme.css that restyles the ring, buttons and volume bar. Panel Demo: 7 buttons, one per action type: key (Menu), media (play/pause), setVolume (25), openTile (YouTube), text (types Hello from a mod into the focused field of the PC), a chain of key and wait actions, and home. Actions run in order. Everything is declarative and checked by the PC, then by the phone. See the README.md in the mod folder.",
+  "tags": [
+    "remote",
+    "phone",
+    "demo",
+    "tutorial",
+    "example",
+    "developer"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#ff2bd6",
+    "to": "#3a1a9e",
+    "glyph": "bolt"
+  },
+  "permissions": [],
+  "contributes": {
+    "remote": {
+      "themes": [
+        {
+          "id": "neon",
+          "name": {
+            "en": "Neon",
+            "fr": "Neon"
+          },
+          "vars": {
+            "--bg": "#0a0614",
+            "--panel": "#1a1030",
+            "--panel-2": "#2a1850",
+            "--text": "#f6eeff",
+            "--muted": "#a592cc",
+            "--accent": "#ff2bd6",
+            "--ok": "#00e5a0",
+            "--warn": "#ffb020"
+          },
+          "css": "theme.css"
+        }
+      ],
+      "panels": [
+        {
+          "id": "demo",
+          "name": {
+            "en": "Demo",
+            "fr": "Demo"
+          },
+          "glyph": "bolt",
+          "buttons": [
+            {
+              "label": {
+                "en": "Key: Menu",
+                "fr": "Touche : Menu"
+              },
+              "glyph": "grid",
+              "actions": [
+                {
+                  "t": "key",
+                  "k": "menu"
+                }
+              ]
+            },
+            {
+              "label": {
+                "en": "Media: Play/Pause",
+                "fr": "Media : Lecture/Pause"
+              },
+              "glyph": "play",
+              "actions": [
+                {
+                  "t": "media",
+                  "a": "playPause"
+                }
+              ]
+            },
+            {
+              "label": {
+                "en": "Volume 25",
+                "fr": "Volume 25"
+              },
+              "glyph": "wave",
+              "actions": [
+                {
+                  "t": "setVolume",
+                  "level": 25
+                }
+              ]
+            },
+            {
+              "label": {
+                "en": "Open YouTube",
+                "fr": "Ouvrir YouTube"
+              },
+              "glyph": "tv",
+              "actions": [
+                {
+                  "t": "openTile",
+                  "id": "youtube"
+                }
+              ]
+            },
+            {
+              "label": {
+                "en": "Type text",
+                "fr": "Taper du texte"
+              },
+              "glyph": "type",
+              "actions": [
+                {
+                  "t": "text",
+                  "text": "Hello from a mod"
+                }
+              ]
+            },
+            {
+              "label": {
+                "en": "Chain + wait",
+                "fr": "Chaine + attente"
+              },
+              "glyph": "timer",
+              "actions": [
+                {
+                  "t": "key",
+                  "k": "down"
+                },
+                {
+                  "t": "wait",
+                  "ms": 300
+                },
+                {
+                  "t": "key",
+                  "k": "down"
+                },
+                {
+                  "t": "wait",
+                  "ms": 300
+                },
+                {
+                  "t": "key",
+                  "k": "up"
+                }
+              ]
+            },
+            {
+              "label": {
+                "en": "Home",
+                "fr": "Accueil"
+              },
+              "glyph": "star",
+              "actions": [
+                {
+                  "t": "home"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "i18n": {
+    "fr": {
+      "name": "Demo telecommande",
+      "description": "Mod tutoriel pour la telecommande du telephone : un theme Neon et un panneau Demo qui montre chaque type d'action.",
+      "details": "Exemple de reference pour les auteurs de mods. Theme Neon : 8 variables (vars) et un theme.css court qui restyle l'anneau, les boutons et la barre de volume. Panneau Demo : 7 boutons, un par type d'action : key (Menu), media (lecture/pause), setVolume (25), openTile (YouTube), text (tape Hello from a mod dans le champ actif du PC), une chaine de key et wait, et home. Les actions s'executent dans l'ordre. Tout est declaratif, verifie par le PC puis par le telephone. Voir le README.md du dossier."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

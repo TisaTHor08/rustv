@@ -178,4 +178,6 @@ export const api = {
   onDevicesChanged: (cb: () => void) => listen('devices-changed', cb),
   onPlayerInstall: (cb: (p: { pct: number; stage?: string }) => void) => listen<{ pct: number; stage?: string }>('player-install', (e) => cb(e.payload)),
   onPlayerClosed: (cb: () => void) => listen('player-closed', cb),
+  /** Le téléphone demande d'ouvrir une tuile (mod de télécommande, scène…). */
+  onOpenTile: (cb: (id: string) => void) => listen<string>('open-tile', (e) => cb(e.payload)),
 };

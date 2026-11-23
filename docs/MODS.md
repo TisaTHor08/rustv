@@ -26,6 +26,7 @@ Working examples are in [`mods/`](../mods).
     "widgets":  [{ "id": "w", "slot": "topbar", "entry": "widget.html", "width": 12 }],
     "adapters": [{ "match": ["*://*.example.org/*"], "js": "adapter.js", "css": "adapter.css", "runAt": "ready" }],
     "icons":    [{ "tile": "youtube", "src": "icons/youtube.svg" }],
+    "remote":   { "themes": [], "panels": [] },
     "strings":  { "fr": { "my.key": "Bonjour" }, "en": { "my.key": "Hello" } }
   }
 }
@@ -49,6 +50,66 @@ needs the `launch` permission) or implied `page` for entries under `pages`.
 - **Icons**: replace the letter on an existing tile (catalog, built-in or another mod's, by tile id) with an image from your
   mod. See [`mods/real-icons`](../mods/real-icons). Icons the user picked themselves still win.
 - **Strings**: translations added to the interface (`registerStrings`).
+
+## Phone remote contributions
+
+A mod can add **themes** and **button panels** to the phone remote through `contributes.remote`. It is purely
+declarative: JSON plus an optional CSS file, no code. The full working example is [`mods/remote-demo`](../mods/remote-demo)
+(see its README for a line-by-line walkthrough). Other examples: `remote-theme-amoled`, `remote-panel-launch`,
+`remote-panel-scenes`.
+
+```json
+"contributes": { "remote": {
+  "themes": [ { "id": "amoled", "name": "Pure black", "vars": { "--bg": "#000000", "--panel": "#0b0b0b" }, "css": "theme.css" } ],
+  "panels": [ { "id": "apps", "name": { "en": "Quick launch", "fr": "Lancement rapide" }, "glyph": "play",
+                "buttons": [ { "label": "YouTube", "glyph": "play", "actions": [ { "t": "openTile", "id": "youtube" } ] } ] } ]
+} }
+```
+
+### Fields and limits
+
+| Field | Rule |
+| --- | --- |
+| `name`, `label` | A string or `{ "en": "...", "fr": "..." }`. Max 40 characters (theme), 30 (panel), 24 (button) |
+| theme `vars` | Keys start with `--`. Values are plain strings: no `;`, `{`, `}`, no `http`/`https` |
+| theme `css` | Path inside the mod, 64 KB max, no `@import`, no `http:`, `https:` or `//` |
+| `glyph` | Optional icon name for a panel or button |
+| Counts | 8 themes per mod, 6 panels per mod, 24 buttons per panel, 20 actions per button |
+
+Theme variables are those of the phone app: `--bg`, `--panel`, `--panel-2`, `--text`, `--muted`, `--accent`, `--ok`,
+`--warn`. The phone styles its components with scoped CSS, so `css` rules need `!important`; useful selectors are
+`button`, `button.primary`, `.ring`, `.ok`, `.vol`, `.track`, `.fill`.
+
+### Allowed actions
+
+Actions in a button run in order. Only these exist; anything else is dropped.
+
+| Action | Meaning |
+| --- | --- |
+| `{"t":"key","k":"up"}` | `k`: `up down left right enter back backlong menu search` |
+| `{"t":"media","a":"playPause"}` | `a`: `playPause next prev stop volUp volDown mute` |
+| `{"t":"setVolume","level":35}` | PC volume, 0 to 100 |
+| `{"t":"openTile","id":"youtube"}` | Opens a tile of the TV home by id (see `crates/rustv-shell/src/catalog.json`) |
+| `{"t":"home"}` | Back to the TV home |
+| `{"t":"tv","on":false}` | Start (`true`) or quit (`false`) the TV session |
+| `{"t":"altTab","a":"open"}` | Window switcher: `open left right confirm` |
+| `{"t":"text","text":"..."}` | Types text into the focused field on the PC (200 characters max) |
+| `{"t":"wait","ms":400}` | Pause, 5000 ms max |
+
+### Security model
+
+- Declarative only: no JavaScript is sent to the phone and the CSS cannot reach the network.
+- The PC sanitizes everything (lengths, unsafe CSS or variables, unknown actions, clamped numbers) and only sends the
+  contributions of **enabled** mods.
+- The phone validates the received bundle again before showing or running anything.
+- Actions are commands the built-in remote could already send. A remote contribution needs no permission.
+
+### How it appears on the phone
+
+- **Themes**: listed in the phone settings sheet, grouped by mod. Choosing one sets its `vars` on the app root and
+  injects its `css`; choosing the default theme removes them.
+- **Mods tab**: one section per panel, titled by its `name` in the phone language (`fr` or `en`, falling back to the
+  other). Each button sends its actions in order when tapped.
 
 ## Permissions
 
@@ -89,7 +150,7 @@ entry in `registry/index.json` is generated from them by `python scripts/mods-to
 
 | Field | Required | Meaning |
 | --- | --- | --- |
-| `category` | yes | `themes`, `widgets`, `pages`, `games`, `apps` (tile packs), `enhancements` (site adapters) or `icons` |
+| `category` | yes | `themes`, `widgets`, `pages`, `games`, `apps` (tile packs), `enhancements` (site adapters), `icons` or `remote` (phone remote themes and panels) |
 | `publisher` | yes | Name shown as the mod's publisher (individual, team or organization) |
 | `description` | yes | One sentence, 10 to 140 characters |
 | `details` | no | A longer text, up to 700 characters |

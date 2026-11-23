@@ -29,6 +29,8 @@ pub enum Event {
     Tv(bool),
     /// La liste des appareils ou leur état de connexion a changé.
     DevicesChanged,
+    /// Le téléphone demande d'ouvrir une tuile de l'accueil.
+    OpenTile(String),
 }
 
 /// Média en cours (SMTC ou lecteur RusTV).
@@ -68,6 +70,7 @@ pub struct Core {
     smtc: Mutex<Option<NowPlaying>>,
     last_np: Mutex<Option<PcMsg>>,
     volume: Mutex<Option<(u8, bool)>>,
+    remote_mods: Mutex<serde_json::Value>,
     alt: Mutex<Option<Instant>>,   // Some(dernier événement) quand Alt est maintenu
     pinned: Mutex<Option<isize>>,  // HWND épinglé
     conns: Mutex<Vec<Conn>>,
@@ -96,6 +99,7 @@ impl Core {
             smtc: Mutex::new(None),
             last_np: Mutex::new(None),
             volume: Mutex::new(None),
+            remote_mods: Mutex::new(serde_json::Value::Array(vec![])),
             alt: Mutex::new(None),
             pinned: Mutex::new(None),
             conns: Mutex::new(vec![]),
@@ -152,6 +156,16 @@ impl Core {
         match cur {
             Some(n) => PcMsg::NowPlaying { active: true, title: n.title, artist: n.artist, playing: n.playing, position: n.position, duration: n.duration, source: n.source },
             None => PcMsg::NowPlaying { active: false, title: String::new(), artist: String::new(), playing: false, position: 0.0, duration: 0.0, source: String::new() },
+        }
+    }
+
+    /// Le shell publie les contributions des mods actifs pour la télécommande ; elles sont envoyées aux téléphones connectés.
+    pub fn set_remote_mods(&self, mods: serde_json::Value) {
+        let mut cur = self.remote_mods.lock().unwrap();
+        if *cur != mods {
+            *cur = mods.clone();
+            drop(cur);
+            self.broadcast(PcMsg::RemoteMods { mods });
         }
     }
 
@@ -237,6 +251,10 @@ impl Core {
         let _ = tx.send(self.np_msg());
         if let Some((level, muted)) = *self.volume.lock().unwrap() {
             let _ = tx.send(PcMsg::Volume { level, muted });
+        }
+        let mods = self.remote_mods.lock().unwrap().clone();
+        if mods.as_array().map(|a| !a.is_empty()).unwrap_or(false) {
+            let _ = tx.send(PcMsg::RemoteMods { mods });
         }
         self.refresh_apps();
         let _ = tx.send(self.apps_msg());
@@ -486,6 +504,11 @@ impl Core {
                 MediaAction::VolDown => input::tap(VK_VOLUME_DOWN),
                 MediaAction::Mute => input::tap(VK_VOLUME_MUTE),
             },
+            PhoneMsg::GetRemoteMods => {
+                let mods = self.remote_mods.lock().unwrap().clone();
+                let _ = reply.send(PcMsg::RemoteMods { mods });
+            }
+            PhoneMsg::OpenTile { id } => self.emit(Event::OpenTile(id)),
             PhoneMsg::SetVolume { level } => {
                 std::thread::spawn(move || audio::set(level));
             }

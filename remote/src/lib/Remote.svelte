@@ -1,6 +1,6 @@
 <script lang="ts">
   import { t } from './i18n.ts';
-  import { activate, app, deactivate, send, unpair } from './connection.svelte.ts';
+  import { activate, app, deactivate, send } from './connection.svelte.ts';
   import { longpress, repeat, tick } from './haptics.ts';
   import type { KeyName, MediaAction } from './protocol/types.ts';
   import Apps from './Apps.svelte';
@@ -10,13 +10,27 @@
   import Vault from './Vault.svelte';
   import Ring from './Ring.svelte';
   import Volume from './Volume.svelte';
+  import ModPanels from './ModPanels.svelte';
+  import Settings from './Settings.svelte';
+  import { applyTheme, findTheme, loadThemeChoice, panelsOf } from './mods.ts';
 
-  type Tab = 'remote' | 'apps' | 'pad';
+  type Tab = 'remote' | 'apps' | 'pad' | 'mods';
   let tab = $state<Tab>('remote');
   let altOpen = $state(false);
   let altTimer: number | undefined;
   let manualKeyboard = $state(false);
   let vaultOpen = $state(false);
+  let settingsOpen = $state(false);
+  let themeChoice = $state(loadThemeChoice());
+  const hasPanels = $derived(panelsOf(app.remoteMods).length > 0);
+
+  // Thème choisi : appliqué tant que son mod est actif, sinon retour silencieux au défaut.
+  $effect(() => {
+    applyTheme(findTheme(app.remoteMods, themeChoice));
+  });
+  $effect(() => {
+    if (tab === 'mods' && !hasPanels) tab = 'remote';
+  });
   let mode = $state<'dpad' | 'surface'>(loadMode());
 
   function loadMode(): 'dpad' | 'surface' {
@@ -91,7 +105,7 @@
         {#if connected}{app.via}{app.tvMode ? t('mode.tv') : ''}{:else if app.status === 'connecting'}{t('connecting')}{app.error ? ` (${app.error})` : ''}{:else}{t('disconnected')}{/if}
       </small>
     </div>
-    <button class="small" onclick={() => confirm(t('forget')) && unpair()}>⚙</button>
+    <button class="small" onclick={() => (settingsOpen = true)} aria-label={t('settings.title')}>⚙</button>
   </header>
 
   {#if !connected}
@@ -108,6 +122,7 @@
       <button class:sel={tab === 'remote'} onclick={() => (tab = 'remote')}>{t('tab.remote')}</button>
       <button class:sel={tab === 'apps'} onclick={() => (tab = 'apps')}>{t('tab.apps')}</button>
       <button class:sel={tab === 'pad'} onclick={() => (tab = 'pad')}>{t('tab.mouse')}</button>
+      {#if hasPanels}<button class:sel={tab === 'mods'} onclick={() => (tab = 'mods')}>{t('tab.mods')}</button>{/if}
     </nav>
 
     <section>
@@ -178,6 +193,8 @@
         {/if}
       {:else if tab === 'apps'}
         <Apps />
+      {:else if tab === 'mods'}
+        <ModPanels />
       {:else}
         <Touchpad />
       {/if}
@@ -185,6 +202,7 @@
   {/if}
 </div>
 
+{#if settingsOpen}<Settings choice={themeChoice} onpick={(k) => (themeChoice = k)} onclose={() => (settingsOpen = false)} />{/if}
 {#if vaultOpen}<Vault onclose={() => (vaultOpen = false)} />{/if}
 {#if showKeyboard && !vaultOpen}<TextInput onclose={() => (manualKeyboard = false)} />{/if}
 

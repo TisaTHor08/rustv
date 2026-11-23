@@ -1,0 +1,170 @@
+{
+  "id": "remote-panel-launch",
+  "name": "Quick launch",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "remote",
+  "description": "A Mods tab panel with 12 big buttons that open YouTube, Netflix, Plex, Spotify and more on the TV in one tap.",
+  "details": "Adds a Quick launch panel to the phone Mods tab with 12 buttons: YouTube, Netflix, Prime Video, Disney+, Max, Plex, Jellyfin, UGREEN Theater, Arte, Twitch, Spotify and Apple TV+. Each button sends a single openTile command, so it opens that tile on the TV home exactly like selecting it with the remote. The phone only sends a command to your PC over your local network: no internet access is needed by the mod itself.",
+  "tags": [
+    "remote",
+    "phone",
+    "launch",
+    "apps",
+    "shortcuts",
+    "streaming"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#e5484d",
+    "to": "#7a1c3a",
+    "glyph": "grid"
+  },
+  "permissions": [],
+  "contributes": {
+    "remote": {
+      "panels": [
+        {
+          "id": "apps",
+          "name": {
+            "en": "Quick launch",
+            "fr": "Lancement rapide"
+          },
+          "glyph": "grid",
+          "buttons": [
+            {
+              "label": "YouTube",
+              "glyph": "play",
+              "actions": [
+                {
+                  "t": "openTile",
+                  "id": "youtube"
+                }
+              ]
+            },
+            {
+              "label": "Netflix",
+              "glyph": "film",
+              "actions": [
+                {
+                  "t": "openTile",
+                  "id": "netflix"
+                }
+              ]
+            },
+            {
+              "label": "Prime Video",
+              "glyph": "play",
+              "actions": [
+                {
+                  "t": "openTile",
+                  "id": "prime"
+                }
+              ]
+            },
+            {
+              "label": "Disney+",
+              "glyph": "star",
+              "actions": [
+                {
+                  "t": "openTile",
+                  "id": "disney"
+                }
+              ]
+            },
+            {
+              "label": "Max",
+              "glyph": "film",
+              "actions": [
+                {
+                  "t": "openTile",
+                  "id": "max"
+                }
+              ]
+            },
+            {
+              "label": "Plex",
+              "glyph": "play",
+              "actions": [
+                {
+                  "t": "openTile",
+                  "id": "plex"
+                }
+              ]
+            },
+            {
+              "label": "Jellyfin",
+              "glyph": "film",
+              "actions": [
+                {
+                  "t": "openTile",
+                  "id": "jellyfin"
+                }
+              ]
+            },
+            {
+              "label": "UGREEN Theater",
+              "glyph": "tv",
+              "actions": [
+                {
+                  "t": "openTile",
+                  "id": "ugreen"
+                }
+              ]
+            },
+            {
+              "label": "Arte",
+              "glyph": "tv",
+              "actions": [
+                {
+                  "t": "openTile",
+                  "id": "arte"
+                }
+              ]
+            },
+            {
+              "label": "Twitch",
+              "glyph": "gamepad",
+              "actions": [
+                {
+                  "t": "openTile",
+                  "id": "twitch"
+                }
+              ]
+            },
+            {
+              "label": "Spotify",
+              "glyph": "music",
+              "actions": [
+                {
+                  "t": "openTile",
+                  "id": "spotify"
+                }
+              ]
+            },
+            {
+              "label": "Apple TV+",
+              "glyph": "tv",
+              "actions": [
+                {
+                  "t": "openTile",
+                  "id": "appletv"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "i18n": {
+    "fr": {
+      "name": "Lancement rapide",
+      "description": "Un panneau de l'onglet Mods avec 12 gros boutons pour ouvrir YouTube, Netflix, Plex, Spotify... sur la TV en un geste.",
+      "details": "Ajoute un panneau Lancement rapide a l'onglet Mods du telephone avec 12 boutons : YouTube, Netflix, Prime Video, Disney+, Max, Plex, Jellyfin, UGREEN Theater, Arte, Twitch, Spotify et Apple TV+. Chaque bouton envoie une seule commande openTile : la tuile s'ouvre sur l'accueil de la TV comme avec la telecommande. Le telephone envoie juste une commande a votre PC sur le reseau local : le mod n'a besoin d'aucun acces internet."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

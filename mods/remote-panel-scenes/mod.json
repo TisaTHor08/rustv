@@ -1,0 +1,143 @@
+{
+  "id": "remote-panel-scenes",
+  "name": "Scenes",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "remote",
+  "description": "A Mods tab panel of one-tap scenes: Movie night, Quiet, Party, Back to home, Next episode and TV off.",
+  "details": "Adds a Scenes panel with 6 buttons. Movie night: volume 35, then opens Plex. Quiet: volume 12. Party: volume 70, then play/pause. Back to home: goes to the TV home. Next episode: presses right, waits 0.4 s, presses OK (it only works if the player's Next button is focused after Right, which depends on the app). TV off: turns the TV session off. Nothing else is sent.",
+  "tags": [
+    "remote",
+    "phone",
+    "scenes",
+    "macros",
+    "volume",
+    "shortcuts"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#7c5cff",
+    "to": "#2a1a6e",
+    "glyph": "sparkles"
+  },
+  "permissions": [],
+  "contributes": {
+    "remote": {
+      "panels": [
+        {
+          "id": "scenes",
+          "name": {
+            "en": "Scenes",
+            "fr": "Scenes"
+          },
+          "glyph": "sparkles",
+          "buttons": [
+            {
+              "label": {
+                "en": "Movie night",
+                "fr": "Soiree cinema"
+              },
+              "glyph": "film",
+              "actions": [
+                {
+                  "t": "setVolume",
+                  "level": 35
+                },
+                {
+                  "t": "openTile",
+                  "id": "plex"
+                }
+              ]
+            },
+            {
+              "label": {
+                "en": "Quiet",
+                "fr": "Silence"
+              },
+              "glyph": "moon",
+              "actions": [
+                {
+                  "t": "setVolume",
+                  "level": 12
+                }
+              ]
+            },
+            {
+              "label": {
+                "en": "Party",
+                "fr": "Fete"
+              },
+              "glyph": "music",
+              "actions": [
+                {
+                  "t": "setVolume",
+                  "level": 70
+                },
+                {
+                  "t": "media",
+                  "a": "playPause"
+                }
+              ]
+            },
+            {
+              "label": {
+                "en": "Back to home",
+                "fr": "Accueil"
+              },
+              "glyph": "tv",
+              "actions": [
+                {
+                  "t": "home"
+                }
+              ]
+            },
+            {
+              "label": {
+                "en": "Next episode",
+                "fr": "Episode suivant"
+              },
+              "glyph": "play",
+              "actions": [
+                {
+                  "t": "key",
+                  "k": "right"
+                },
+                {
+                  "t": "wait",
+                  "ms": 400
+                },
+                {
+                  "t": "key",
+                  "k": "enter"
+                }
+              ]
+            },
+            {
+              "label": {
+                "en": "TV off",
+                "fr": "Eteindre la TV"
+              },
+              "glyph": "bolt",
+              "actions": [
+                {
+                  "t": "tv",
+                  "on": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "i18n": {
+    "fr": {
+      "name": "Scenes",
+      "description": "Un panneau de l'onglet Mods avec des scenes en un geste : Soiree cinema, Silence, Fete, Accueil, Episode suivant, TV off.",
+      "details": "Ajoute un panneau Scenes de 6 boutons. Soiree cinema : volume 35 puis ouvre Plex. Silence : volume 12. Fete : volume 70 puis lecture/pause. Accueil : retour a l'accueil de la TV. Episode suivant : touche droite, pause de 0,4 s, touche OK (ne marche que si le bouton Suivant du lecteur est selectionne apres Droite, selon l'application). TV off : eteint la session TV. Rien d'autre n'est envoye."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}

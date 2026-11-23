@@ -9,6 +9,8 @@ export type PhoneMsg =
   | { t: 'mouse'; dx: number; dy: number; click?: 'left' | 'right'; scroll?: number }
   | { t: 'launch'; appId: string }
   | { t: 'getApps' }
+  | { t: 'getRemoteMods' }
+  | { t: 'openTile'; id: string }
   | { t: 'home' }
   | { t: 'tv'; on: boolean }
   | { t: 'media'; a: MediaAction }
@@ -40,6 +42,34 @@ export interface AppEntry {
   icon: string;
 }
 
+export type Label = string | { fr?: string; en?: string };
+export interface RemoteTheme {
+  id: string;
+  name: Label;
+  vars: Record<string, string>;
+  css: string;
+}
+/** Action d'un bouton de mod ; `wait` est propre au téléphone (jamais envoyée au PC). */
+export type RemoteAction = PhoneMsg | { t: 'wait'; ms: number };
+export interface RemoteButton {
+  label: Label;
+  glyph: string;
+  actions: RemoteAction[];
+}
+export interface RemotePanel {
+  id: string;
+  name: Label;
+  glyph: string;
+  buttons: RemoteButton[];
+}
+export interface RemoteMod {
+  id: string;
+  name: string;
+  i18n?: { fr?: { name?: string } };
+  themes: RemoteTheme[];
+  panels: RemotePanel[];
+}
+
 export type PcMsg =
   | { t: 'apps'; apps: AppEntry[] }
   | { t: 'icons'; icons: { id: string; icon: string }[] }
@@ -49,6 +79,7 @@ export type PcMsg =
   | { t: 'vaultItems'; items: VaultItem[] }
   | { t: 'vaultResult'; op: string; ok: boolean; code: string }
   | { t: 'volume'; level: number; muted: boolean }
+  | { t: 'remoteMods'; mods: RemoteMod[] }
   | { t: 'pong' };
 
 /** Contenu du QR code affiché par le PC. */

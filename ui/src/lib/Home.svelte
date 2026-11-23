@@ -193,10 +193,16 @@
     }
     const clock = setInterval(() => (now = new Date()), 1000 * 15);
     const un = api.onDevicesChanged(() => refresh());
+    // Le téléphone (mod de télécommande) demande d'ouvrir une tuile.
+    const unTile = api.onOpenTile((id) => {
+      const tile = tileFor(id);
+      if (tile) void openTile(tile);
+    });
     wake();
     return () => {
       clearInterval(clock);
       un.then((f) => f());
+      unTile.then((f) => f());
     };
   });
 

@@ -148,6 +148,9 @@ fn main() {
                 })
                 .build(app)?;
 
+            // Contributions des mods à la télécommande du téléphone.
+            core.set_remote_mods(mods::remote_bundle());
+
             // Commandes du téléphone → interface.
             let rx = core.subscribe();
             std::thread::spawn(move || {
@@ -156,6 +159,9 @@ fn main() {
                         Event::Home => tv::go_home(&h),
                         Event::Tv(true) => tv::start(&h),
                         Event::Tv(false) => tv::exit(&h),
+                        Event::OpenTile(id) => {
+                            let _ = h.emit("open-tile", id);
+                        }
                         Event::DevicesChanged => {
                             let _ = h.emit("devices-changed", ());
                         }

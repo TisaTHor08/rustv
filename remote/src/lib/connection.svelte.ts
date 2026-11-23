@@ -2,7 +2,7 @@
 import { btConnect, isNative, listenBeacon, tcpConnect } from './native.ts';
 import { unb64 } from './protocol/crypto.ts';
 import { Session } from './protocol/session.ts';
-import { BEACON_PORT, type AppEntry, type PairingInfo, type PhoneMsg, type VaultItem, type VaultStatus } from './protocol/types.ts';
+import { BEACON_PORT, type AppEntry, type PairingInfo, type PhoneMsg, type RemoteMod, type VaultItem, type VaultStatus } from './protocol/types.ts';
 
 const RFCOMM_UUID = '7c1d3a52-5b0e-4f8a-9d63-2e41c0a8b9f7';
 const BT_DELAY_MS = 1500; // le Wi-Fi est plus rapide : le Bluetooth ne prend le relais que s'il tarde
@@ -23,6 +23,7 @@ export const app = $state({
   now: { active: false, title: '', artist: '', playing: false, position: 0, duration: 0, source: '' },
   volume: { level: 0, muted: false, known: false },
   apps: [] as AppEntry[],
+  remoteMods: [] as RemoteMod[],
   vault: { status: 'unknown' as VaultStatus, email: '', autolockMin: 5, items: [] as VaultItem[], seq: 0, op: '', ok: true, code: '' },
 });
 
@@ -186,6 +187,7 @@ export function activate() {
             localStorage.setItem('rustv.lastIp', ip);
           } catch {}
         }
+        void won.session.send({ t: 'getRemoteMods' }).catch(() => {});
         await serve(won.session, active);
       } catch (e) {
         app.error = (e as Error).message;
@@ -227,7 +229,8 @@ async function serve(s: Session, active: () => boolean) {
         app.vault.ok = m.ok;
         app.vault.code = m.code;
         app.vault.seq++;
-      } else if (m.t === 'apps') app.apps = m.apps;
+      } else if (m.t === 'remoteMods') app.remoteMods = Array.isArray(m.mods) ? m.mods : [];
+      else if (m.t === 'apps') app.apps = m.apps;
       else if (m.t === 'icons') {
         // Les icônes arrivent par lots après la liste : on les rattache aux apps.
         const byId = new Map(m.icons.map((i) => [i.id, i.icon]));

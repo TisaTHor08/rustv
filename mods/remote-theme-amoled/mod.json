@@ -1,0 +1,59 @@
+{
+  "id": "remote-theme-amoled",
+  "name": "Pure black (OLED)",
+  "version": "1.0.0",
+  "author": "RusTV",
+  "publisher": "RusTV",
+  "category": "remote",
+  "description": "A pure-black phone remote theme for OLED screens: black background, near-black panels and soft borders.",
+  "details": "Phone remote theme. The background is true black (#000) so OLED pixels switch off, panels and buttons are near black with a thin soft border, the directional ring and the OK button are darkened, and the volume bar is filled in light grey while the primary buttons keep the blue accent. Pick it in the phone settings, Theme. Purely visual: no code runs on the phone.",
+  "tags": [
+    "remote",
+    "phone",
+    "theme",
+    "oled",
+    "black",
+    "dark",
+    "amoled"
+  ],
+  "license": "GPL-3.0-or-later",
+  "art": {
+    "from": "#2a2a2a",
+    "to": "#000000",
+    "glyph": "moon"
+  },
+  "permissions": [],
+  "contributes": {
+    "remote": {
+      "themes": [
+        {
+          "id": "amoled",
+          "name": {
+            "en": "Pure black",
+            "fr": "Noir pur"
+          },
+          "vars": {
+            "--bg": "#000000",
+            "--panel": "#0b0b0b",
+            "--panel-2": "#161616",
+            "--text": "#f2f4f8",
+            "--muted": "#7b8494",
+            "--accent": "#4c8dff",
+            "--ok": "#3ecf8e",
+            "--warn": "#f5a524"
+          },
+          "css": "theme.css"
+        }
+      ]
+    }
+  },
+  "i18n": {
+    "fr": {
+      "name": "Noir pur (OLED)",
+      "description": "Un theme noir pur pour la telecommande du telephone, ideal sur ecran OLED : fond noir, panneaux quasi noirs.",
+      "details": "Theme de la telecommande du telephone. Le fond est noir pur (#000) : les pixels OLED s'eteignent. Panneaux et boutons quasi noirs avec une fine bordure discrete, anneau directionnel et bouton OK assombris, barre de volume grise claire, boutons principaux gardant l'accent bleu. A choisir dans les reglages du telephone, Theme. Purement visuel : aucun code ne s'execute sur le telephone."
+    }
+  },
+  "icon": "icon.svg",
+  "banner": "banner.svg"
+}
