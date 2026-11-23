@@ -1,6 +1,7 @@
 // Gestion de la connexion : course entre toutes les voies, reconnexion, ping, état réactif.
 import { btConnect, isBrowser, isNative, listenBeacon, tcpConnect, webSocketUrl, wsConnect } from './native.ts';
 import { unb64 } from './protocol/crypto.ts';
+import { applyState, resetOnDisconnect } from './protocol/appstate.ts';
 import { Session } from './protocol/session.ts';
 import { BEACON_PORT, type AppEntry, type PairingInfo, type PhoneMsg, type RemoteMod, type VaultItem, type VaultStatus } from './protocol/types.ts';
 
@@ -277,10 +278,7 @@ async function serve(s: Session, active: () => boolean) {
       const m = await s.recv();
       lastRx = Date.now();
       if (m.t === 'state') {
-        app.pinned = m.pinned;
-        app.textFocus = m.textFocus;
-        app.tvMode = m.tvMode;
-        app.osStyle = m.osStyle || 'rustv';
+        applyState(app, m);
       } else if (m.t === 'volume') {
         app.volume = { level: m.level, muted: m.muted, known: true };
       } else if (m.t === 'nowPlaying') {
@@ -307,7 +305,8 @@ async function serve(s: Session, active: () => boolean) {
     clearInterval(ping);
     document.removeEventListener('visibilitychange', onVisible);
     s.close();
-    // textFocus est conservé : la prochaine connexion renvoie l'état réel (évite de perdre le champ de saisie pendant une reconnexion).
+    // Plus de liaison : l'état « champ actif » est périmé, la reconnexion renverra l'état réel.
+    resetOnDisconnect(app);
     resetVault();
   }
 }
@@ -327,6 +326,7 @@ export function deactivate() {
   app.status = 'idle';
   app.wasConnected = false;
   app.via = '';
+  resetOnDisconnect(app);
 }
 
 export function send(msg: PhoneMsg) {

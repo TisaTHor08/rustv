@@ -388,6 +388,9 @@ impl Core {
 
     /// Appelé par l'écoute UI Automation quand le focus change.
     pub fn set_text_focus(&self, on: bool) {
+        // Sans téléphone connecté, « champ actif » n'a pas de sens : évite une valeur périmée si le sondage
+        // rend son résultat juste après la déconnexion du dernier téléphone.
+        let on = on && self.conn_count() > 0;
         let mut t = self.text_focus.lock().unwrap();
         if *t != on {
             *t = on;
@@ -549,6 +552,9 @@ impl Core {
             }
             PhoneMsg::Ping => {
                 let _ = reply.send(PcMsg::Pong);
+                // Le ping (toutes les 4 s et à la reprise de l'appli) réconcilie aussi l'état : un `state` perdu
+                // ou périmé côté téléphone est corrigé au plus tard au ping suivant.
+                let _ = reply.send(self.state_msg());
             }
             // `bw` est lent : un thread par opération du coffre (elles sont sérialisées dans `Vault`).
             m @ (PhoneMsg::VaultStatus
@@ -597,5 +603,51 @@ mod os_style_tests {
         assert_eq!(style_of(rx.try_recv().unwrap()), None);
         assert!(c.set_os_style("rustv").is_ok());
         assert!(rx.try_recv().is_err());
+    }
+}
+
+#[cfg(test)]
+mod text_focus_tests {
+    use super::*;
+
+    fn core() -> Core {
+        Core::new(Config { pc_id: "t".into(), pc_name: "t".into(), devices: vec![], custom_apps: vec![] })
+    }
+
+    fn tf(m: PcMsg) -> bool {
+        match m {
+            PcMsg::State { text_focus, .. } => text_focus,
+            _ => panic!("state attendu"),
+        }
+    }
+
+    #[test]
+    fn text_focus_cleared_when_last_phone_leaves_and_ignored_without_phone() {
+        let c = core();
+        let (tx, rx) = channel();
+        c.conns.lock().unwrap().push(Conn { id: 1, device: "d".into(), tx });
+        c.set_text_focus(true);
+        assert!(tf(rx.try_recv().unwrap()));
+        c.remove_conn(1);
+        // Course : le sondage rend « vrai » après la déconnexion.
+        c.set_text_focus(true);
+        assert!(!*c.text_focus.lock().unwrap());
+        // Un nouveau téléphone reçoit l'état réel (faux).
+        let (tx2, rx2) = channel();
+        c.conns.lock().unwrap().push(Conn { id: 2, device: "d".into(), tx: tx2 });
+        assert!(!tf(c.state_msg()));
+        assert!(rx2.try_recv().is_err());
+    }
+
+    #[test]
+    fn ping_reconciles_state() {
+        let c = core();
+        let (tx, rx) = channel();
+        c.conns.lock().unwrap().push(Conn { id: 1, device: "d".into(), tx: tx.clone() });
+        c.set_text_focus(true);
+        let _ = rx.try_recv();
+        c.handle(PhoneMsg::Ping, &tx);
+        assert_eq!(rx.try_recv().unwrap(), PcMsg::Pong);
+        assert!(tf(rx.try_recv().unwrap()));
     }
 }

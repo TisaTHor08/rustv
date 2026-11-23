@@ -24,6 +24,7 @@ pub mod smtc;
 #[cfg_attr(target_os = "linux", path = "platform/linux/uia.rs")]
 #[cfg_attr(all(not(windows), not(target_os = "linux")), path = "platform/stub/uia.rs")]
 pub mod uia;
+pub mod textfocus;
 pub mod vault;
 pub mod webremote;
 
