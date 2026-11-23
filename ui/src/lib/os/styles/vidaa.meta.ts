@@ -18,6 +18,8 @@ const meta: OsStyleMeta = {
   descKey: 'os.vidaa.d',
   font: 'Roboto',
   slots: ['status'],
+  /** Zones de focus que ce style sait gérer (voir navguard.ts) : toute autre zone est ramenée à 'content'. */
+  zones: ['content', 'rail', 'banner'],
   tokens: {
     '--bg': '#10121a',
     '--bg-rgb': '16, 18, 26',

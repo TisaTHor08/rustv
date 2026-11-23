@@ -33,6 +33,8 @@ const meta: OsStyleMeta = {
   descKey: 'os.tvos.d',
   font: 'Inter',
   slots: ['status'],
+  /** Zones de focus que ce style sait gérer (voir navguard.ts) : toute autre zone est ramenée à 'content'. */
+  zones: ['content', 'nav'],
   screens: {
     settings: () => import('./tvos.screens/settings.svelte'),
     search: () => import('./tvos.screens/search.svelte'),

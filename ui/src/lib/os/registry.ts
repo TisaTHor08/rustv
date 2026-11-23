@@ -46,6 +46,8 @@ export interface OsStyle {
   reducedMotionSafe?: boolean;
   /** Emplacements de widgets fournis par la mise en page (défaut : ['status']). Voir WidgetSlot et docs/OS-STYLES.md. */
   slots?: WidgetSlot[];
+  /** Zones de focus gérées par le style (défaut : ['content']). Une zone inconnue est ramenée à 'content' au changement de style et au retour de focus. */
+  zones?: string[];
   /** Surcharge de la navigation : renvoie true si la touche est traitée (sinon model.move par défaut). */
   nav?: (dir: Dir, model: HomeModel) => boolean;
   /** Surcharge de la touche OK : renvoie true si traitée (sinon model.activate()). */

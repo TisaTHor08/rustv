@@ -39,6 +39,8 @@ const meta: OsStyleMeta = {
   descKey: 'os.webos.d',
   font: 'Noto Sans',
   slots: ['status'],
+  /** Zones de focus que ce style sait gérer (voir navguard.ts) : toute autre zone est ramenée à 'content'. */
+  zones: ['content', 'top', 'banner', 'sys'],
   screens: {
     settings: () => import('./webos.screens/settings.svelte'),
     search: () => import('./webos.screens/search.svelte'),

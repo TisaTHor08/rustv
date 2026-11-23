@@ -47,6 +47,8 @@ const meta: OsStyleMeta = {
   descKey: 'os.fire.d',
   font: 'Roboto',
   slots: ['status'],
+  /** Zones de focus que ce style sait gérer (voir navguard.ts) : toute autre zone est ramenée à 'content'. */
+  zones: ['content', 'nav'],
   screens: {
     settings: () => import('./fire.screens/settings.svelte'),
     search: () => import('./fire.screens/search.svelte'),

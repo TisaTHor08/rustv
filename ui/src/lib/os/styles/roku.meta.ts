@@ -27,6 +27,8 @@ const meta: OsStyleMeta = {
   descKey: 'os.roku.d',
   font: 'Montserrat',
   slots: ['status'],
+  /** Zones de focus que ce style sait gérer (voir navguard.ts) : toute autre zone est ramenée à 'content'. */
+  zones: ['content', 'menu'],
   screens: {
     settings: () => import('./roku.screens/settings.svelte'),
     search: () => import('./roku.screens/search.svelte'),
