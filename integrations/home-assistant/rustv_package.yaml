@@ -1,0 +1,160 @@
+# RusTV for Home Assistant: template media_player, scripts and example automations.
+#
+# Install: enable packages in configuration.yaml
+#   homeassistant:
+#     packages: !include_dir_named packages
+# then copy this file to <config>/packages/rustv.yaml and replace every
+# "rustv_salon" below by the object id prefix of YOUR entities (Settings > Devices > RusTV <PC name>).
+# Home Assistant has NO MQTT media_player platform, so the media player below is a
+# "universal"-style wrapper built from the entities RusTV publishes through MQTT discovery.
+# Entity ids and the MQTT topic prefix (rustv/<pc id>) depend on your PC: adjust them.
+
+media_player:
+  - platform: universal
+    name: RusTV
+    unique_id: rustv_salon_media_player
+    children: []
+    commands:
+      turn_on:
+        action: switch.turn_on
+        target: { entity_id: switch.rustv_salon_tv_mode }
+      turn_off:
+        action: switch.turn_off
+        target: { entity_id: switch.rustv_salon_tv_mode }
+      volume_set:
+        action: number.set_value
+        target: { entity_id: number.rustv_salon_volume }
+        data:
+          value: "{{ (volume_level * 100) | round(0) }}"
+      volume_up:
+        action: button.press
+        target: { entity_id: button.rustv_salon_volume_up }
+      volume_down:
+        action: button.press
+        target: { entity_id: button.rustv_salon_volume_down }
+      volume_mute:
+        action: switch.toggle
+        target: { entity_id: switch.rustv_salon_mute }
+      media_play_pause:
+        action: button.press
+        target: { entity_id: button.rustv_salon_play_pause }
+      media_play:
+        action: button.press
+        target: { entity_id: button.rustv_salon_play_pause }
+      media_pause:
+        action: button.press
+        target: { entity_id: button.rustv_salon_play_pause }
+      media_stop:
+        action: button.press
+        target: { entity_id: button.rustv_salon_stop }
+      media_next_track:
+        action: button.press
+        target: { entity_id: button.rustv_salon_next }
+      media_previous_track:
+        action: button.press
+        target: { entity_id: button.rustv_salon_previous }
+      select_source:
+        action: select.select_option
+        target: { entity_id: select.rustv_salon_app_launcher }
+        data:
+          option: "{{ source }}"
+    attributes:
+      state: sensor.rustv_salon_state
+      is_volume_muted: switch.rustv_salon_mute
+      volume_level: number.rustv_salon_volume
+      media_title: sensor.rustv_salon_now_playing
+      source: select.rustv_salon_app_launcher
+      source_list: select.rustv_salon_app_launcher|options
+
+script:
+  rustv_movie_night:
+    alias: "RusTV: movie night"
+    icon: mdi:movie-open
+    sequence:
+      - action: switch.turn_on
+        target: { entity_id: switch.rustv_salon_tv_mode }
+      - wait_template: "{{ is_state('binary_sensor.rustv_salon_tv_mode', 'on') }}"
+        timeout: "00:00:20"
+      - action: select.select_option
+        target: { entity_id: select.rustv_salon_app_launcher }
+        data: { option: "Plex" }          # must match a tile name in the select options
+      - action: number.set_value
+        target: { entity_id: number.rustv_salon_volume }
+        data: { value: 35 }
+      - action: light.turn_on
+        target: { entity_id: light.living_room }
+        data: { brightness_pct: 10 }
+
+  rustv_open_youtube:
+    alias: "RusTV: open YouTube"   # expose this script to a voice assistant (Alexa, Google, Assist)
+    sequence:
+      - action: select.select_option
+        target: { entity_id: select.rustv_salon_app_launcher }
+        data: { option: "YouTube" }
+
+  rustv_open_tile_by_id:
+    alias: "RusTV: open a tile by id"
+    fields:
+      tile: { description: "Tile id, for example youtube or mod-myid-radio" }
+    sequence:
+      - action: mqtt.publish
+        data:
+          topic: "rustv/YOUR_PC_ID/cmd/open_tile"
+          payload: "{{ tile }}"
+          qos: 1
+
+  rustv_announce:
+    alias: "RusTV: announce on the TV"
+    fields:
+      message: { description: "Text to speak" }
+    sequence:
+      - action: tts.speak
+        target: { entity_id: tts.home_assistant_cloud }
+        data:
+          media_player_entity_id: media_player.living_room_speaker
+          message: "{{ message }}"
+
+automation:
+  - alias: "RusTV: dim the lights when playback starts"
+    trigger:
+      - platform: state
+        entity_id: sensor.rustv_salon_state
+        to: "playing"
+    action:
+      - action: light.turn_on
+        target: { entity_id: light.living_room }
+        data: { brightness_pct: 10, transition: 3 }
+
+  - alias: "RusTV: lights back when playback stops"
+    trigger:
+      - platform: state
+        entity_id: sensor.rustv_salon_state
+        from: "playing"
+        for: "00:00:05"
+    action:
+      - action: light.turn_on
+        target: { entity_id: light.living_room }
+        data: { brightness_pct: 60, transition: 3 }
+
+  - alias: "RusTV: pause when the doorbell rings"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.front_door_bell
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: sensor.rustv_salon_state
+        state: "playing"
+    action:
+      - action: button.press
+        target: { entity_id: button.rustv_salon_play_pause }
+
+  - alias: "RusTV: switch the AVR input when TV mode starts"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.rustv_salon_tv_mode
+        to: "on"
+    action:
+      - action: media_player.select_source
+        target: { entity_id: media_player.avr }
+        data: { source: "PC" }

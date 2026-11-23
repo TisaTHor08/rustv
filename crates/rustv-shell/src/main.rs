@@ -4,6 +4,7 @@ mod autostart;
 mod browser;
 mod commands;
 mod fs;
+mod ha;
 mod hooks;
 mod lan;
 mod library;
@@ -117,6 +118,11 @@ fn main() {
             commands::set_blackout,
             commands::set_autostart,
             commands::quit_app,
+            ha::ha_get,
+            ha::ha_set,
+            ha::ha_test,
+            ha::ha_publish_discovery,
+            ha::ha_remove_discovery,
         ])
         .setup(move |app| {
             let h = app.handle().clone();
@@ -149,6 +155,8 @@ fn main() {
                     }
                 })
                 .build(app)?;
+
+            ha::start(app.handle());
 
             // Contributions des mods à la télécommande du téléphone.
             core.set_remote_mods(mods::remote_bundle());

@@ -1,0 +1,47 @@
+# Lovelace card for RusTV: paste into a dashboard (Edit > Add card > Manual).
+# Replace "rustv_salon" by your entity id prefix. Uses only built-in cards.
+type: vertical-stack
+cards:
+  - type: entities
+    title: RusTV
+    show_header_toggle: false
+    entities:
+      - entity: sensor.rustv_salon_state
+        name: State
+      - entity: sensor.rustv_salon_now_playing
+        name: Now playing
+      - entity: sensor.rustv_salon_current_app
+        name: App
+      - entity: switch.rustv_salon_tv_mode
+        name: TV mode
+      - entity: select.rustv_salon_app_launcher
+        name: Open
+      - entity: number.rustv_salon_volume
+        name: Volume
+      - entity: switch.rustv_salon_mute
+        name: Mute
+      - entity: binary_sensor.rustv_salon_phone_connected
+        name: Phone
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - { type: button, entity: button.rustv_salon_previous, name: Prev, icon: "mdi:skip-previous", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_previous } } }
+      - { type: button, entity: button.rustv_salon_play_pause, name: Play/Pause, icon: "mdi:play-pause", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_play_pause } } }
+      - { type: button, entity: button.rustv_salon_next, name: Next, icon: "mdi:skip-next", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_next } } }
+      - { type: button, entity: button.rustv_salon_volume_down, name: Vol -, icon: "mdi:volume-minus", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_volume_down } } }
+      - { type: button, entity: button.rustv_salon_home, name: Home, icon: "mdi:home", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_home } } }
+      - { type: button, entity: button.rustv_salon_volume_up, name: Vol +, icon: "mdi:volume-plus", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_volume_up } } }
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - { type: button, entity: button.rustv_salon_key_search, name: Search, icon: "mdi:magnify", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_key_search } } }
+      - { type: button, entity: button.rustv_salon_key_up, name: Up, icon: "mdi:chevron-up", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_key_up } } }
+      - { type: button, entity: button.rustv_salon_key_menu, name: Menu, icon: "mdi:menu", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_key_menu } } }
+      - { type: button, entity: button.rustv_salon_key_left, name: Left, icon: "mdi:chevron-left", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_key_left } } }
+      - { type: button, entity: button.rustv_salon_key_ok, name: OK, icon: "mdi:checkbox-blank-circle-outline", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_key_ok } } }
+      - { type: button, entity: button.rustv_salon_key_right, name: Right, icon: "mdi:chevron-right", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_key_right } } }
+      - { type: button, entity: button.rustv_salon_key_back, name: Back, icon: "mdi:arrow-left", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_key_back } } }
+      - { type: button, entity: button.rustv_salon_key_down, name: Down, icon: "mdi:chevron-down", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_key_down } } }
+      - { type: button, entity: button.rustv_salon_stop, name: Stop, icon: "mdi:stop", tap_action: { action: perform-action, perform_action: button.press, target: { entity_id: button.rustv_salon_stop } } }

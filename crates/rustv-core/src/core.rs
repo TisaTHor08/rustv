@@ -179,6 +179,19 @@ impl Core {
         }
     }
 
+    /// Média en cours (lecteur RusTV ou SMTC), `None` si rien ne joue.
+    pub fn now_playing(&self) -> Option<NowPlaying> {
+        match self.np_msg() {
+            PcMsg::NowPlaying { active: true, title, artist, playing, position, duration, source } => Some(NowPlaying { title, artist, playing, position, duration, source }),
+            _ => None,
+        }
+    }
+
+    /// Dernier volume connu du PC (niveau 0 à 100, muet).
+    pub fn volume(&self) -> Option<(u8, bool)> {
+        *self.volume.lock().unwrap()
+    }
+
     fn refresh_np(&self) {
         let msg = self.np_msg();
         let mut last = self.last_np.lock().unwrap();

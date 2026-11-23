@@ -28,3 +28,9 @@ sevenz-rust = "0.6.1"
 sha2 = "0.10"
 quick-xml = "0.37"
 flate2 = "1.1.11"
+# Home Assistant (MQTT) : client bloquant, TLS rustls (ring) pour les courtiers publics ; DPAPI pour le mot de passe.
+rumqttc = { version = "0.24", default-features = false, features = ["use-rustls"] }
+
+[dependencies.windows]
+version = "0.62"
+features = ["Win32_Foundation", "Win32_Security_Cryptography"]
