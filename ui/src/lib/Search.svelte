@@ -188,8 +188,10 @@
     const libPaths = new Set<string>();
     const d = lib.data;
         const libs: Row[] = [];
+    // La ligne « Ouvrir UGREEN Theater » n'est pas un vrai résultat : elle passe après les autres groupes.
+    const ugOpen: Row[] = [];
     for (const l of view?.library ?? []) {
-      libs.push({
+      (l.source === 'ugreen' ? ugOpen : libs).push({
         section: 'libs',
         title: l.title,
         sub: l.source === 'ugreen' ? t('usearch.ugreen', { q: q.trim() }) : [l.parent, l.year, kindName(l.kind)].filter(Boolean).join(' · '),
@@ -255,6 +257,7 @@
 
     // 5) Chercher dans une application (services dont la tuile est dans RusTV)
     const chips = (view?.services ?? []).filter((x) => tileOf(x.tileId)).map((x) => provChip(x));
+    out.push(...ugOpen);
     if (q.trim().length >= 2 && chips.length) out.push({ section: 'inapp', title: t('usearch.inapp'), sub: `« ${q.trim()} »`, chips });
     return out;
   });
