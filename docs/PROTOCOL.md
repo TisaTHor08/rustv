@@ -36,7 +36,7 @@ Phone → PC: `key{k: up|down|left|right|enter|back|backlong|menu|search}`, `alt
 `menu` is injected as the Windows context-menu key (VK_APPS); the TV home screen uses it to open a tile's options.
 
 PC → phone: `apps{apps[{id,name,icon}]}`, `icons{icons[{id,icon}]}` (PNG base64, sent in batches),
-`state{pinned, textFocus, tvMode, osStyle?}`, `nowPlaying{active, title, artist, playing, position, duration, source}`, `volume{level 0-100, muted}` (PC volume, sent on connect and on every change), `remoteMods{mods}`, `pong`.
+`state{pinned, textFocus, tvMode, osStyle?}`, `nowPlaying{active, title, artist, playing, position, duration, source}`, `volume{level 0-100, muted}` (PC volume, sent on connect and on every change), `remoteMods{mods}`, `pong`. Each `ping` is answered by `pong` followed by a fresh `state`, so a lost or stale state (for example `textFocus`) is reconciled within one ping period (4 s) and on app resume; the phone also clears `textFocus` when the link drops.
 
 `osStyle` (optional, string) is the TV home style the PC currently shows: one of `googletv`, `tizen`, `webos`, `vidaa`, `titan`, `fire`, `tvos`, `roku`.
 It is omitted for the default `rustv` style, and omitted by older PCs; older phones ignore it. The phone uses it to pick its remote model

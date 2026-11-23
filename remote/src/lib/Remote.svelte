@@ -13,6 +13,7 @@
   import Utility from './remotes/parts/Utility.svelte';
   import { activeModel } from './remotes/select.svelte.ts';
   import type { RemoteCtx } from './remotes/types.ts';
+  import { keyboardVisible, nextDismissed } from './protocol/appstate.ts';
   import { applyTheme, findTheme, loadThemeChoice, panelsOf } from './mods.ts';
 
   type Tab = 'remote' | 'apps' | 'pad' | 'mods';
@@ -120,7 +121,18 @@
       native?.setVolumeCapture?.(false);
     };
   });
-  const showKeyboard = $derived((connected || (app.wasConnected && app.status === 'connecting')) && (app.textFocus || manualKeyboard));
+  // ✕ ferme la barre pour le champ actuel ; elle revient au prochain champ (après un état « sans champ »).
+  let kbDismissed = $state(false);
+  $effect(() => {
+    kbDismissed = nextDismissed(kbDismissed, app.textFocus);
+  });
+  // Sans liaison, plus de saisie manuelle non plus.
+  $effect(() => {
+    if (app.status === 'idle') manualKeyboard = false;
+  });
+  const showKeyboard = $derived(
+    keyboardVisible({ live: connected || (app.wasConnected && app.status === 'connecting'), textFocus: app.textFocus, manual: manualKeyboard, dismissed: kbDismissed }),
+  );
 </script>
 
 <div class="screen">
@@ -195,7 +207,7 @@
 {#if toastMsg}<div class="toast" role="status">{toastMsg}</div>{/if}
 {#if settingsOpen}<Settings choice={themeChoice} onpick={(k) => (themeChoice = k)} onclose={() => (settingsOpen = false)} />{/if}
 {#if vaultOpen}<Vault onclose={() => (vaultOpen = false)} />{/if}
-{#if showKeyboard && !vaultOpen}<TextInput onclose={() => (manualKeyboard = false)} />{/if}
+{#if showKeyboard && !vaultOpen}<TextInput onclose={() => { manualKeyboard = false; kbDismissed = true; }} />{/if}
 
 <style>
   .screen {

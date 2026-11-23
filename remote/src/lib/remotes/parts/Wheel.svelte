@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { send } from '../../connection.svelte.ts';
   import { tick, tickSelect } from '../../haptics.ts';
 
@@ -52,6 +53,11 @@
       onok();
     }
   }
+  // Changement de modèle de télécommande en cours de geste : plus aucun minuteur ne doit envoyer de touche après le démontage.
+  onDestroy(() => {
+    down = false;
+    clearTimeout(longTimer);
+  });
 </script>
 
 <div class="wheel" onpointerdown={pdown} onpointermove={pmove} onpointerup={pup} onpointercancel={pup} role="application" aria-label={label}>

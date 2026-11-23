@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { t } from './i18n.ts';
   import { send } from './connection.svelte.ts';
   import { tick, tickSelect } from './haptics.ts';
@@ -114,6 +115,12 @@
     };
     run();
   }
+  // Changement de modèle de télécommande en cours de geste : plus aucun minuteur ne doit envoyer de touche après le démontage.
+  onDestroy(() => {
+    down = false;
+    clearTimeout(longTimer);
+    clearTimeout(inertiaTimer);
+  });
 </script>
 
 <div bind:this={el} class="surface" class:clickpad={variant === 'clickpad'} onpointerdown={pdown} onpointermove={pmove} onpointerup={pup} onpointercancel={pup} role="application" aria-label="Surface tactile">
