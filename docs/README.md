@@ -10,6 +10,7 @@
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Contributors | Components and how they talk to each other |
 | [PROTOCOL.md](PROTOCOL.md) | Contributors, auditors | Wire protocol: handshake, encryption, messages |
 | [APPS.md](APPS.md) | Everyone | Natively supported apps and how well each one is tested (generated) |
+| [APP-TESTING.md](APP-TESTING.md) | Maintainers | How app statuses are tested, which services need an account |
 | [UGREEN.md](UGREEN.md) | Everyone | UGREEN Theater on a NAS, local and UGREEN Link access, what was verified |
 | [BITWARDEN.md](BITWARDEN.md) | Everyone | Filling logins from your vault, how it works, threat model |
 | [TV-GUARD.md](TV-GUARD.md) | Everyone | Boot to TV, keep other windows off the TV, recovery |
