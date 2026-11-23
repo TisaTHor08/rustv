@@ -1,0 +1,26 @@
+{
+  "_comment": "Services de streaming connus de la recherche universelle. Ajouter un service = ajouter une ligne. 'tile' = id de la tuile RusTV (catalog.json) ; 'names' = noms utilises par TMDB / JustWatch (comparaison sans accents ni casse) ; 'search' = modele d'URL https avec {q} (encodage pourcent automatique) ; 'searchLang' = variantes par langue de l'interface ; 'kinds' = movie, tv. Les modeles marques non verifies dans docs/SEARCH.md peuvent changer cote service : ils ouvrent au pire la page d'accueil du service.",
+  "providers": [
+    { "id": "netflix", "tile": "netflix", "name": "Netflix", "names": ["Netflix", "Netflix Kids", "Netflix basic with Ads", "Netflix Standard with Ads"], "search": "https://www.netflix.com/search?q={q}" },
+    { "id": "prime", "tile": "prime", "name": "Prime Video", "names": ["Amazon Prime Video", "Prime Video", "Amazon Prime Video with Ads", "Amazon Video"], "search": "https://www.primevideo.com/search/?phrase={q}" },
+    { "id": "disney", "tile": "disney", "name": "Disney+", "names": ["Disney Plus", "Disney+"], "search": "https://www.disneyplus.com/search?q={q}" },
+    { "id": "max", "tile": "max", "name": "Max", "names": ["Max", "HBO Max", "Max Amazon Channel"], "search": "https://www.max.com/search?q={q}" },
+    { "id": "appletv", "tile": "appletv", "name": "Apple TV+", "names": ["Apple TV Plus", "Apple TV+", "Apple TV"], "search": "https://tv.apple.com/search?term={q}" },
+    { "id": "canal", "tile": "canal", "name": "Canal+", "names": ["Canal+", "Canal Plus", "Canal VOD", "Canal+ Series", "Canal+ Cine"], "search": "https://www.canalplus.com/recherche/?q={q}" },
+    { "id": "francetv", "tile": "francetv", "name": "France.tv", "names": ["France TV", "france.tv", "Francetv"], "search": "https://www.france.tv/recherche/?q={q}" },
+    { "id": "arte", "tile": "arte", "name": "Arte", "names": ["Arte", "ARTE.tv"], "search": "https://www.arte.tv/fr/search/?q={q}", "searchLang": { "en": "https://www.arte.tv/en/search/?q={q}" } },
+    { "id": "crunchyroll", "tile": "crunchyroll", "name": "Crunchyroll", "names": ["Crunchyroll"], "search": "https://www.crunchyroll.com/search?q={q}" },
+    { "id": "youtube", "tile": "youtube", "name": "YouTube", "names": ["YouTube", "YouTube Premium", "Youtube Free"], "search": "https://www.youtube.com/results?search_query={q}" },
+    { "id": "tf1", "tile": "tf1", "name": "TF1+", "names": ["TF1+", "TF1 Plus", "MYTF1", "TF1"], "search": "https://www.tf1.fr/recherche?q={q}" },
+    { "id": "m6", "tile": "m6", "name": "M6+", "names": ["M6+", "M6 Plus", "6play", "6play Max"], "search": "https://www.6play.fr/recherche?q={q}" },
+    { "id": "tubi", "tile": "tubi", "name": "Tubi", "names": ["Tubi TV", "Tubi"], "search": "https://tubitv.com/search/{q}" },
+    { "id": "rakuten", "tile": "rakuten", "name": "Rakuten TV", "names": ["Rakuten TV"], "search": "https://rakuten.tv/fr/search?q={q}" },
+    { "id": "paramount", "tile": "paramount", "name": "Paramount+", "names": ["Paramount Plus", "Paramount+", "Paramount Plus Apple TV Channel"], "search": "https://www.paramountplus.com/search/?q={q}" },
+    { "id": "ocs", "tile": "ocs", "name": "Orange TV / OCS", "names": ["OCS", "OCS Go", "Orange VOD"], "search": "https://www.ocs.fr/recherche?q={q}" },
+    { "id": "pluto", "tile": "pluto", "name": "Pluto TV", "names": ["Pluto TV"], "search": "https://pluto.tv/fr/search/details?q={q}" },
+    { "id": "molotov", "tile": "molotov", "name": "Molotov", "names": ["Molotov TV", "Molotov"], "search": "https://www.molotov.tv/search?q={q}" },
+    { "id": "dailymotion", "tile": "dailymotion", "name": "Dailymotion", "names": ["Dailymotion"], "search": "https://www.dailymotion.com/search/{q}" },
+    { "id": "vimeo", "tile": "vimeo", "name": "Vimeo", "names": ["Vimeo"], "search": "https://vimeo.com/search?q={q}" },
+    { "id": "adn", "tile": "adn", "name": "ADN", "names": ["ADN", "Anime Digital Network", "Animation Digital Network"], "search": "https://animationdigitalnetwork.com/search?search={q}" }
+  ]
+}

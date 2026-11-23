@@ -27,7 +27,8 @@ Working examples are in [`mods/`](../mods).
     "adapters": [{ "match": ["*://*.example.org/*"], "js": "adapter.js", "css": "adapter.css", "runAt": "ready" }],
     "icons":    [{ "tile": "youtube", "src": "icons/youtube.svg" }],
     "remote":   { "themes": [], "panels": [] },
-    "strings":  { "fr": { "my.key": "Bonjour" }, "en": { "my.key": "Hello" } }
+    "strings":  { "fr": { "my.key": "Bonjour" }, "en": { "my.key": "Hello" } },
+    "search":   [{ "id": "site", "name": "My site", "tile": "site", "urlTemplate": "https://example.org/search?q={q}", "providerNames": ["My site"], "kinds": ["movie"] }]
   }
 }
 ```
@@ -50,6 +51,34 @@ needs the `launch` permission) or implied `page` for entries under `pages`.
 - **Icons**: replace the letter on an existing tile (catalog, built-in or another mod's, by tile id) with an image from your
   mod. See [`mods/real-icons`](../mods/real-icons). Icons the user picked themselves still win.
 - **Strings**: translations added to the interface (`registerStrings`).
+- **Search**: providers of the universal search, see [Search providers](#search-providers).
+
+## Search providers
+
+`contributes.search` registers a streaming or media site with the universal search ([SEARCH.md](SEARCH.md)): when the
+user types a title, the site appears in the "Search in an app" row (and as a "where to watch" chip when the
+availability source names it), and Enter opens the mod's tile directly on the site's search page. Declarative only, no
+code and no permission. A working example is [`mods/search-internet-archive`](../mods/search-internet-archive).
+
+```json
+"search": [
+  { "id": "arte", "name": "Arte", "tile": "arte", "urlTemplate": "https://www.arte.tv/fr/search/?q={q}",
+    "providerNames": ["Arte"], "kinds": ["movie", "series"] }
+]
+```
+
+| Field | Rule |
+| --- | --- |
+| `id` | `a-z`, `0-9`, `-`, 1 to 40 characters, unique in the mod (the app uses `<mod id>:<id>`) |
+| `name` | Shown name, 1 to 40 characters |
+| `tile` | Tile that opens the site: a tile of this mod (by its `id` in `contributes.tiles`), or an existing tile (catalog tile id such as `arte`). The tile must be a `web` tile and visible in RusTV for the result to be selectable |
+| `urlTemplate` | `https://` only, at most 300 characters, contains `{q}` (replaced by the percent-encoded title), `{q}` never in the host name, no credentials, no spaces |
+| `providerNames` | Up to 12 names the availability source (TMDB / JustWatch) uses for this service, 1 to 40 characters each, compared without case or accents. Optional |
+| `kinds` | Subset of `movie`, `series`, `anime`, `video`. Optional |
+
+At most 8 providers per mod. Invalid entries are ignored by the app (and rejected by `python scripts/mods-tool.py
+check`). Only providers of **enabled** mods are used. The listing returned by `mods_list` carries the cleaned entries
+in a `search` field.
 
 ## Phone remote contributions
 
