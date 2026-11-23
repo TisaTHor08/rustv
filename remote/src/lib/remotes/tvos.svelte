@@ -1,6 +1,7 @@
 <script lang="ts">
   // Siri Remote d'Apple TV : cadre aluminium, grand pavé rond (glisser = flèches, tap = OK, clic sur le bord = flèche),
-  // Retour et TV (accueil), micro, lecture / pause, muet, bascule de volume sur le bord droit.
+  // Retour et TV (accueil), muet et lecture / pause, bascule de volume horizontale dessous, bouton Siri (micro) en haut à droite du pavé
+  // (sur l'appareil il est sur le bord, ici une petite pastille).
   import { app } from '../connection.svelte.ts';
   import { home, key, media, search } from './actions.ts';
   import { labels } from './labels.ts';
@@ -19,18 +20,16 @@
   <div class="face">
     <Surface variant="clickpad" />
 
-    <div class="lower">
-      <div class="grid">
-        <Btn cls="rb" kind="long" label={L('back')} onTap={key('back')} onLong={key('backlong')}><Icon name="back" size={26} sw={2.4} /></Btn>
-        <Btn cls="rb" strong label={L('home')} onTap={home}><Icon name="tv" size={24} /></Btn>
-        <Btn cls="rb" label={L('play')} onTap={media('playPause')}><Icon name="playpause" size={22} /></Btn>
-        <Btn cls="rb" label={L('mute')} onTap={media('mute')}><Icon name={app.volume.muted ? 'mute' : 'vol'} size={22} /></Btn>
-      </div>
-      <div class="side">
-        <Btn cls="rb" label={L('assistant')} onTap={search}><Icon name="mic" size={22} /></Btn>
-        <Rocker onUp={media('volUp')} onDown={media('volDown')} upLabel={L('volUp')} downLabel={L('volDown')} mid={app.volume.known ? String(app.volume.level) : 'VOL'} />
-      </div>
+    <div class="top">
+      <Btn cls="rb sm" label={L('assistant')} onTap={search}><Icon name="mic" size={18} /></Btn>
     </div>
+    <div class="grid">
+      <Btn cls="rb" kind="long" label={L('back')} onTap={key('back')} onLong={key('backlong')}><Icon name="back" size={26} sw={2.4} /></Btn>
+      <Btn cls="rb" strong label={L('home')} onTap={home}><Icon name="tv" size={24} /></Btn>
+      <Btn cls="rb" label={L('mute')} onTap={media('mute')}><Icon name={app.volume.muted ? 'mute' : 'vol'} size={22} /></Btn>
+      <Btn cls="rb" label={L('play')} onTap={media('playPause')}><Icon name="playpause" size={22} /></Btn>
+    </div>
+    <Rocker horizontal onUp={media('volUp')} onDown={media('volDown')} upLabel={L('volUp')} downLabel={L('volDown')} mid={app.volume.known ? String(app.volume.level) : 'VOL'} />
   </div>
 </div>
 
@@ -42,9 +41,9 @@
     --cp-ink: #55555c;
     --rk-bg: linear-gradient(90deg, #2c2c30, #1b1b1e);
     --rk-ink: #f1f1f3;
-    --rk-w: 56px;
-    --rk-h: 128px;
-    --rk-r: 28px;
+    --rk-w: 100%;
+    --rk-h: 54px;
+    --rk-r: 27px;
     --rk-shadow: inset 0 1px 0 #ffffff1a, 0 2px 4px #000a;
     width: min(100%, 270px);
     margin: 0 auto;
@@ -66,23 +65,20 @@
   .face :global(.surface) {
     --cp-size: 100%;
   }
-  .lower {
+  .top {
     display: flex;
-    gap: 12px;
-    align-items: flex-start;
+    justify-content: flex-end;
+    margin-bottom: -6px;
+  }
+  .tv :global(.rb.sm) {
+    width: 34px;
+    height: 34px;
   }
   .grid {
-    flex: 1;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     justify-items: center;
-  }
-  .side {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
   }
   .tv :global(.rb) {
     width: 56px;

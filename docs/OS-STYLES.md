@@ -106,13 +106,15 @@ Common screens provided: Settings as a left list plus right detail pane, Search 
 
 ### Fire TV style (`fire`)
 
-Font Roboto (OFL). Reproduced: dark navy background (#0f171e), top navigation (search icon, Home, Live, Apps, Library, settings gear at the right, clock and phones), selected entry underlined, focused entry in a light-outlined box, large hero (kicker, title, description, white "Open" button, page dots) that follows the focused tile and scrolls away when the focus goes below the first row, first row "Your apps & channels", "Continue watching" 16:9 cards with progress bar, category rows, focus = scale 1.1 with a white 0.25 rem outline and a faint warm glow, label under the focused card, Up from the first row reaches the nav (zone `nav`), Down returns, Enter on an entry selects it, Apps = grid of all tiles, Library = library rows. Content width is capped (140 rem) on 32:9.
+Font Roboto (OFL). Rebuilt from real screenshots of the Fire TV home (aftvnews, TechCrunch, Amazon). Reproduced: neutral dark grey background (#171717), full-bleed hero on the top 48 % with a hard cut (kicker, large letter-spaced title, description, grey "Open" pill standing for "Learn more", page dots with an elongated active dot), then the bar under the hero: round profile avatar (opens quick settings), icon-only entries (search, home, live, library) where the focused or selected one sits in a dark circle with a soft halo and its label below, six app shortcuts (small coloured 16:9 tiles) on the right, an "all apps" square (Apps grid) and a round settings gear, then rows with uppercase letter-spaced titles and tight 16:9 cards (5 visible at 1080p, 0.4 rem gap), "Continue watching" with progress bar, focus = white ring + scale 1.06. Going down scrolls hero and bar away, Up from the first row reaches the bar (zone `nav`, Left/Right move, Down returns, Enter selects or opens an app).
 
-Approximated: the hero art is the tile colour with a large letter or icon (no key art, no carousel auto-advance); the "More info" label is decorative; focus outline colour (white with a warm glow) and nav focus look are from memory; the newer Vega OS home (shared by some Panasonic sets) is not reproduced separately.
+Common screens provided in `fire.screens/` (all nine): Settings (tile grid at the root, list plus detail pane in a page), Search (light pill field, on-screen keyboard left, 16:9 results right), tile menu (bottom-right card), pairing, quick settings (top band of cards), volume (bottom pill), screensaver (drifting "photo" gradient, clock bottom-left), toast (top right card), launch (card plus spinner).
 
-Left out: the profile avatar, notifications, the "Find" sub-menu, the Alexa hint bar, the sponsored hero and quick-settings overlay.
+Approximated: hero art is the tile colour with a large letter or icon, no carousel auto-advance; the profile avatar is generic; the nav shows only the Home, Library, Apps tabs (Live and Search open pages); the quick settings, volume OSD, screensaver, notifications and settings screens are NOT based on real captures (none found), only on general knowledge of the look; the newer Vega OS (icon-only bar with watchlist/games/search/check/home/live) is not reproduced separately.
 
-Verification: only two photos of the Fire TV remote were available as reference, none of the home screen, so the whole layout is built from knowledge of the real UI.
+Left out: profile switcher, the "Find" tab content, Alexa hint bar, sponsored rows, input panel.
+
+Verification: home checked against the screenshots in headless Chrome (1920x1080: hero, bar, nav focus, scrolling rows, apps tab not inspected) ; screens checked once visually in the mock (settings, search, quick, pairing, tile menu, volume); ambient, toast and launch were built but not inspected.
 
 ### Apple TV style (`tvos`)
 
@@ -120,9 +122,11 @@ Font: system stack first (`-apple-system`, SF Pro on Apple devices), then Inter 
 
 Approximated: tilt follows the arrow keys instead of a touch surface; the top shelf has no key art (tile colour plus a large letter or icon); the real Home screen has no tab capsule (it belongs to the TV app), it is kept because the model needs the tabs; no blur of the wallpaper behind the dock; the icon layers are two (background and glyph).
 
-Left out: Control Center, profile switcher, screensaver, app folders and the jiggle edit mode.
+Common screens provided in `tvos.screens/` (all nine): Settings (big gear tile left, rounded list right, focused row = white pill), Search (centred field, round-key keyboard, result row below), tile menu (centred frosted sheet), pairing (centred), quick settings in the Control Center layout (big "Exit" tile, glass tiles, volume slider), volume pill top right (tvOS has no volume HUD on device, so this borrows the banner look), Aerial-like screensaver, glass toast, launch (icon grows to full screen). A translucent dock now sits behind the first row on the Home page.
 
-Verification: screenshots of tvOS were available as reference (home with the dock, TV app shelves, rows); the tvOS 26 translucent look is only approximated.
+Left out: profile switcher, app folders and the jiggle edit mode.
+
+Verification: screenshots of tvOS were available as reference (home with the dock, TV app shelves, Control Center); the tvOS 26 translucent look is only approximated. Home, Settings, Search, tile menu and quick settings were checked in headless Chrome; pairing, volume, screensaver, toast and launch were built but not inspected. The Settings, Search and screensaver designs come from general knowledge, not from captures.
 
 ### VIDAA style (`vidaa`)
 
@@ -159,7 +163,7 @@ Left out: Home Hub quick cards, input list, app edit mode (drag to reorder), scr
 
 ## Screens (extension points)
 
-`OsStyle.screens` (`os/screens.ts`) lets a style redraw the common screens: `settings`, `search`, `tileMenu`, `pairing`, `quick`, `osd`, `ambient`, `toast`, `launch`. Each entry is a lazy loader of a Svelte component (`styles/<id>.screens/<name>.svelte`) that receives typed props (`ScreenProps[name]`). Logic (keys, data, actions) stays in the shared components (`Settings`, `Search`, `TileMenu`, `Pairing`, `os/QuickHost`, `os/SystemLayer`); a screen component only draws the props and calls the given callbacks. `ScreenSlot.svelte` loads the style's component and falls back to the default one (`os/defaults/`, the RusTV look re-skinned by tokens) when the style does not provide it or while it loads. Styles without `screens` (tizen, webos... to come) therefore keep working unchanged. The Search screen binds the real input with `bindInput` (phone keyboard keeps working) and may take over arrow keys with `setKeyboardHandler` for an on-screen keyboard.
+`OsStyle.screens` (`os/screens.ts`) lets a style redraw the common screens: `settings`, `search`, `tileMenu`, `pairing`, `quick`, `osd`, `ambient`, `toast`, `launch`. Each entry is a lazy loader of a Svelte component (`styles/<id>.screens/<name>.svelte`) that receives typed props (`ScreenProps[name]`). Logic (keys, data, actions) stays in the shared components (`Settings`, `Search`, `TileMenu`, `Pairing`, `os/QuickHost`, `os/SystemLayer`); a screen component only draws the props and calls the given callbacks. `ScreenSlot.svelte` loads the style's component and falls back to the default one (`os/defaults/`, the RusTV look re-skinned by tokens) when the style does not provide it or while it loads. Styles without `screens` (tizen, webos, vidaa, titan...) therefore keep working unchanged. The Search screen binds the real input with `bindInput` (phone keyboard keeps working) and may take over arrow keys with `setKeyboardHandler` for an on-screen keyboard.
 
 New common features:
 
@@ -193,3 +197,6 @@ Roboto, Montserrat and Inter (variable) from the Fontsource packages, SIL Open F
 - Mod widgets in a style were not exercised in the mock (the mock has no mods); weather refresh was not exercised (network).
 - Visual comparison was done against a handful of reference screenshots, not frame by frame; motion timings are estimates.
 - Light theme with a style, very small windows, portrait and 32:9 were not all inspected.
+
+- Phone remotes `fire` and `tvos` (remote/src/lib/remotes) were reshaped after photos of the Fire TV Stick remote and the Siri Remote; they compile (`npm run check`, `npm run build` in `remote/`) but were not looked at in a browser.
+- Roku screens use i18n keys (`roku.kb.*`, `roku.search.start`, `roku.settings.open`) that are not registered anywhere, so they show the raw key.
