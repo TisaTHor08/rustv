@@ -41,6 +41,8 @@ pub enum PhoneMsg {
     /// Démarre / arrête le mode TV sur le PC.
     Tv { on: bool },
     Media { a: MediaAction },
+    /// Règle le volume du PC (0 à 100).
+    SetVolume { level: u8 },
     /// Coffre Bitwarden : interroge l'état (CLI présente, connecté, verrouillé).
     VaultStatus,
     /// Déverrouille avec le mot de passe maître (jamais conservé côté PC).
@@ -108,6 +110,8 @@ pub enum PcMsg {
     State { pinned: bool, text_focus: bool, tv_mode: bool },
     /// Média en cours de lecture sur le PC (lecteur RusTV ou n'importe quelle appli via les contrôles média Windows).
     NowPlaying { active: bool, title: String, artist: String, playing: bool, position: f64, duration: f64, source: String },
+    /// Volume principal du PC (0 à 100) et muet : le téléphone s'aligne dessus.
+    Volume { level: u8, muted: bool },
     Pong,
     #[serde(rename_all = "camelCase")]
     VaultState { status: VaultStatus, email: String, autolock_min: u32 },
@@ -241,6 +245,13 @@ mod vault_tests {
         assert_eq!(i, json!({"t":"vaultItems","items":[{"id":"1","name":"GitHub","username":"me","host":"github.com","hasTotp":true}]}));
         let r = serde_json::to_value(PcMsg::VaultResult { op: "unlock".into(), ok: false, code: "badPassword".into() }).unwrap();
         assert_eq!(r, json!({"t":"vaultResult","op":"unlock","ok":false,"code":"badPassword"}));
+    }
+
+    #[test]
+    fn volume_messages() {
+        assert_eq!(parse(json!({"t":"setVolume","level":42})), PhoneMsg::SetVolume { level: 42 });
+        let v = serde_json::to_value(PcMsg::Volume { level: 30, muted: true }).unwrap();
+        assert_eq!(v, json!({"t":"volume","level":30,"muted":true}));
     }
 
     #[test]

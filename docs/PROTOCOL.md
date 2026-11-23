@@ -28,12 +28,12 @@ replay, loss or reordering makes decryption fail and the connection is dropped.
 ## Messages (JSON, tag field `t`)
 Phone → PC: `key{k: up|down|left|right|enter|back|backlong|menu|search}`, `altTab{a: open|left|right|confirm}`, `pin`,
 `text{backspaces, text}`, `mouse{dx, dy, click?: left|right, scroll}`, `launch{appId}`, `getApps`,
-`home`, `tv{on}`, `media{a: playPause|next|prev|stop|volUp|volDown|mute}`, `ping`.
+`home`, `tv{on}`, `media{a: playPause|next|prev|stop|volUp|volDown|mute}`, `setVolume{level 0-100}`, `ping`.
 
 `menu` is injected as the Windows context-menu key (VK_APPS); the TV home screen uses it to open a tile's options.
 
 PC → phone: `apps{apps[{id,name,icon}]}`, `icons{icons[{id,icon}]}` (PNG base64, sent in batches),
-`state{pinned, textFocus, tvMode}`, `nowPlaying{active, title, artist, playing, position, duration, source}`, `pong`.
+`state{pinned, textFocus, tvMode}`, `nowPlaying{active, title, artist, playing, position, duration, source}`, `volume{level 0-100, muted}` (PC volume, sent on connect and on every change), `pong`.
 
 `search` is injected as F3 (it opens the TV home screen's universal search).
 

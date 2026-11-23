@@ -1,6 +1,7 @@
 //! RusTV core: remote-control server, input injection, pairing, Bluetooth, text-field detection.
 //! Embedded by the TV shell (`rustv-shell`); contains no UI.
 pub mod apps;
+pub mod audio;
 pub mod bluetooth;
 pub mod config;
 pub mod core;
@@ -42,6 +43,10 @@ pub fn start(core: Arc<Core>) -> std::io::Result<()> {
     {
         let c = core.clone();
         std::thread::spawn(move || smtc::run(c));
+    }
+    {
+        let c = core.clone();
+        std::thread::spawn(move || audio::run(c));
     }
     {
         // Bluetooth : facultatif (PC sans adaptateur ou Bluetooth désactivé → on ignore).

@@ -8,6 +8,8 @@
   import Touchpad from './Touchpad.svelte';
   import TextInput from './TextInput.svelte';
   import Vault from './Vault.svelte';
+  import Ring from './Ring.svelte';
+  import Volume from './Volume.svelte';
 
   type Tab = 'remote' | 'apps' | 'pad';
   let tab = $state<Tab>('remote');
@@ -19,9 +21,9 @@
 
   function loadMode(): 'dpad' | 'surface' {
     try {
-      return localStorage.getItem('rustv.mode') === 'dpad' ? 'dpad' : 'surface';
+      return localStorage.getItem('rustv.mode') === 'surface' ? 'surface' : 'dpad';
     } catch {
-      return 'surface';
+      return 'dpad';
     }
   }
   function setMode(m: 'dpad' | 'surface') {
@@ -61,6 +63,22 @@
   }
 
   const connected = $derived(app.status === 'connected');
+
+  // Boutons de volume du téléphone = volume du PC (l'appli Android intercepte les touches quand elle est connectée).
+  $effect(() => {
+    if (!connected) return;
+    const native = (window as any).RusTVNative;
+    native?.setVolumeCapture?.(true);
+    const onkey = (e: Event) => {
+      send({ t: 'media', a: (e as CustomEvent).detail === 'up' ? 'volUp' : 'volDown' });
+      tick();
+    };
+    window.addEventListener('rustv-volkey', onkey);
+    return () => {
+      window.removeEventListener('rustv-volkey', onkey);
+      native?.setVolumeCapture?.(false);
+    };
+  });
   const showKeyboard = $derived(connected && (app.textFocus || manualKeyboard));
 </script>
 
@@ -119,13 +137,7 @@
         {#if mode === 'surface'}
           <Surface />
         {:else}
-          <div class="dpad">
-            <button class="up" use:repeat={key('up')}>▲</button>
-            <button class="left" use:repeat={key('left')}>◀</button>
-            <button class="ok primary" use:longpress={{ onTap: ok, onLong: key('menu') }}>{altOpen ? t('validate') : 'OK'}</button>
-            <button class="right" use:repeat={key('right')}>▶</button>
-            <button class="down" use:repeat={key('down')}>▼</button>
-          </div>
+          <Ring onok={ok} {altOpen} />
         {/if}
 
         {#if altOpen}
@@ -136,22 +148,29 @@
           </div>
         {/if}
 
-        <div class="row">
-          <button use:longpress={{ onTap: key('back'), onLong: key('backlong') }}>{t('back')}</button>
-          <button onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'home' }); }}>{t('home')}</button>
-          <button onpointerdown={(e) => { e.preventDefault(); tick(); tabSwitch(); }}>{t('tabs')}</button>
-          <button onpointerdown={(e) => { e.preventDefault(); tick(); send({ t: 'key', k: 'search' }); }} aria-label="Recherche">🔍</button>
-          <button class:active={manualKeyboard} onpointerdown={(e) => { e.preventDefault(); tick(); manualKeyboard = !manualKeyboard; }}>⌨</button>
-          <button class:active={app.textFocus} onpointerdown={(e) => { e.preventDefault(); tick(); vaultOpen = true; }} aria-label="Bitwarden">🔑</button>
+        <div class="round">
+          <button use:longpress={{ onTap: key('back'), onLong: key('backlong') }} aria-label={t('back')}>
+            <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" /></svg><small>{t('back')}</small>
+          </button>
+          <button onpointerdown={(e) => { e.preventDefault(); tick(true); send({ t: 'home' }); }} aria-label={t('home')}>
+            <svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1z" /></svg><small>{t('home')}</small>
+          </button>
+          <button onpointerdown={(e) => { e.preventDefault(); tick(); send({ t: 'key', k: 'search' }); }} aria-label="Recherche">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" /><path d="M16 16l4 4" /></svg><small>{t('search')}</small>
+          </button>
+          <button onpointerdown={(e) => { e.preventDefault(); tick(); tabSwitch(); }} aria-label={t('tabs')}>
+            <svg viewBox="0 0 24 24"><rect x="4" y="6" width="12" height="10" rx="2" /><path d="M8 19h12V9" /></svg><small>{t('tabs')}</small>
+          </button>
         </div>
+
+        <Volume />
 
         <div class="row media">
           <button onpointerdown={media('prev')} aria-label="Précédent">⏮</button>
           <button onpointerdown={media('playPause')} aria-label="Lecture / pause">⏯</button>
           <button onpointerdown={media('next')} aria-label="Suivant">⏭</button>
-          <button use:repeat={() => send({ t: 'media', a: 'volDown' })} aria-label="Volume moins">🔉</button>
-          <button use:repeat={() => send({ t: 'media', a: 'volUp' })} aria-label="Volume plus">🔊</button>
-          <button onpointerdown={media('mute')} aria-label="Muet">🔇</button>
+          <button class:active={manualKeyboard} onpointerdown={(e) => { e.preventDefault(); tick(); manualKeyboard = !manualKeyboard; }} aria-label="Clavier">⌨</button>
+          <button onpointerdown={(e) => { e.preventDefault(); tick(); vaultOpen = true; }} aria-label="Bitwarden">🔑</button>
         </div>
 
         {#if app.tvMode}
@@ -278,34 +297,34 @@
   .seg .sel {
     background: var(--panel-2);
   }
-  .dpad {
+  .round {
+    display: flex;
+    justify-content: space-around;
+    gap: 8px;
+  }
+  .round button {
     flex: 1;
-    min-height: 220px;
-    max-height: 380px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
-    gap: 10px;
+    max-width: 84px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 0 8px;
+    border-radius: 22px;
+    background: var(--panel);
   }
-  .dpad button {
-    font-size: 1.6rem;
+  .round svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: var(--text);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
-  .up {
-    grid-area: 1 / 2;
-  }
-  .left {
-    grid-area: 2 / 1;
-  }
-  .ok {
-    grid-area: 2 / 2;
-    border-radius: 50%;
-    font-size: 1.2rem !important;
-  }
-  .right {
-    grid-area: 2 / 3;
-  }
-  .down {
-    grid-area: 3 / 2;
+  .round small {
+    font-size: 0.7rem;
+    color: var(--muted);
   }
   .row {
     display: flex;

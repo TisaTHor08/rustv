@@ -21,6 +21,7 @@ export const app = $state({
   textFocus: false,
   tvMode: false,
   now: { active: false, title: '', artist: '', playing: false, position: 0, duration: 0, source: '' },
+  volume: { level: 0, muted: false, known: false },
   apps: [] as AppEntry[],
   vault: { status: 'unknown' as VaultStatus, email: '', autolockMin: 5, items: [] as VaultItem[], seq: 0, op: '', ok: true, code: '' },
 });
@@ -212,6 +213,8 @@ async function serve(s: Session, active: () => boolean) {
         app.pinned = m.pinned;
         app.textFocus = m.textFocus;
         app.tvMode = m.tvMode;
+      } else if (m.t === 'volume') {
+        app.volume = { level: m.level, muted: m.muted, known: true };
       } else if (m.t === 'nowPlaying') {
         app.now = { active: m.active, title: m.title, artist: m.artist, playing: m.playing, position: m.position, duration: m.duration, source: m.source };
       } else if (m.t === 'vaultState') {

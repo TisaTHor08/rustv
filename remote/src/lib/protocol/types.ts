@@ -12,6 +12,7 @@ export type PhoneMsg =
   | { t: 'home' }
   | { t: 'tv'; on: boolean }
   | { t: 'media'; a: MediaAction }
+  | { t: 'setVolume'; level: number }
   | { t: 'vaultStatus' }
   | { t: 'vaultUnlock'; password: string }
   | { t: 'vaultLogin'; email: string; password: string; code?: string; method?: 0 | 1 | 3 }
@@ -47,6 +48,7 @@ export type PcMsg =
   | { t: 'vaultState'; status: VaultStatus; email: string; autolockMin: number }
   | { t: 'vaultItems'; items: VaultItem[] }
   | { t: 'vaultResult'; op: string; ok: boolean; code: string }
+  | { t: 'volume'; level: number; muted: boolean }
   | { t: 'pong' };
 
 /** Contenu du QR code affiché par le PC. */

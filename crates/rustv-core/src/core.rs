@@ -1,5 +1,5 @@
 //! État partagé et traitement des commandes du téléphone.
-use crate::{apps, config::Config, icons, input};
+use crate::{apps, audio, config::Config, icons, input};
 use rustv_protocol::messages::*;
 use rustv_protocol::pairing::PairingInfo;
 use std::collections::HashMap;
@@ -67,6 +67,7 @@ pub struct Core {
     player: Mutex<Option<PlayerInfo>>,
     smtc: Mutex<Option<NowPlaying>>,
     last_np: Mutex<Option<PcMsg>>,
+    volume: Mutex<Option<(u8, bool)>>,
     alt: Mutex<Option<Instant>>,   // Some(dernier événement) quand Alt est maintenu
     pinned: Mutex<Option<isize>>,  // HWND épinglé
     conns: Mutex<Vec<Conn>>,
@@ -94,6 +95,7 @@ impl Core {
             player: Mutex::new(None),
             smtc: Mutex::new(None),
             last_np: Mutex::new(None),
+            volume: Mutex::new(None),
             alt: Mutex::new(None),
             pinned: Mutex::new(None),
             conns: Mutex::new(vec![]),
@@ -150,6 +152,16 @@ impl Core {
         match cur {
             Some(n) => PcMsg::NowPlaying { active: true, title: n.title, artist: n.artist, playing: n.playing, position: n.position, duration: n.duration, source: n.source },
             None => PcMsg::NowPlaying { active: false, title: String::new(), artist: String::new(), playing: false, position: 0.0, duration: 0.0, source: String::new() },
+        }
+    }
+
+    /// Mémorise le volume du PC et le diffuse s'il a changé.
+    pub fn set_volume(&self, level: u8, muted: bool) {
+        let mut v = self.volume.lock().unwrap();
+        if *v != Some((level, muted)) {
+            *v = Some((level, muted));
+            drop(v);
+            self.broadcast(PcMsg::Volume { level, muted });
         }
     }
 
@@ -223,6 +235,9 @@ impl Core {
         self.conns.lock().unwrap().push(Conn { id, device: device.to_string(), tx: tx.clone() });
         let _ = tx.send(self.state_msg());
         let _ = tx.send(self.np_msg());
+        if let Some((level, muted)) = *self.volume.lock().unwrap() {
+            let _ = tx.send(PcMsg::Volume { level, muted });
+        }
         self.refresh_apps();
         let _ = tx.send(self.apps_msg());
         self.stream_icons(tx);
@@ -471,6 +486,9 @@ impl Core {
                 MediaAction::VolDown => input::tap(VK_VOLUME_DOWN),
                 MediaAction::Mute => input::tap(VK_VOLUME_MUTE),
             },
+            PhoneMsg::SetVolume { level } => {
+                std::thread::spawn(move || audio::set(level));
+            }
             PhoneMsg::Ping => {
                 let _ = reply.send(PcMsg::Pong);
             }
