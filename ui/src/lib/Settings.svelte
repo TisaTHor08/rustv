@@ -19,6 +19,7 @@
   import { createPage as createHa } from './settings/ha.svelte';
   import { createPage as createHyperion } from './settings/hyperion.svelte';
   import { createPage as createPlayer } from './settings/player.svelte';
+  import { createPage as createUsearch } from './settings/usearch.svelte';
 
   let {
     st,
@@ -31,8 +32,8 @@
 
   type Page = 'root' | 'appearance' | 'wallpaper' | 'tiles' | 'weather' | 'live' | 'library' | 'apps' | 'vault' | 'system' | 'ext' | ExtKey;
   // Pages issues des modules intégrés (voir src/lib/settings/*.svelte.ts), regroupées sous « Intégrations ».
-  type ExtKey = 'guard' | 'display' | 'gamepad' | 'player' | 'dvr' | 'hyperion' | 'ha' | 'cast';
-  const EXT: ExtKey[] = ['guard', 'display', 'gamepad', 'player', 'dvr', 'hyperion', 'ha', 'cast'];
+  type ExtKey = 'guard' | 'display' | 'gamepad' | 'player' | 'dvr' | 'hyperion' | 'ha' | 'cast' | 'usearch';
+  const EXT: ExtKey[] = ['guard', 'display', 'gamepad', 'player', 'dvr', 'hyperion', 'ha', 'cast', 'usearch'];
   interface Row {
     label: string;
     value?: string;
@@ -53,6 +54,7 @@
     hyperion: createHyperion(ctx),
     ha: createHa(ctx),
     cast: createCast(ctx),
+    usearch: createUsearch(ctx),
   };
   const isExt = (p: Page): p is ExtKey => (EXT as string[]).includes(p);
   // Mise à jour périodique des pages « vivantes » (manettes branchées, état des services).

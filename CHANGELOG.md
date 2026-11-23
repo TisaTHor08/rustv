@@ -3,6 +3,15 @@
 All notable changes to RusTV are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **Universal search** ([docs/SEARCH.md](docs/SEARCH.md)): type a title and see which streaming services have it (with a free TMDB key, data from JustWatch) and open them
+  directly, plus matches in your private libraries (UGREEN Theater, Plex, Jellyfin, the local library) and in mapped network drives and folders you choose.
+  Mods can add their own search sources with `contributes.search`.
+- **Web tiles accept several addresses** (for example the NAS local address followed by its UGREEN Link address): the first one that answers is used.
+
 ## [1.2.0] - 2026-11-23
 
 ### Added
