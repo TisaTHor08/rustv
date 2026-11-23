@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "bundle": {
+    "targets": ["deb", "appimage"],
+    "category": "Video",
+    "shortDescription": "TV mode for your PC, controlled by your phone",
+    "longDescription": "RusTV turns your PC into a TV system: a home screen with your streaming apps and local media, remote control from the phone (arrows, keyboard, mouse, volume), live TV and recordings, all driven by a phone remote. Key and mouse injection uses /dev/uinput (udev rule and module autoload installed by this package).",
+    "linux": {
+      "deb": {
+        "depends": ["libwebkit2gtk-4.1-0", "libgtk-3-0", "libayatana-appindicator3-1"],
+        "recommends": ["mpv", "wireplumber | pulseaudio-utils", "xdg-utils", "xdotool"],
+        "section": "video",
+        "desktopTemplate": "linux/rustv.desktop",
+        "postInstallScript": "linux/postinst.sh",
+        "files": {
+          "/usr/lib/udev/rules.d/60-rustv-uinput.rules": "linux/60-rustv-uinput.rules",
+          "/usr/lib/modules-load.d/rustv-uinput.conf": "linux/rustv-uinput.conf"
+        }
+      },
+      "appimage": {
+        "bundleMediaFramework": false
+      }
+    }
+  }
+}
