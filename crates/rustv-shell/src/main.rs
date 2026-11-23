@@ -6,6 +6,7 @@ mod cast;
 mod commands;
 mod display;
 mod dvr;
+mod epg;
 mod fs;
 mod guard;
 mod gamepad;
@@ -114,6 +115,7 @@ fn main() {
             commands::live_load,
             commands::live_nownext,
             live::live_epg,
+            epg::epg_get, epg::epg_set, epg::epg_refresh, epg::epg_channels, epg::epg_guide, epg::epg_search, epg::epg_tonight, epg::epg_live_nownext,
             tuner::tuner_discover,
             tuner::tuner_build_source,
             dvr::dvr_list,
@@ -199,6 +201,7 @@ fn main() {
             hyperion::start(app.handle());
             cast::start(app.handle());
             usearch::start(app.handle());
+            epg::start(app.handle());
 
             // Icône de la zone de notification.
             let start = MenuItem::with_id(app, "tv", "Démarrer le mode TV", true, None::<&str>)?;

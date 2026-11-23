@@ -3,6 +3,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { api, type LiveChannel, type Prog } from './api';
 import { registerStrings, t } from './i18n';
 import { strings } from './live.strings';
+import { eg } from './epg.svelte';
 import { prefs } from './prefs.svelte';
 
 registerStrings('fr', strings.fr);
@@ -61,11 +62,21 @@ export async function refreshGuide() {
   try {
     live.nn = await api.liveNowNext();
   } catch {}
+  // Source sans guide : le guide TV automatique (s'il est activé) fournit « en cours / suivant ».
+  if (!Object.keys(live.nn).length && eg.enabled) {
+    try {
+      live.nn = await invoke<Record<string, { now: Prog | null; next: Prog | null }>>('epg_live_nownext');
+    } catch {}
+  }
 }
 
 // ---------- guide ----------
 
 export interface EpgProg extends Prog {
+  /** Guide TV automatique seulement. */
+  category?: string;
+  icon?: string | null;
+  rating?: string | null;
   left: number;
   width: number;
   clipL: boolean;

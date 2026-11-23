@@ -1,6 +1,7 @@
 // Recherche universelle : types et appels Tauri (ne touche pas à api.ts).
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
+import type { EpgHit } from './epg.svelte';
 
 export interface UProvider {
   name: string;
@@ -51,12 +52,15 @@ export interface UResult {
   library: ULib[];
   files: UFile[];
   services: UService[];
+  /** Programmes du guide TV (cache local) et etat du guide : "off" | "empty" | "ok". */
+  programmes: EpgHit[];
+  epg: 'off' | 'empty' | 'ok';
   tmdb: 'idle' | 'off' | 'nokey' | 'ok' | 'error';
   country?: string;
   errors?: Record<string, string>;
   attribution?: { justwatch: string; tmdb: string } | null;
 }
-export type UPartial = Pick<UResult, 'seq' | 'files' | 'library' | 'services'>;
+export type UPartial = Pick<UResult, 'seq' | 'files' | 'library' | 'services' | 'programmes' | 'epg'>;
 
 export interface UStatus {
   running: boolean;

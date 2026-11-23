@@ -4,6 +4,7 @@ Type a title on the TV (with the phone keyboard) and RusTV lists every place tha
 
 - **Where to watch**: the streaming services that offer the title in your country (Netflix, Prime Video, Disney+, Max, Canal+, Apple TV+, Arte, France.tv, YouTube and more). Enter on a service opens that app, already searching for the title.
 - **Your libraries**: UGREEN Theater, Plex, Jellyfin, the local library, and the files found in the folders you listed (mapped network drives, UNC paths, any folder). Files play in the RusTV player.
+- **On TV**: programmes from the automatic TV guide (off by default, see [LIVE-TV.md](LIVE-TV.md#tv-guide-automatic-epg)): what is on now or later today, with the channel. Enter plays the channel if the programme is on and the channel is one of yours; otherwise a small menu offers Remind me, Record and Show in guide. While the guide is off, a row offers to enable it.
 - **Apps** and **Channels** (as before), plus a "Search in an app" row with one chip per app that has a search page.
 
 Everything is driven by arrows, Enter and Back: up/down choose a row, left/right choose a service chip, Enter opens. Services that are not in your RusTV apps are shown dimmed ("not in RusTV") and cannot be selected.
@@ -58,6 +59,7 @@ Titles come from the file names ("The.Movie.2019.1080p.BluRay.x264-GRP.mkv" give
 | The text you typed | Your own Plex / Jellyfin server | Only if configured and on |
 | The text you typed | The streaming app's own site | Only when you press Enter on a service: it opens in that app's window like any tile |
 | File names and folders | Nowhere | The index never leaves the PC |
+| TV guide programmes | Nowhere on a keystroke: matched in the local copy of the guide | The guide itself is downloaded once a day when enabled (see LIVE-TV.md) |
 
 No telemetry. Tokens are encrypted with Windows DPAPI in `%APPDATA%\RusTV\usearch.json`, are never logged, never returned to the interface and never sent anywhere except the service they belong to. TMDB answers are cached 24 hours in `%APPDATA%\RusTV\search\tmdb-cache.json` (the cache contains the titles you searched; *Clear caches* removes it). Each source can be switched off in the settings.
 
