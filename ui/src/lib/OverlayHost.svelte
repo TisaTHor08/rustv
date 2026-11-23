@@ -138,6 +138,13 @@
     c?.resolve(v);
   }
 
+  // ---------- QR code ----------
+  function finishQr() {
+    const q = overlay.qr;
+    overlay.qr = null;
+    q?.resolve();
+  }
+
   function cue(key: string) {
     if (key === 'Enter') play('select');
     else if (key === 'Escape' || (key === 'Backspace' && !overlay.prompt)) play('back');
@@ -158,6 +165,11 @@
       else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') cidx = 0;
       else if (e.key === 'Enter') finishConfirm(cidx === 0);
       else if (e.key === 'Escape' || e.key === 'Backspace') finishConfirm(false);
+      return;
+    }
+    if (overlay.qr) {
+      stop();
+      if (e.key === 'Enter' || e.key === 'Escape' || e.key === 'Backspace') finishQr();
       return;
     }
     if (overlay.prompt) {
@@ -205,6 +217,17 @@
         <button class:sel={cidx === 0} onmouseenter={() => (cidx = 0)} onclick={() => finishConfirm(true)}>{overlay.confirm.ok}</button>
         <button class:sel={cidx === 1} onmouseenter={() => (cidx = 1)} onclick={() => finishConfirm(false)}>{overlay.confirm.cancel}</button>
       </div>
+    </div>
+  </div>
+{/if}
+
+{#if overlay.qr}
+  <div class="scrim" transition:fade={{ duration: 160 }}>
+    <div class="sheet qr" in:fly={{ y: 30, duration: 320, easing: cubicOut }}>
+      <h3>{overlay.qr.title}</h3>
+      <div class="qrimg">{@html overlay.qr.svg}</div>
+      <p class="body">{overlay.qr.text}</p>
+      <div class="btns"><button class="sel" onclick={finishQr}>{overlay.qr.close}</button></div>
     </div>
   </div>
 {/if}
@@ -279,6 +302,10 @@
   .scrim { position: absolute; inset: 0; background: rgba(4, 6, 10, 0.78); backdrop-filter: blur(1.6rem); display: grid; place-items: center; z-index: 30; }
   .sheet { width: 36rem; padding: 2.2rem 2.4rem; border-radius: 1.8rem; background: var(--sheet); box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.6), inset 0 0 0 0.08rem var(--glass-strong); color: var(--text); }
   .sheet.big { width: 64rem; }
+  .sheet.qr { width: 44rem; text-align: center; }
+  .qrimg { width: 22rem; height: 22rem; margin: 0 auto 1.2rem; border-radius: 1rem; overflow: hidden; background: #fff; }
+  .qrimg :global(svg) { width: 100%; height: 100%; display: block; }
+  .body { overflow-wrap: anywhere; }
   h3 { margin: 0 0 1.2rem; font-size: 1.9rem; }
   input { width: 100%; padding: 1rem 1.2rem; margin-bottom: 1rem; border-radius: 0.9rem; border: 0.12rem solid var(--glass-strong); background: var(--field); color: var(--text); font-size: 1.4rem; outline: none; }
   input:focus { border-color: var(--accent); }

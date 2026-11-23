@@ -23,6 +23,14 @@ export interface ConfirmState {
   cancel: string;
   resolve: (v: boolean) => void;
 }
+export interface QrState {
+  title: string;
+  /** SVG du QR code (fourni par le shell). */
+  svg: string;
+  text: string;
+  close: string;
+  resolve: () => void;
+}
 export interface BusyState {
   title: string;
   text: string;
@@ -34,10 +42,11 @@ export const overlay = $state<{
   file: FilePickState | null;
   app: AppPickState | null;
   confirm: ConfirmState | null;
+  qr: QrState | null;
   busy: BusyState | null;
-}>({ prompt: null, file: null, app: null, confirm: null, busy: null });
+}>({ prompt: null, file: null, app: null, confirm: null, qr: null, busy: null });
 
-export const anyOverlay = () => !!(overlay.prompt || overlay.file || overlay.app || overlay.confirm || overlay.busy);
+export const anyOverlay = () => !!(overlay.prompt || overlay.file || overlay.app || overlay.confirm || overlay.qr || overlay.busy);
 
 export function askText(title: string, initial = '', hint = ''): Promise<string | null> {
   return new Promise((resolve) => {
@@ -60,5 +69,12 @@ export function pickApp(): Promise<WinApp | null> {
 export function askConfirm(title: string, text: string, ok: string, cancel: string): Promise<boolean> {
   return new Promise((resolve) => {
     overlay.confirm = { title, text, ok, cancel, resolve };
+  });
+}
+
+/** Affiche un QR code (SVG) et un texte ; se résout à la fermeture (Entrée, Échap ou clic). */
+export function showQr(title: string, svg: string, text: string, close: string): Promise<void> {
+  return new Promise((resolve) => {
+    overlay.qr = { title, svg, text, close, resolve };
   });
 }

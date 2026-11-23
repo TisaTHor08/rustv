@@ -1,5 +1,18 @@
-// HMAC-SHA256, HKDF et canal AES-256-GCM (WebCrypto) — identique au côté Rust.
-const subtle = globalThis.crypto.subtle;
+// HMAC-SHA256, HKDF et canal AES-256-GCM — identique au côté Rust.
+// WebCrypto (`crypto.subtle`) quand il existe ; sinon repli sur @noble (JS pur, audité). `crypto.subtle` n'existe que
+// dans un « contexte sécurisé » (HTTPS ou localhost) : la télécommande web servie en HTTP sur le LAN en a besoin.
+import { gcm } from '@noble/ciphers/aes.js';
+import { hkdf } from '@noble/hashes/hkdf.js';
+import { hmac as nobleHmac } from '@noble/hashes/hmac.js';
+import { sha256 } from '@noble/hashes/sha2.js';
+
+let subtle: SubtleCrypto | undefined = globalThis.crypto?.subtle;
+/** Vrai quand WebCrypto est absent (contexte non sécurisé) : le chiffrement tourne alors en JS pur. */
+export const softwareCrypto = (): boolean => !subtle;
+/** Tests : force le repli JS pur (`true`) ou rend WebCrypto s'il existe (`false`). */
+export function forceSoftwareCrypto(on: boolean): void {
+  subtle = on ? undefined : globalThis.crypto?.subtle;
+}
 const enc = new TextEncoder();
 
 export const b64 = (b: Uint8Array): string => {
@@ -26,6 +39,7 @@ export function randomBytes(n: number): Uint8Array {
 }
 
 export async function hmac(key: Uint8Array, ...parts: Uint8Array[]): Promise<Uint8Array> {
+  if (!subtle) return nobleHmac(sha256, key, concat(...parts));
   const k = await subtle.importKey('raw', key as BufferSource, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   return new Uint8Array(await subtle.sign('HMAC', k, concat(...parts) as BufferSource));
 }
@@ -39,22 +53,27 @@ export async function hmacVerify(key: Uint8Array, parts: Uint8Array[], tag: Uint
   return diff === 0;
 }
 
-export async function deriveKey(secret: Uint8Array, salt: Uint8Array, info: string): Promise<CryptoKey> {
+/** Clé de sens : WebCrypto si disponible, sinon octets bruts pour le repli JS. */
+export type AeadKey = { web: CryptoKey } | { raw: Uint8Array };
+
+export async function deriveKey(secret: Uint8Array, salt: Uint8Array, info: string): Promise<AeadKey> {
+  if (!subtle) return { raw: hkdf(sha256, secret, salt, utf8(info), 32) };
   const base = await subtle.importKey('raw', secret as BufferSource, 'HKDF', false, ['deriveKey']);
-  return subtle.deriveKey(
+  const web = await subtle.deriveKey(
     { name: 'HKDF', hash: 'SHA-256', salt: salt as BufferSource, info: utf8(info) as BufferSource },
     base,
     { name: 'AES-GCM', length: 256 },
     false,
     ['encrypt', 'decrypt'],
   );
+  return { web };
 }
 
 /** Un sens : le compteur strictement croissant sert de nonce (octets 4..12, big-endian). */
 export class Channel {
   private counter = 0n;
-  private key: CryptoKey;
-  constructor(key: CryptoKey) {
+  private key: AeadKey;
+  constructor(key: AeadKey) {
     this.key = key;
   }
 
@@ -64,15 +83,23 @@ export class Channel {
     return iv;
   }
   async seal(plain: Uint8Array): Promise<Uint8Array> {
-    const ct = await subtle.encrypt({ name: 'AES-GCM', iv: this.iv() as BufferSource }, this.key, plain as BufferSource);
+    const iv = this.iv();
+    const ct =
+      'web' in this.key
+        ? new Uint8Array(await subtle!.encrypt({ name: 'AES-GCM', iv: iv as BufferSource }, this.key.web, plain as BufferSource))
+        : gcm(this.key.raw, iv).encrypt(plain);
     this.counter++;
-    return new Uint8Array(ct);
+    return ct;
   }
   async open(ct: Uint8Array): Promise<Uint8Array | null> {
     try {
-      const pt = await subtle.decrypt({ name: 'AES-GCM', iv: this.iv() as BufferSource }, this.key, ct as BufferSource);
+      const iv = this.iv();
+      const pt =
+        'web' in this.key
+          ? new Uint8Array(await subtle!.decrypt({ name: 'AES-GCM', iv: iv as BufferSource }, this.key.web, ct as BufferSource))
+          : gcm(this.key.raw, iv).decrypt(ct);
       this.counter++;
-      return new Uint8Array(pt);
+      return pt;
     } catch {
       return null;
     }

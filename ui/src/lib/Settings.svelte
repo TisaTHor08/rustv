@@ -22,6 +22,7 @@
   import { createPage as createUsearch } from './settings/usearch.svelte';
   import { createPage as createGoogle } from './settings/google.svelte';
   import { createPage as createEpg } from './settings/epg.svelte';
+  import { createPage as createWebremote } from './settings/webremote.svelte';
   import { osState } from './os/apply.svelte';
   import { availableStyles, resolveStyle } from './os/registry';
   import ScreenSlot from './os/ScreenSlot.svelte';
@@ -40,8 +41,8 @@
 
   type Page = 'root' | 'appearance' | 'wallpaper' | 'tiles' | 'weather' | 'live' | 'library' | 'apps' | 'vault' | 'system' | 'ext' | ExtKey;
   // Pages issues des modules intégrés (voir src/lib/settings/*.svelte.ts), regroupées sous « Intégrations ».
-  type ExtKey = 'guard' | 'display' | 'gamepad' | 'player' | 'dvr' | 'hyperion' | 'ha' | 'cast' | 'usearch' | 'epg' | 'google';
-  const EXT: ExtKey[] = ['guard', 'display', 'gamepad', 'player', 'dvr', 'hyperion', 'ha', 'cast', 'usearch', 'epg', 'google'];
+  type ExtKey = 'guard' | 'display' | 'gamepad' | 'player' | 'dvr' | 'hyperion' | 'ha' | 'cast' | 'usearch' | 'epg' | 'google' | 'webremote';
+  const EXT: ExtKey[] = ['guard', 'display', 'gamepad', 'player', 'dvr', 'hyperion', 'ha', 'cast', 'usearch', 'epg', 'google', 'webremote'];
   interface Row {
     label: string;
     value?: string;
@@ -65,11 +66,12 @@
     usearch: createUsearch(ctx),
     google: createGoogle(ctx),
     epg: createEpg(ctx),
+    webremote: createWebremote(ctx),
   };
   const isExt = (p: Page): p is ExtKey => (EXT as string[]).includes(p);
   // Mise à jour périodique des pages « vivantes » (manettes branchées, état des services).
   const poll = setInterval(() => {
-    if (page === 'gamepad' || page === 'dvr' || page === 'hyperion') void ext[page].load().catch(() => {});
+    if (page === 'gamepad' || page === 'dvr' || page === 'hyperion' || page === 'webremote') void ext[page].load().catch(() => {});
   }, 2500);
   onDestroy(() => clearInterval(poll));
 

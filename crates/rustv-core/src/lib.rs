@@ -25,6 +25,7 @@ pub mod smtc;
 #[cfg_attr(all(not(windows), not(target_os = "linux")), path = "platform/stub/uia.rs")]
 pub mod uia;
 pub mod vault;
+pub mod webremote;
 
 pub use crate::core::{Core, DeviceInfo, Event, NowPlaying, PlayerInfo};
 

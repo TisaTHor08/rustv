@@ -23,6 +23,7 @@
 | [LIVE-TV.md](LIVE-TV.md) | Everyone | Guide grid, DVR, HDHomeRun and TVHeadend, timeshift |
 | [PLAYER.md](PLAYER.md) | Everyone | Tracks, resume, Continue watching, queue, keys |
 | [CAST.md](CAST.md) | Everyone | DLNA and DIAL receiver, security model |
+| [WEB-REMOTE.md](WEB-REMOTE.md) | Everyone | Remote in a browser or PWA, pairing, security model, HTTPS limits |
 | [AMBILIGHT.md](AMBILIGHT.md) | Everyone | Hyperion ambilight setup |
 | [DISPLAY-AUDIO.md](DISPLAY-AUDIO.md) | Everyone | Audio output, resolution, refresh rate, HDR |
 | [GAMEPAD.md](GAMEPAD.md) | Everyone | Game controller mapping and safety |

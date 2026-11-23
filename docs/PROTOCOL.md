@@ -1,5 +1,8 @@
 # RusTV wire protocol (v1)
 
+The web remote ([WEB-REMOTE.md](WEB-REMOTE.md)) carries these same bytes in binary WebSocket messages (`GET /ws`, port 47822 by default); the
+handshake, framing and encryption below are unchanged, and message boundaries carry no meaning (frames are re-assembled from the byte stream).
+
 All integers are big-endian. The same bytes flow over TCP (port 47820) and Bluetooth RFCOMM
 (service UUID `7c1d3a52-5b0e-4f8a-9d63-2e41c0a8b9f7`).
 

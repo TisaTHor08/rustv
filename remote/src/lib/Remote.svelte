@@ -129,7 +129,7 @@
     <div class="title">
       <strong>{app.pairing?.name}</strong>
       <small>
-        {#if connected}{app.via}{app.tvMode ? t('mode.tv') : ''}{:else if app.status === 'connecting'}{t('connecting')}{app.error ? ` (${app.error})` : ''}{:else}{t('disconnected')}{/if}
+        {#if connected}{app.via}{app.tvMode ? t('mode.tv') : ''}{:else if app.status === 'connecting'}{t('connecting')}{app.error ? ` (${app.error})` : ''}{:else}{t('disconnected')}{app.error ? ` (${app.error})` : ''}{/if}
       </small>
     </div>
     <button class="small" onclick={() => (settingsOpen = true)} aria-label={t('settings.title')}>⚙</button>

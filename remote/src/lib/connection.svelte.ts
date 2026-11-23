@@ -1,5 +1,5 @@
 // Gestion de la connexion : course entre toutes les voies, reconnexion, ping, état réactif.
-import { btConnect, isNative, listenBeacon, tcpConnect } from './native.ts';
+import { btConnect, isBrowser, isNative, listenBeacon, tcpConnect, webSocketUrl, wsConnect } from './native.ts';
 import { unb64 } from './protocol/crypto.ts';
 import { Session } from './protocol/session.ts';
 import { BEACON_PORT, type AppEntry, type PairingInfo, type PhoneMsg, type RemoteMod, type VaultItem, type VaultStatus } from './protocol/types.ts';
@@ -57,6 +57,39 @@ export function unpair() {
   try {
     localStorage.removeItem('rustv.pairing');
     localStorage.removeItem('rustv.lastIp');
+  } catch {}
+}
+
+function fromB64Url(s: string): Uint8Array {
+  const b = s.replace(/-/g, '+').replace(/_/g, '/');
+  return unb64(b + '='.repeat((4 - (b.length % 4)) % 4));
+}
+
+/**
+ * Jumelage à partir de n'importe quelle forme : JSON du QR du PC, lien `…/#p=<code>` (QR « navigateur ») ou code seul.
+ * Le code est le JSON en base64url : il se copie/colle, y compris quand la caméra est indisponible (HTTP).
+ */
+export function pairingFromText(text: string): PairingInfo | null {
+  const s = text.trim();
+  const m = s.match(/[#&?]p=([A-Za-z0-9_-]+)/);
+  const code = m ? m[1] : /^[A-Za-z0-9_-]{40,}$/.test(s) ? s : null;
+  if (code) {
+    try {
+      return parsePairing(new TextDecoder().decode(fromB64Url(code)));
+    } catch {
+      return null;
+    }
+  }
+  return parsePairing(s);
+}
+
+/** Navigateur : un lien `#p=…` (QR scanné avec l'appareil photo) jumelle aussitôt ; la clé est effacée de l'adresse. */
+export function consumeHashPairing() {
+  if (!isBrowser || !location.hash.includes('p=')) return;
+  const p = pairingFromText(location.hash);
+  if (p) savePairing(p);
+  try {
+    history.replaceState(null, '', location.pathname + location.search);
   } catch {}
 }
 
@@ -119,7 +152,7 @@ async function race(p: PairingInfo, isActive: () => boolean): Promise<Won> {
           finish(undefined, { session, via: label });
         } catch (e) {
           stream?.close();
-          if (--pending === 0 && beaconDone) finish(e as Error);
+          if (--pending === 0 && (beaconDone || isBrowser)) finish(e as Error);
         }
       })();
     }
@@ -131,6 +164,11 @@ async function race(p: PairingInfo, isActive: () => boolean): Promise<Won> {
     };
 
     let beaconDone = false;
+    if (isBrowser) {
+      // Navigateur : une seule voie, le WebSocket du PC qui a servi la page (mêmes trames et chiffrement que le TCP).
+      attempt('Navigateur', () => wsConnect(webSocketUrl()));
+      return;
+    }
     const last = lastIp();
     if (last) tcp(last, `Wi-Fi ${last}`);
     for (const ip of p.ips) tcp(ip, `Wi-Fi ${ip}`);
@@ -199,6 +237,11 @@ export function activate() {
         await serve(won.session, active);
       } catch (e) {
         app.error = (e as Error).message;
+        // Appareil révoqué ou jamais jumelé : insister ne sert à rien et le PC bloque les échecs répétés.
+        if (isBrowser && /refusé/.test(app.error) && active()) {
+          deactivate();
+          return;
+        }
       }
       session = null;
       if (!active()) return;
