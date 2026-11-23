@@ -294,7 +294,7 @@
 
   // ---------- clavier ----------
 
-  const COLS = 3;
+  const COLS = 5;
 
   function focusSearch() {
     area = 'search';
@@ -530,7 +530,7 @@
 </div>
 
 <style>
-  .sheet { width: 90rem; max-height: 50rem; display: flex; flex-direction: column; padding: 2rem 2.4rem 1.6rem; border-radius: 1.8rem; background: var(--sheet); box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.55), inset 0 0 0 0.08rem var(--glass-strong); color: var(--text); overflow: hidden; }
+  .sheet { width: 92rem; max-height: 50rem; display: flex; flex-direction: column; padding: 2rem 2.4rem 1.6rem; border-radius: 1.8rem; background: var(--sheet); box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.55), inset 0 0 0 0.08rem var(--glass-strong); color: var(--text); overflow: hidden; }
   header { display: flex; align-items: center; justify-content: space-between; gap: 2rem; margin-bottom: 1.1rem; }
   h2 { margin: 0; font-size: 2.1rem; }
   h3 { margin: 0 0 0.3rem; font-size: 2rem; }
@@ -546,22 +546,22 @@
   .chip i { font-style: normal; font-size: 0.85rem; opacity: 0.7; }
   .chip.on { background: var(--accent); color: #fff; }
   .chip.focus { transform: scale(1.08); box-shadow: 0 0 0 0.2rem var(--ring); }
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; overflow: hidden auto; scrollbar-width: none; padding: 0.4rem 0.3rem 0.8rem; min-height: 0; max-height: 33rem; }
+  .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.9rem; overflow: hidden auto; scrollbar-width: none; padding: 0.4rem 0.3rem 0.8rem; min-height: 0; max-height: 34rem; }
   .card { display: flex; flex-direction: column; text-align: left; padding: 0; border: 0; border-radius: 1.2rem; overflow: hidden; background: var(--glass); color: var(--text); font: inherit; transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s; }
-  .card.sel { transform: scale(1.03); box-shadow: 0 0 0 0.22rem var(--ring), 0 1.4rem 2.6rem rgba(0, 0, 0, 0.45); }
+  .card.sel { transform: scale(1.04); box-shadow: 0 0 0 0.22rem var(--ring), 0 1.4rem 2.6rem rgba(0, 0, 0, 0.45); }
   .banner { position: relative; aspect-ratio: 2 / 1; display: grid; place-items: center; overflow: hidden; }
   .banner img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .banner .mono { font-size: 5rem; font-weight: 800; opacity: 0.35; }
-  .pill { position: absolute; top: 0.6rem; right: 0.6rem; padding: 0.15rem 0.7rem; border-radius: 99rem; background: rgba(0, 0, 0, 0.55); font-size: 0.85rem; font-weight: 600; }
-  .body { display: flex; align-items: center; gap: 0.8rem; padding: 0.7rem 0.9rem 0; }
-  .ico { width: 3.2rem; height: 3.2rem; flex: none; border-radius: 0.8rem; display: grid; place-items: center; overflow: hidden; font-weight: 800; font-size: 1.4rem; color: #fff; }
+  .banner .mono { font-size: 3.4rem; font-weight: 800; opacity: 0.35; }
+  .pill { position: absolute; top: 0.45rem; right: 0.45rem; padding: 0.1rem 0.55rem; border-radius: 99rem; background: rgba(0, 0, 0, 0.55); font-size: 0.72rem; font-weight: 600; }
+  .body { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.7rem 0; }
+  .ico { width: 2.5rem; height: 2.5rem; flex: none; border-radius: 0.65rem; display: grid; place-items: center; overflow: hidden; font-weight: 800; font-size: 1.15rem; color: #fff; }
   .ico img { width: 100%; height: 100%; object-fit: cover; }
   .ico.lg { width: 6.4rem; height: 6.4rem; border-radius: 1.4rem; font-size: 2.6rem; }
   .tx { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-  .tx b { font-size: 1.25rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tx small { color: var(--muted); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .mini { flex: none; font-size: 0.95rem; color: #f5c451; font-weight: 700; }
-  .d { margin: 0.4rem 0.9rem 0.9rem; font-size: 0.98rem; line-height: 1.35; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.7em; }
+  .tx b { font-size: 1.02rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx small { color: var(--muted); font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mini { flex: none; font-size: 0.8rem; color: #f5c451; font-weight: 700; }
+  .d { margin: 0.35rem 0.7rem 0.7rem; font-size: 0.82rem; line-height: 1.3; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.7em; }
   .detail { display: grid; grid-template-columns: 34rem 1fr; gap: 2.2rem; min-height: 0; max-height: 44rem; overflow: hidden; }
   .banner.big { border-radius: 1.2rem; }
   aside { display: flex; flex-direction: column; gap: 1rem; }
@@ -574,7 +574,9 @@
   .det { margin: 0.4rem 0; font-size: 1.1rem; line-height: 1.5; color: var(--muted); }
   ul { margin: 0 0 0.6rem; padding-left: 1.3rem; font-size: 1.1rem; line-height: 1.6; }
   ul.deps { list-style: none; padding: 0; }
-  ul.deps li { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+  ul.deps li { display: block; padding-left: 1.4rem; text-indent: -1.4rem; margin-bottom: 0.25rem; }
+  ul.deps li .dot { margin-right: 0.6rem; text-indent: 0; }
+  ul.deps li b { margin-right: 0.5rem; }
   ul.deps small { color: var(--muted); font-size: 0.95rem; }
   .dot { width: 0.8rem; height: 0.8rem; border-radius: 50%; background: var(--muted); display: inline-block; }
   .dot.ok { background: #3ecf8e; }
