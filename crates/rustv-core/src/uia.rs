@@ -5,6 +5,7 @@
 //! (notamment dans les navigateurs) ; le sondage est plus fiable et son coût est négligeable.
 //! Il est suspendu tant qu'aucun téléphone n'est connecté.
 use crate::core::Core;
+use crate::textfocus::{is_text_input, Ctl, Probe};
 use std::sync::Arc;
 use std::time::Duration;
 use windows::Win32::System::Com::*;
@@ -12,22 +13,16 @@ use windows::Win32::UI::Accessibility::*;
 
 fn is_editable(el: &IUIAutomationElement) -> bool {
     unsafe {
-        if el.CurrentIsEnabled().map(|b| !b.as_bool()).unwrap_or(false) {
-            return false;
-        }
-        // ValuePattern non lecture seule : champs texte, zones de saisie, barres d'adresse…
-        if let Ok(p) = el.GetCurrentPatternAs::<IUIAutomationValuePattern>(UIA_ValuePatternId) {
-            if p.CurrentIsReadOnly().map(|b| !b.as_bool()).unwrap_or(false) {
-                return true;
-            }
-        }
-        // TextPattern : seulement pour les contrôles de saisie (sinon toute page web compterait).
-        if el.GetCurrentPatternAs::<IUIAutomationTextPattern>(UIA_TextPatternId).is_ok() {
-            if let Ok(ct) = el.CurrentControlType() {
-                return ct == UIA_EditControlTypeId;
-            }
-        }
-        false
+        let enabled = el.CurrentIsEnabled().map(|b| b.as_bool()).unwrap_or(true);
+        let ctl = el.CurrentControlType().map(|c| Ctl::from_uia(c.0)).unwrap_or(Ctl::Other);
+        let value_writable = el
+            .GetCurrentPatternAs::<IUIAutomationValuePattern>(UIA_ValuePatternId)
+            .ok()
+            .and_then(|p| p.CurrentIsReadOnly().ok())
+            .map(|ro| !ro.as_bool())
+            .unwrap_or(false);
+        let has_text_pattern = el.GetCurrentPatternAs::<IUIAutomationTextPattern>(UIA_TextPatternId).is_ok();
+        is_text_input(&Probe { enabled, ctl, value_writable, has_text_pattern })
     }
 }
 
@@ -43,7 +38,13 @@ pub fn run(core: Arc<Core>) {
                 std::thread::sleep(Duration::from_millis(1000));
                 continue;
             }
-            let editable = auto.GetFocusedElement().map(|e| is_editable(&e)).unwrap_or(false);
+            let mut editable = auto.GetFocusedElement().map(|e| is_editable(&e)).unwrap_or(false);
+            // Apparition : on la confirme par un second échantillon (un focus qui ne fait que passer ne doit pas
+            // faire surgir le clavier du téléphone). La disparition est immédiate.
+            if editable {
+                std::thread::sleep(Duration::from_millis(120));
+                editable = auto.GetFocusedElement().map(|e| is_editable(&e)).unwrap_or(false);
+            }
             core.set_text_focus(editable);
             std::thread::sleep(Duration::from_millis(350));
         }
