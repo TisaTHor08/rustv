@@ -883,7 +883,7 @@ pub fn install(app: &AppHandle) -> Result<Value, String> {
     // Les archives publiées sont des paquets Windows : sous Linux/macOS, Hyperion s'installe avec le gestionnaire
     // de paquets du système (docs/PORTING.md) ; on ne télécharge jamais une archive d'un autre OS.
     if !cfg!(windows) {
-        return Err(rustv_core::platform::UNSUPPORTED.into());
+        return Err(crate::features::install_hint("hyperion"));
     }
     let agent = ureq::AgentBuilder::new().timeout_connect(Duration::from_secs(15)).timeout_read(Duration::from_secs(60)).user_agent("RusTV").build();
     let mut body = String::new();

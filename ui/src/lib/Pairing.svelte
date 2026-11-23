@@ -3,12 +3,15 @@
   import { api, type Device, type PairingStart } from './api';
   import { t } from './i18n';
   import ScreenSlot from './os/ScreenSlot.svelte';
+  import { platformFeatures } from './platform';
+  import './platform.strings';
 
   let { embedded = false, onclose }: { embedded?: boolean; onclose?: () => void } = $props();
 
   let pairing = $state<PairingStart | null>(null);
   let devices = $state<Device[]>([]);
   let sel = $state(0);
+  let inputError = $state<string | null>(null); // ex. uinput_denied (Linux) : les touches du téléphone ne passeraient pas
   let armed = $state<string | null>(null); // appareil en attente de confirmation de révocation
 
   const paired = $derived(pairing ? devices.find((d) => d.id === pairing!.device)?.used === true : false);
@@ -65,6 +68,7 @@
   let un: Promise<() => void> | undefined;
   onMount(() => {
     newCode();
+    platformFeatures().then((f) => (inputError = f?.input_error ?? null));
     un = api.onDevicesChanged(refresh);
   });
   onDestroy(() => {
@@ -79,6 +83,9 @@
 {#snippet base()}
 <div class="wrap" class:embedded>
   <h2>{t('pair.title')}</h2>
+  {#if inputError}
+    <p class="warn">{t('platform.input.' + inputError) === 'platform.input.' + inputError ? t('platform.input.other', { e: inputError }) : t('platform.input.' + inputError)}</p>
+  {/if}
   <div class="grid">
     <div class="qr" class:ok={paired}>
       {#if pairing}
@@ -131,6 +138,7 @@
   .wrap.embedded { padding: 0; background: transparent; min-height: 0; }
   h2 { margin: 0 0 1rem; font-size: 1.7rem; }
   h3 { margin: 1.4rem 0 0.6rem; font-size: 1.1rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+  .warn { margin: 0 0 1rem; padding: 0.6rem 0.9rem; border-radius: 0.8rem; background: #ffd9c9; color: #7a2000; font-size: 1rem; }
   .grid { display: flex; gap: 1.6rem; align-items: center; }
   .qr { position: relative; flex: none; width: 15rem; height: 15rem; background: #fff; border-radius: 1rem; padding: 0.5rem; display: grid; place-items: center; }
   .qr :global(svg) { width: 100%; height: 100%; display: block; }

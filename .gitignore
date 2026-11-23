@@ -20,3 +20,4 @@ dist-ios/
 remote/ios/App/Pods/
 remote/ios/DerivedData/
 remote/ios/App/build/
+dist-linux/

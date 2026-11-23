@@ -59,6 +59,11 @@ fn drive_roots(v: &mut Vec<Root>) {
 /// /media, /run/media, /Volumes).
 #[cfg(not(windows))]
 fn drive_roots(v: &mut Vec<Root>) {
+    // Linux : volumes montés visibles (/media, /run/media, /mnt) avant la racine.
+    #[cfg(target_os = "linux")]
+    for m in crate::linux::mounts::read() {
+        v.push(Root { name: crate::linux::mounts::label(&m.point), path: m.point });
+    }
     v.push(Root { name: "Système".into(), path: "/".into() });
 }
 

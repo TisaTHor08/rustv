@@ -356,7 +356,11 @@ pub fn free_space(dir: &Path) -> Option<u64> {
     let ok = unsafe { GetDiskFreeSpaceExW(w.as_ptr(), &mut a, &mut t, &mut f) };
     (ok != 0).then_some(a)
 }
-#[cfg(not(windows))]
+#[cfg(target_os = "linux")]
+pub fn free_space(dir: &Path) -> Option<u64> {
+    crate::linux::disk::free_space(dir)
+}
+#[cfg(all(not(windows), not(target_os = "linux")))]
 pub fn free_space(_dir: &Path) -> Option<u64> {
     None
 }

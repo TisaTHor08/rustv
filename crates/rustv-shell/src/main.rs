@@ -7,6 +7,7 @@ mod commands;
 mod display;
 mod dvr;
 mod epg;
+mod features;
 mod fs;
 mod guard;
 mod gamepad;
@@ -15,6 +16,9 @@ mod hooks;
 mod hyperion;
 mod lan;
 mod library;
+#[cfg(target_os = "linux")]
+#[path = "platform/linux/mod.rs"]
+mod linux;
 mod live;
 mod media;
 mod mods;
@@ -67,6 +71,11 @@ fn open_pairing_window(app: &AppHandle) {
 }
 
 fn main() {
+    // `rustv --version` : affiche la version et quitte (aucun service démarré ; utile pour les tests de paquet).
+    if std::env::args().any(|a| a == "--version" || a == "-V") {
+        println!("rustv {}", env!("CARGO_PKG_VERSION"));
+        return;
+    }
     let core = Arc::new(Core::new(rustv_core::config::Config::load()));
     // Le port est déjà pris : une autre instance de RusTV tourne.
     if rustv_core::start(core.clone()).is_err() {
@@ -151,6 +160,9 @@ fn main() {
             commands::set_blackout,
             commands::set_os_style,
             commands::set_autostart,
+            features::platform_features,
+            features::linux_get,
+            features::linux_set,
             commands::quit_app,
             tv::launch_cancel,
             guard::guard_get,
@@ -212,7 +224,7 @@ fn main() {
             let quit = MenuItem::with_id(app, "quit", "Quitter RusTV", true, None::<&str>)?;
             let sep = PredefinedMenuItem::separator(app)?;
             let menu = Menu::with_items(app, &[&start, &stop, &pair, &sep, &quit])?;
-            TrayIconBuilder::new()
+            let tray = TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
                 .tooltip("RusTV")
                 .menu(&menu)
@@ -234,7 +246,23 @@ fn main() {
                         open_pairing_window(tray.app_handle());
                     }
                 })
-                .build(app)?;
+                .build(app);
+            // Windows : l'échec de l'icône reste fatal (comportement historique). Linux : sans hôte d'icônes
+            // (GNOME sans extension) ou sans libayatana, RusTV continue et ouvre la fenêtre d'appairage.
+            let mut tray_ok = true;
+            if cfg!(target_os = "linux") {
+                if let Err(e) = tray {
+                    eprintln!("rustv: icône de notification indisponible : {e}");
+                    tray_ok = false;
+                }
+            } else {
+                tray?;
+            }
+            #[cfg(target_os = "linux")]
+            let no_tray = !tray_ok || !linux::tray::host_available();
+            #[cfg(not(target_os = "linux"))]
+            let no_tray = false;
+            let _ = tray_ok;
 
             gamepad::start(app.handle());
             ha::start(app.handle());
@@ -280,7 +308,7 @@ fn main() {
                 if guard::resume_wanted() {
                     tv::boot(app.handle(), screen);
                 }
-            } else if core.cfg.lock().unwrap().devices.is_empty() {
+            } else if core.cfg.lock().unwrap().devices.is_empty() || no_tray {
                 // Premier lancement : aucun téléphone appairé → on ouvre la fenêtre d'appairage.
                 open_pairing_window(app.handle());
             }

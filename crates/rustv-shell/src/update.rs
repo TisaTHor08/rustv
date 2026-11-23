@@ -53,7 +53,7 @@ pub fn install(app: &AppHandle, asset: &Value) -> Result<(), String> {
     // L'installeur publié est un `-setup.exe` Windows : jamais exécuté ailleurs (docs/PORTING.md : paquet .deb,
     // AppImage ou .dmg à prévoir).
     if !cfg!(windows) {
-        return Err(rustv_core::platform::UNSUPPORTED.into());
+        return Err(crate::features::update_hint());
     }
     let url = asset["url"].as_str().ok_or("URL manquante")?;
     if !url.starts_with(ASSET_PREFIX) || !url.ends_with("-setup.exe") {

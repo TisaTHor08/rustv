@@ -9,7 +9,7 @@ Status in one table:
 | Target | `cargo check --workspace --all-targets` | `cargo test --workspace` | Notes |
 | --- | --- | --- | --- |
 | Windows (x86_64-pc-windows-msvc) | yes | yes | Reference behaviour, unchanged. |
-| Linux (x86_64-unknown-linux-gnu), Docker | yes | yes | Compiles and tests run, but most OS features are stubs (listed below). |
+| Linux (x86_64-unknown-linux-gnu), Docker | yes | yes | Real backends for input, volume, apps, icons, MPRIS, secrets, autostart, disk space, mounts (see [Step 2: Linux status](#step-2-linux-status)); the rest is still a stub. Packaged as .deb and AppImage, see [LINUX.md](LINUX.md). |
 | macOS | not verified for the shell | not verified | `rustv-protocol` and `rustv-core` pass `cargo check --target x86_64-apple-darwin` from Linux. `rustv-shell` (Tauri) needs the Apple SDK: it must be built on a Mac. |
 
 ## Convention
@@ -27,7 +27,10 @@ Two mechanisms, used consistently:
 
    Stub files live in `crates/rustv-core/src/platform/stub/`. They are shared by Linux and macOS. A real backend
    adds `platform/linux/<module>.rs` / `platform/macos/<module>.rs` and selects it with another `cfg_attr`
-   (`target_os = "linux"`, `target_os = "macos"`) before the `not(windows)` one, or replaces the stub in place.
+   (`target_os = "linux"`, `target_os = "macos"`). Because two `path` attributes on one module are ambiguous, the stub
+   condition then becomes `all(not(windows), not(target_os = "linux"))` (the stub stays for macOS). Linux modules that
+   only need to replace part of a stub (for example `display_sys.rs`) include the stub with
+   `#[path = "../stub/<module>.rs"] mod base;` and re-export what they do not implement.
 2. **Inner `sys` module replacement** (`rustv-shell`). `display.rs` and `guard.rs` keep their pure, tested logic
    and put every OS call in `mod sys`. On Windows that is the original inline module, elsewhere it is
    `crates/rustv-shell/src/platform/stub/<module>_sys.rs`. Smaller modules (`gamepad.rs`, `autostart.rs`,
@@ -134,13 +137,53 @@ The shell cannot be checked from Linux because Tauri's macOS crates compile Obje
   rewritten. Behaviour differences on Windows are limited to `exe_name()` (identical `.exe` suffix) and the
   default DVR folder (`USERPROFILE\Videos\RusTV Recordings`, with the previous temp-dir fallback).
 
+## Step 2: Linux status
+
+Real Linux backends now exist (compile and unit tests verified in Docker; nothing was run on a real desktop, see
+[LINUX.md](LINUX.md#what-was-verified)). `crates/rustv-core/src/platform/linux/` holds the core backends and
+`crates/rustv-shell/src/platform/linux/` the shell ones (included by `main.rs` as `mod linux`, plus
+`display_sys.rs` selected by `display.rs`).
+
+| Piece | State on Linux | How |
+| --- | --- | --- |
+| `input` (keys, mouse, text) | real | `/dev/uinput` virtual keyboard and mouse through raw `ioctl` (`libc`); `check()` returns `Err("uinput_denied")` when it cannot be opened. Text through `wtype` / `xdotool`, else US ASCII key codes. Media keys try MPRIS first. Window helpers (`foreground`, `set_topmost`...) stay neutral. |
+| `audio` (volume, mute, sync) | real | `wpctl`, fallback `pactl`; 500 ms poll with change detection while a phone is connected. |
+| `display_sys` audio outputs | real | `pactl list sinks` (fallback `wpctl status`), default output and per-output volume. Monitors, modes, HDR: still stub. |
+| `apps`, `icons` | real | XDG `.desktop` files (system, user, flatpak, snap), `Exec` field codes removed, detached launch, `xdg-open`, `steam -bigpicture`; PNG icons from icon themes and pixmaps (SVG skipped). |
+| `smtc` (now playing, play/pause) | real | MPRIS over D-Bus with `zbus` (blocking). |
+| `uia` (text field detection) | partial | Always "no text field" (documented limitation, no AT-SPI). |
+| `ha/dpapi`, `usearch/secret` (secrets) | real | Secret Service (`secret-service` crate); the disk keeps a random id only; `keyring_unavailable` without a keyring. |
+| `autostart` | real | `~/.config/autostart/rustv.desktop`. |
+| `dvr::free_space` | real | `statvfs`. |
+| `fs::roots` | real | Mounted volumes under `/media`, `/run/media`, `/mnt` from `/proc/self/mountinfo`. |
+| `player::install`, `hyperion::install`, `update::install` | message | `use_package_manager:<command>` from `/etc/os-release`, `manual_update`. |
+| `browser` | real | Chrome and Chromium added; Wayland flags; DRM tiles routed to a Chromium browser (`streaming.rs`). |
+| Tray | real, tolerant | The pairing window opens when no tray host is available. |
+| `features::platform_features` | new command | Booleans per feature so settings pages can hide stubs. |
+| `bluetooth`, `guard`, gamepad, display modes, HDR, keep-awake, TLS policy for self-signed hosts | stub | Not implemented on Linux. |
+
+New Linux-only crates (all under `[target.'cfg(target_os = "linux")'.dependencies]`):
+
+| Crate | Where | Licence | Why |
+| --- | --- | --- | --- |
+| `libc` 0.2 | core, shell | MIT OR Apache-2.0 | `ioctl` for uinput, `statvfs` |
+| `zbus` 4 | core, shell | MIT | MPRIS, StatusNotifier and Secret Service presence checks |
+| `secret-service` 4 (feature `rt-async-io-crypto-rust`) | shell | MIT OR Apache-2.0 | Secret Service client (pure Rust crypto) |
+
+Their transitive dependencies are permissive (MIT, Apache-2.0, BSD, Unlicense, ISC); the full list was not audited
+with a tool, run `cargo deny` or `cargo license` before a public release. `tauri-cli` (MIT OR Apache-2.0) is installed
+in the build image, not in the workspace.
+
 ## Known limitations of the stubs
 
-- No key, mouse or text injection: a paired phone connects and sees the state, but remote key presses do nothing
+Still true on macOS (no backend yet), and on Linux only for the items marked "stub" in the Step 2 table.
+
+- macOS: no key, mouse or text injection: a paired phone connects and sees the state, but remote key presses do nothing
   until the input backend exists. `rustv_core::input::check()` tells callers.
-- No volume sync, no now-playing, no text-field detection, no app list from the system, no icons.
-- No autostart, no TV guard, no display or audio output switching, no gamepad, no HDR.
-- Secrets (MQTT password, TMDB/Plex/Jellyfin tokens, Hyperion token) cannot be saved: the settings return
+- macOS: no volume sync, no now-playing, no text-field detection, no app list from the system, no icons.
+- No autostart (macOS), no TV guard, no display mode or HDR switching, no gamepad (Linux and macOS), no audio output
+  switching (macOS).
+- Secrets (MQTT password, TMDB/Plex/Jellyfin tokens, Hyperion token) cannot be saved on macOS: the settings return
   `unsupported_platform`. Do not add a plain-text fallback.
 - Self-signed HTTPS certificates on the LAN (`allow_insecure_lan`) are not accepted by the embedded browser.
 - `mpv` and the optional programs (Brave, Vivaldi, VLC, Bitwarden CLI, Hyperion) are found but never downloaded.
@@ -158,12 +201,13 @@ The shell cannot be checked from Linux because Tauri's macOS crates compile Obje
 
 ## Step 2 checklist (Linux backends)
 
-1. Input injection (`uinput` or XTest) and `input::check()` returning `Ok`.
-2. Volume (`wpctl`/`pactl`) for `audio.rs` and `display::sys` audio outputs.
-3. App list and launching (`.desktop`, `xdg-open`, `gtk-launch`), icons.
-4. Media session (MPRIS), text-field detection (AT-SPI).
-5. Secrets (Secret Service) behind the existing `Protector` trait.
-6. Autostart `.desktop`, packaging (`.deb`, AppImage), update path.
-7. Gamepad (evdev/gilrs), display modes (`xrandr`/`wlr-randr`), free disk space (`statvfs`).
-8. TLS policy for self-signed LAN hosts in WebKitGTK; test per-app profiles and the launch animation
-   (`on_page_load`) on WebKitGTK.
+1. Done: input injection (`uinput`).
+2. Done: volume (`wpctl`/`pactl`) and audio outputs.
+3. Done: app list and launching, icons (PNG only).
+4. Done: media session (MPRIS). Not done: text-field detection (AT-SPI, always false).
+5. Done: secrets (Secret Service).
+6. Done: autostart `.desktop`, packaging (`.deb`, AppImage). Update path: check only.
+7. Not done: gamepad (evdev/gilrs), display modes (`xrandr`/`wlr-randr`), keep-awake (`logind` inhibit), TV guard.
+   Done: free disk space (`statvfs`).
+8. Not done: TLS policy for self-signed LAN hosts in WebKitGTK. To test on a real desktop: per-app profiles and the
+   launch animation (`on_page_load`) on WebKitGTK, Wayland monitor placement, the tray on GNOME.

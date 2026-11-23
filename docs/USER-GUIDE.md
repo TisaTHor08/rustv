@@ -278,8 +278,24 @@ newer APK from the same release page.
 
 If it is still stuck, open an issue: <https://github.com/TisaTHor08/rustv/issues>.
 
+## Linux
+
+RusTV also runs on Linux (x86_64, experimental). The full page is [LINUX.md](LINUX.md); the short version:
+
+1. Install the `.deb` (`sudo apt install ./rustv_<version>_amd64.deb`) or run the AppImage. Log out and in once.
+2. Pair the phone as on Windows (the pairing window opens at first start, and also when your desktop shows no tray icon).
+3. If the pairing window shows a red message about `/dev/uinput`, the phone cannot press keys yet: follow the udev rule
+   and `uinput` steps in LINUX.md.
+4. Install `mpv` (`sudo apt install mpv`) for playback: RusTV never downloads it on Linux.
+5. For Netflix, Prime Video, Disney+ and other DRM services install Google Chrome: RusTV opens them in Chrome in app
+   mode on the TV (Settings, Linux page when available; on by default).
+
+Not available on Linux yet: game controller, TV guard, resolution and HDR switching, Bluetooth remote.
+
 ## Uninstall
 
 - **Windows**: Settings, Apps, Installed apps, RusTV, Uninstall. Your data stays in `%APPDATA%\RusTV` (preferences, app
   profiles, mods, pairings); delete that folder for a complete removal.
+- **Linux**: `sudo apt remove rustv` (the `.deb`) or delete the AppImage. Your data stays in `~/.config/RusTV`; delete that
+  folder and `~/.config/autostart/rustv.desktop` for a complete removal. Secrets stay in your keyring (search for `rustv`).
 - **Phone**: uninstall RusTV Remote like any Android app.

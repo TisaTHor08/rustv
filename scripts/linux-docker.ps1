@@ -3,7 +3,7 @@
 # Images/volumes prefixes "rustv-". Le dossier target est un volume nomme (pas de bind mount : trop lent).
 # ui/dist doit exister (npm run build dans ui/) : tauri::generate_context! l'embarque.
 param([Parameter(Position = 0)][string]$Cmd = "check", [Parameter(ValueFromRemainingArguments = $true)][string[]]$Rest)
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 $Root = Split-Path -Parent $PSScriptRoot
 $Image = "rustv-linux-build"
 function Invoke-Linux([string[]]$ContainerArgs) {
