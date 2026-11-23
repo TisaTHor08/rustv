@@ -3091,6 +3091,7 @@ name = "rustv-shell"
 version = "1.1.0"
 dependencies = [
  "flate2",
+ "if-addrs",
  "qrcode",
  "quick-xml 0.37.5",
  "rand",
@@ -3100,6 +3101,7 @@ dependencies = [
  "serde_json",
  "sevenz-rust",
  "sha2 0.10.9",
+ "socket2",
  "tauri",
  "tauri-build",
  "ureq",
