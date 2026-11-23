@@ -6,6 +6,7 @@ mod commands;
 mod display;
 mod fs;
 mod guard;
+mod gamepad;
 mod hooks;
 mod lan;
 mod library;
@@ -132,6 +133,9 @@ fn main() {
             display::display_confirm,
             display::display_revert,
             display::display_set_hdr,
+            gamepad::gamepad_get,
+            gamepad::gamepad_set,
+            gamepad::gamepad_test_vibration,
         ])
         .setup(move |app| {
             let h = app.handle().clone();
@@ -164,6 +168,8 @@ fn main() {
                     }
                 })
                 .build(app)?;
+
+            gamepad::start(app.handle());
 
             // Contributions des mods à la télécommande du téléphone.
             core.set_remote_mods(mods::remote_bundle());
