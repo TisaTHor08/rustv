@@ -14,8 +14,9 @@ sleep 1
 pactl load-module module-null-sink sink_name=rustv_dummy sink_properties=device.description=RusTV-Dummy >/dev/null 2>&1
 pactl set-default-sink rustv_dummy >/dev/null 2>&1
 say "pactl default sink: $(pactl get-default-sink 2>&1)"
-echo -n "" | gnome-keyring-daemon --unlock --components=secrets >/dev/null 2>&1
+eval "$(echo -n "" | gnome-keyring-daemon --unlock --components=secrets 2>/dev/null)"
 export GNOME_KEYRING_CONTROL SSH_AUTH_SOCK 2>/dev/null
+sleep 1
 
 Xvfb :99 -screen 0 1920x1080x24 >/tmp/xvfb.log 2>&1 &
 sleep 2

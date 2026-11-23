@@ -3,7 +3,7 @@
 # Requires Docker and the image built once with: .\scripts\linux-docker.ps1 build-image
 # ui\dist must exist (cd ui; npm install; npm run build) unless -RebuildUi is used (slower: npm ci in the container).
 param([switch]$RebuildUi, [switch]$SkipTests)
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 $Root = Split-Path -Parent $PSScriptRoot
 $Image = "rustv-linux-build"
 $args2 = @()

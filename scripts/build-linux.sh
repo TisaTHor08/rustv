@@ -41,7 +41,7 @@ cargo tauri --version >/dev/null 2>&1 || { echo "tauri-cli is missing (rebuild t
 export APPIMAGE_EXTRACT_AND_RUN=1 NO_STRIP=true
 TARGET_DIR="${CARGO_TARGET_DIR:-$ROOT/target}"
 ARCH="$(dpkg --print-architecture)"        # amd64, arm64...
-VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' crates/rustv-shell/Cargo.toml | head -1)"
+VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' crates/rustv-shell/Cargo.toml | head -1 | tr -d '[:space:]')"
 GIT_SHA="$(git -c safe.directory='*' rev-parse HEAD 2>/dev/null || echo unknown)"
 GIT_BRANCH="$(git -c safe.directory='*' rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
 LOCK_SHA="$(sha256sum Cargo.lock | cut -d' ' -f1)"
@@ -71,8 +71,8 @@ fi
 DEB=""; APPIMAGE=""
 if [ "$STATUS_BUILD" = ok ]; then
   B="$TARGET_DIR/release/bundle"
-  SRC_DEB="$(ls "$B"/deb/*.deb 2>/dev/null | head -1)"
-  SRC_AI="$(ls "$B"/appimage/*.AppImage 2>/dev/null | head -1)"
+  SRC_DEB="$(ls "$B"/deb/*.deb 2>/dev/null | head -1 | tr -d "")"
+  SRC_AI="$(ls "$B"/appimage/*.AppImage 2>/dev/null | head -1 | tr -d "")"
   if [ -n "$SRC_DEB" ]; then DEB="$(basename "$SRC_DEB")"; cp "$SRC_DEB" "$OUT/$DEB"; else note "no .deb produced"; fi
   if [ -n "$SRC_AI" ]; then APPIMAGE="$(basename "$SRC_AI")"; cp "$SRC_AI" "$OUT/$APPIMAGE"; else note "no .AppImage produced"; fi
 fi
