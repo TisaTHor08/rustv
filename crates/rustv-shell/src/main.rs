@@ -9,6 +9,7 @@ mod dvr;
 mod fs;
 mod guard;
 mod gamepad;
+mod ha;
 mod hooks;
 mod lan;
 mod library;
@@ -161,6 +162,11 @@ fn main() {
             gamepad::gamepad_get,
             gamepad::gamepad_set,
             gamepad::gamepad_test_vibration,
+            ha::ha_get,
+            ha::ha_set,
+            ha::ha_test,
+            ha::ha_publish_discovery,
+            ha::ha_remove_discovery,
         ])
         .setup(move |app| {
             let h = app.handle().clone();
@@ -196,6 +202,7 @@ fn main() {
                 .build(app)?;
 
             gamepad::start(app.handle());
+            ha::start(app.handle());
 
             // Contributions des mods à la télécommande du téléphone.
             core.set_remote_mods(mods::remote_bundle());
