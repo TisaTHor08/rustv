@@ -52,6 +52,13 @@ npx cap open android                         # then Build > Build APK in Android
 Run `rustv.exe` for tray mode, or `rustv.exe --tv --screen N` to start directly in TV mode on screen number `N`.
 `npm run dev` in `ui/` or `remote/` starts a Vite dev server for the web part only.
 
+### Linux packages and smoke test in Docker
+
+`.\scripts\build-linux.ps1` builds the `.deb` and the `.AppImage` inside the build image and copies them to `dist-linux/`
+(git-ignored) with `SHA256SUMS` and `build-report.json`. `.\scripts\smoke-linux.ps1` installs the `.deb` in a clean Ubuntu 24.04
+container with a virtual display (Xvfb), D-Bus, PulseAudio (dummy sink) and gnome-keyring, starts `rustv --tv` for 20 s and
+reports (process alive, port 47820, config files, handshake with the `fake_phone` example, a screenshot). See [LINUX.md](LINUX.md).
+
 ### Linux build check in Docker
 
 The workspace compiles and its unit tests pass on Linux (OS features are stubs, see [PORTING.md](PORTING.md)).

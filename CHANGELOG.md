@@ -7,6 +7,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **Linux release (experimental)** ([docs/LINUX.md](docs/LINUX.md)): real Linux backends for phone key and mouse injection
+  (`/dev/uinput`, X11 and Wayland), system volume and audio outputs (`wpctl`/`pactl`), installed apps and icons (XDG `.desktop`),
+  now playing and play/pause (MPRIS), secrets in the desktop keyring (Secret Service, never plain text), autostart,
+  free disk space, mounted drives, a `.deb` and an AppImage built in Docker (`scripts/build-linux.ps1`), a Docker smoke test
+  on a virtual display, and a `platform_features` command so settings pages can hide features that are stubs.
+  Netflix, Prime Video, Disney+ and other DRM tiles open in Chrome, Brave, Vivaldi or Chromium in app mode (WebKitGTK has no Widevine).
+  Not available on Linux yet: game controller, TV guard, display modes, HDR, Bluetooth remote. Never tested on a real desktop.
 - **Universal search** ([docs/SEARCH.md](docs/SEARCH.md)): type a title and see which streaming services have it (with a free TMDB key, data from JustWatch) and open them
   directly, plus matches in your private libraries (UGREEN Theater, Plex, Jellyfin, the local library) and in mapped network drives and folders you choose.
   Mods can add their own search sources with `contributes.search`.

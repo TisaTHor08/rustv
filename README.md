@@ -50,6 +50,8 @@ Download from the [latest release](https://github.com/TisaTHor08/rustv/releases/
 2. **Android**: install the *RusTV Remote* APK from the same release. It is debug-signed: allow installing from unknown sources for your browser or file manager.
 3. Start RusTV, accept the Windows Firewall prompt, scan the QR code with the phone.
 
+**Linux (experimental, x86_64)**: `sudo apt install ./rustv_<version>_amd64.deb` (or run the AppImage), then log out and in once so the `/dev/uinput` permission applies. Only tested in Docker so far; gamepad, TV guard, display modes and HDR are not available. Read [docs/LINUX.md](docs/LINUX.md) first.
+
 The step-by-step guide is [docs/USER-GUIDE.md](docs/USER-GUIDE.md).
 
 ## Gallery

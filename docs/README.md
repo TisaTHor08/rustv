@@ -7,6 +7,7 @@
 | [../CHANGELOG.md](../CHANGELOG.md) | Everyone | What changed in each release |
 | [../CONTRIBUTING.md](../CONTRIBUTING.md) | Contributors | How to propose changes, code style, adding tiles, mods, translations |
 | [DEVELOPMENT.md](DEVELOPMENT.md) | Contributors | Setup, repository map, build/test/debug workflow, user data, safety |
+| [LINUX.md](LINUX.md) | Linux users | Install the .deb or AppImage, uinput permission, DRM streaming through Chromium browsers, limits, what was verified |
 | [PORTING.md](PORTING.md) | Contributors | Linux and macOS porting: platform layer, per-module stubs and target backends, Docker build for Linux |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Contributors | Components and how they talk to each other |
 | [PROTOCOL.md](PROTOCOL.md) | Contributors, auditors | Wire protocol: handshake, encryption, messages |
