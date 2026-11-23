@@ -16,6 +16,8 @@ interface RusTVTransportPlugin {
 }
 
 export const isNative = Capacitor.isNativePlatform();
+/** Vrai dans un navigateur (PWA / page servie par le PC) : transport WebSocket au lieu du TCP natif. */
+export const isBrowser = !isNative;
 const Native = registerPlugin<RusTVTransportPlugin>('RusTVTransport');
 
 class NativeStream implements ByteStream {
@@ -97,4 +99,59 @@ export async function listenBeacon(port: number, cb: (ip: string, payload: strin
     void h.remove();
     void Native.stopBeacon().catch(() => {});
   };
+}
+
+/** Adresse du WebSocket du PC qui a servi cette page (même origine : `ws://` en HTTP, `wss://` en HTTPS). */
+export function webSocketUrl(): string {
+  return `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws`;
+}
+
+class WsStream implements ByteStream {
+  private queue: (Uint8Array | null)[] = [];
+  private waiter: (() => void) | null = null;
+  private ws: WebSocket;
+  constructor(ws: WebSocket) {
+    this.ws = ws;
+    ws.binaryType = 'arraybuffer';
+    ws.onmessage = (e) => this.push(new Uint8Array(e.data as ArrayBuffer));
+    ws.onclose = ws.onerror = () => this.push(null);
+  }
+  private push(v: Uint8Array | null) {
+    this.queue.push(v);
+    this.waiter?.();
+  }
+  async write(data: Uint8Array) {
+    if (this.ws.readyState !== WebSocket.OPEN) throw new Error('connexion fermée');
+    this.ws.send(data as BufferSource);
+  }
+  async read(): Promise<Uint8Array | null> {
+    while (this.queue.length === 0) await new Promise<void>((r) => (this.waiter = r));
+    const v = this.queue.shift()!;
+    if (v === null) this.queue.push(null); // la fin de flux reste visible
+    return v;
+  }
+  close() {
+    try {
+      this.ws.close();
+    } catch {}
+  }
+}
+
+/** Flux d'octets au-dessus d'un WebSocket : mêmes trames et même chiffrement que le TCP (voir docs/WEB-REMOTE.md). */
+export function wsConnect(url: string, timeoutMs = 5000): Promise<ByteStream> {
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket(url);
+    const timer = setTimeout(() => {
+      ws.close();
+      reject(new Error('délai dépassé'));
+    }, timeoutMs);
+    ws.onopen = () => {
+      clearTimeout(timer);
+      resolve(new WsStream(ws));
+    };
+    ws.onerror = () => {
+      clearTimeout(timer);
+      reject(new Error('PC injoignable'));
+    };
+  });
 }
