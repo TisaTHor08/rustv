@@ -27,6 +27,18 @@ const meta: OsStyleMeta = {
   descKey: 'os.googletv.d',
   font: 'Roboto',
   slots: ['status'],
+  // Écrans propres au style (voir docs/OS-STYLES.md, « Écrans »)
+  screens: {
+    settings: () => import('./googletv.screens/settings.svelte'),
+    search: () => import('./googletv.screens/search.svelte'),
+    tileMenu: () => import('./googletv.screens/tileMenu.svelte'),
+    pairing: () => import('./googletv.screens/pairing.svelte'),
+    quick: () => import('./googletv.screens/quick.svelte'),
+    osd: () => import('./googletv.screens/osd.svelte'),
+    ambient: () => import('./googletv.screens/ambient.svelte'),
+    toast: () => import('./googletv.screens/toast.svelte'),
+    launch: () => import('./googletv.screens/launch.svelte'),
+  },
   tokens: {
     '--bg': '#131314',
     '--bg-rgb': '19, 19, 20',
@@ -90,7 +102,7 @@ const meta: OsStyleMeta = {
     const i: number = model.ui.tabFocus ?? 2;
     play('select');
     if (i === 1) model.openSearch();
-    else if (i === 0) model.openSettings();
+    else if (i === 0) model.openQuick();
     else {
       model.ui.tab = TABS[i - 2];
       model.focusAt(0, 0, true);

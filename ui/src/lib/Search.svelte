@@ -10,6 +10,7 @@
   import { playMedia } from './player.svelte';
   import { prefs } from './prefs.svelte';
   import './settings/usearch.strings';
+  import ScreenSlot from './os/ScreenSlot.svelte';
   import { play } from './sounds';
   import { iconSrc, type DTile } from './tiles.svelte';
   import { usearch, type UFile, type ULib, type UPartial, type UProvider, type UResult, type UService } from './usearch';
@@ -337,6 +338,36 @@
     return true;
   }
 
+  // Props de l'écran de style (voir os/screens.ts). `kb` : gestionnaire de touches d'un clavier à l'écran (Roku...).
+  let kb: ((e: KeyboardEvent) => boolean) | null = null;
+  const screenProps = $derived({
+    query: q,
+    setQuery: (v: string) => (q = v),
+    rows: rows.map((h) => ({ section: h.section, title: h.title, sub: h.sub, badge: h.badge, color: h.color, image: h.poster ?? h.img ?? (h.icon ? iconSrc(h.icon) : ''), poster: !!h.poster, chips: h.chips?.map((c) => ({ label: c.label, sub: c.sub, enabled: c.enabled })) })),
+    index: sel,
+    chipIndex: selChip,
+    loading,
+    sectionLabel: label,
+    notes: [nokey ? t('usearch.nokey') : '', errLine, hasTitles ? `TMDB, JustWatch: ${t('usearch.attr')}` : ''].filter(Boolean),
+    placeholder: t('search.placeholder'),
+    hint: t('search.hint'),
+    menu: menu ? { title: menu.title, items: menu.items.map((x) => x.label), index: menu.i } : null,
+    bindInput: (el: HTMLInputElement) => ((input = el), el.focus()),
+    hoverRow: (i: number) => ((ri = i), (ci = 0)),
+    activateRow: (i: number) => {
+      ri = i;
+      const r = rows[i];
+      if (r?.chips) r.chips.find((c) => c.enabled)?.run();
+      else r?.run?.();
+    },
+    activateChip: (i: number, k: number) => {
+      const c = rows[i]?.chips?.[k];
+      if (c?.enabled) c.run();
+    },
+    close: onclose,
+    setKeyboardHandler: (h: ((e: KeyboardEvent) => boolean) | null) => (kb = h),
+  });
+
   function onKey(e: KeyboardEvent) {
     const stop = () => (e.preventDefault(), e.stopImmediatePropagation());
     if (menu) {
@@ -348,6 +379,10 @@
         menu = null;
         it?.run();
       } else if (e.key === 'Escape' || e.key === 'Backspace' || e.key === 'ContextMenu') menu = null;
+      return;
+    }
+    if (kb?.(e)) {
+      stop();
       return;
     }
     if (e.key === 'Escape') {
@@ -393,6 +428,8 @@
 
 <svelte:window onkeydowncapture={onKey} />
 
+<ScreenSlot name="search" props={screenProps}>
+{#snippet fallback()}
 <div class="scrim" transition:fade={{ duration: 160 }}>
   <div class="sheet" in:fly={{ y: 30, duration: 320, easing: cubicOut }}>
     <input bind:this={input} bind:value={q} placeholder={t('search.placeholder')} autocomplete="off" spellcheck="false" />
@@ -437,6 +474,8 @@
     {/if}
   </div>
 </div>
+{/snippet}
+</ScreenSlot>
 
 <style>
   .scrim { position: absolute; inset: 0; background: rgba(4, 6, 10, 0.8); backdrop-filter: blur(1.6rem); display: grid; place-items: start center; padding-top: 5rem; z-index: 30; }

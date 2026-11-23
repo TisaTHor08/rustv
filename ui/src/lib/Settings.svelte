@@ -10,7 +10,7 @@
   import { scanLibrary } from './library.svelte';
   import { loadLive } from './live.svelte';
   import { play } from './sounds';
-  import { onDestroy } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { createPage as createCast } from './settings/cast.svelte';
   import { createPage as createDisplay } from './settings/display.svelte';
   import { createPage as createDvr } from './settings/dvr.svelte';
@@ -21,7 +21,10 @@
   import { createPage as createPlayer } from './settings/player.svelte';
   import { createPage as createUsearch } from './settings/usearch.svelte';
   import { createPage as createEpg } from './settings/epg.svelte';
+  import { osState } from './os/apply.svelte';
   import { availableStyles, resolveStyle } from './os/registry';
+  import ScreenSlot from './os/ScreenSlot.svelte';
+  import { AMBIENT_CHOICES } from './os/system';
   import '../lib/os/strings';
 
   let {
@@ -31,7 +34,8 @@
     onpairing,
     onmods,
     note,
-  }: { st: ShellState | null; refresh: () => Promise<void>; onclose: () => void; onpairing: () => void; onmods: () => void; note: (m: string) => void } = $props();
+    initial,
+  }: { initial?: string; st: ShellState | null; refresh: () => Promise<void>; onclose: () => void; onpairing: () => void; onmods: () => void; note: (m: string) => void } = $props();
 
   type Page = 'root' | 'appearance' | 'wallpaper' | 'tiles' | 'weather' | 'live' | 'library' | 'apps' | 'vault' | 'system' | 'ext' | ExtKey;
   // Pages issues des modules intégrés (voir src/lib/settings/*.svelte.ts), regroupées sous « Intégrations ».
@@ -69,6 +73,10 @@
 
   let page = $state<Page>('root');
   let idx = $state(0);
+  // Page ouverte directement (ex. « display » depuis le panneau de réglages rapides).
+  onMount(() => {
+    if (initial && ((EXT as string[]).includes(initial) || ['appearance', 'wallpaper', 'tiles', 'weather', 'live', 'library', 'apps', 'vault', 'system', 'ext'].includes(initial))) go(initial as Page);
+  });
   let newCat = $state<Category>('video');
   let confirmReset = $state(false);
   let detected = $state('');
@@ -233,9 +241,12 @@
     return { label: t('settings.soundvol'), value: `${prefs.soundVolume} %`, arrows: true, left: () => step(-10), right: () => step(10) };
   }
 
-  const rows = $derived.by<Row[]>(() => {
+  // Page de la racine (liste des catégories) -> page qu'elle ouvre ; null = action directe (mods, téléphones).
+  const ROOT_PAGES: (Page | null)[] = ['appearance', 'wallpaper', 'tiles', 'weather', 'live', 'library', 'vault', null, null, 'apps', 'system', 'ext'];
+
+  function rowsFor(pg: Page): Row[] {
     const w = prefs.wallpaper;
-    switch (page) {
+    switch (pg) {
       case 'root':
         return [
           { label: t('settings.appearance'), enter: () => go('appearance') },
@@ -266,6 +277,8 @@
           choice(t('settings.tint'), ['yes', 'no'] as const, () => (prefs.tint ? 'yes' : 'no'), (v) => set('tint', v === 'yes'), (v) => t(`common.${v}`)),
           choice(t('settings.size'), ['80', '90', '100', '110', '125', '140'], () => String(prefs.uiScale), (v) => ((prefs.uiScale = +v), savePrefs()), (v) => ` %`),
           choice(t('settings.clock24'), ['24', '12'] as const, () => (prefs.clock24 ? '24' : '12'), (v) => set('clock24', v === '24'), (v) => t(`clock.${v}`)),
+          choice(t('os.osd'), ['yes', 'no'] as const, () => (prefs.volumeOsd ? 'yes' : 'no'), (v) => set('volumeOsd', v === 'yes'), (v) => t(`common.${v}`)),
+          choice(t('os.ambient'), AMBIENT_CHOICES.map(String), () => String(prefs.ambientMin), (v) => set('ambientMin', +v), (v) => (+v ? t('os.ambient.min', { n: v }) : t('os.ambient.off'))),
           choice(t('settings.sounds'), ['yes', 'no'] as const, () => (prefs.sounds ? 'yes' : 'no'), (v) => set('sounds', v === 'yes'), (v) => t(`common.${v}`)),
           ...(prefs.sounds ? [soundVolumeRow()] : []),
         ];
@@ -392,34 +405,65 @@
           { label: t('sys.quit'), enter: () => api.quit() },
         ];
       default:
-        return isExt(page) ? ext[page].rows() : [];
+        return isExt(pg) ? ext[pg].rows() : [];
     }
-  });
+  }
+  const rows = $derived(rowsFor(page));
 
   const titles: Record<string, string> = { ext: 'settings.ext', root: 'settings.title', appearance: 'settings.appearance', wallpaper: 'settings.wallpaper', tiles: 'settings.tiles', weather: 'settings.weather', live: 'settings.live', library: 'settings.library', apps: 'settings.apps', vault: 'settings.vault', system: 'settings.screens' };
 
   function go(p: Page) {
+    // en revenant à la liste, le curseur reste sur la catégorie (ou la page d'intégration) quittée
+    const from = page;
     page = p;
-    idx = 0;
+    idx = p === 'root' ? Math.max(0, ROOT_PAGES.indexOf(isExt(from) ? 'ext' : from)) : p === 'ext' && isExt(from) ? Math.max(0, EXT.indexOf(from)) : 0;
     if (p === 'apps') void api.browsersDetected().then((l) => (detected = l.map((b) => (b.kind === 'brave' ? 'Brave' : 'Vivaldi')).join(', '))).catch(() => {});
     if (p === 'vault') void vaultRefresh();
     if (isExt(p)) void ext[p].load().catch(() => {});
     confirmReset = false;
   }
 
+  // Style avec un écran de Réglages à deux colonnes : Droite ouvre une catégorie, Gauche revient à la liste.
+  const twoPane = $derived(!!osState.style.screens?.settings);
+
+  function back() {
+    play('back');
+    if (page === 'root') onclose();
+    else go(isExt(page) ? 'ext' : 'root');
+  }
+
+  // Props de l'écran de style (voir os/screens.ts) : la logique reste ici, l'écran ne fait que dessiner.
+  const view = (r: Row) => ({ label: r.label, value: r.value, swatch: r.swatch, arrows: r.arrows, actionable: !!(r.enter || r.left || r.right) });
+  const screenProps = $derived.by(() => {
+    const root = rowsFor('root');
+    const cat = page === 'root' ? idx : Math.max(0, ROOT_PAGES.indexOf(isExt(page) ? 'ext' : page));
+    const target = page === 'root' ? ROOT_PAGES[idx] : null;
+    return {
+      title: t(isExt(page) ? ext[page].titleKey : titles[page]),
+      page: page as string,
+      categories: root.map((r, i) => ({ key: ROOT_PAGES[i] ?? ['mods', 'phones'][i - 7] ?? String(i), label: r.label, active: i === cat })),
+      rows: (page === 'root' ? (target ? rowsFor(target) : []) : rows).map(view),
+      index: idx,
+      inCategories: page === 'root',
+      hint: t('settings.hint'),
+      hoverCategory: (i: number) => (idx = i),
+      openCategory: (i: number) => (idx = i, root[i]?.enter?.()),
+      hoverRow: (i: number) => (idx = i),
+      activateRow: (i: number) => (idx = i, rows[i]?.enter?.()),
+      back,
+    };
+  });
+
   function onKey(e: KeyboardEvent) {
     const r = rows[idx];
     const before = idx;
     if (e.key === 'ArrowDown') idx = Math.min(rows.length - 1, idx + 1);
     else if (e.key === 'ArrowUp') idx = Math.max(0, idx - 1);
-    else if (e.key === 'ArrowLeft') r?.left?.();
-    else if (e.key === 'ArrowRight') r?.right?.();
+    else if (e.key === 'ArrowLeft') r?.left ? r.left() : twoPane && page !== 'root' && back();
+    else if (e.key === 'ArrowRight') r?.right ? r.right() : twoPane && page === 'root' && r?.enter && (play('select'), r.enter());
     else if (e.key === 'Enter') (r?.enter && play('select'), r?.enter?.());
-    else if (e.key === 'Escape' || e.key === 'Backspace') {
-      play('back');
-      if (page === 'root') onclose();
-      else go(isExt(page) ? 'ext' : 'root');
-    } else return;
+    else if (e.key === 'Escape' || e.key === 'Backspace') back();
+    else return;
     if (idx >= rows.length) idx = rows.length - 1;
     if (idx !== before) play('move');
     e.preventDefault();
@@ -428,6 +472,8 @@
 
 <svelte:window onkeydown={onKey} />
 
+<ScreenSlot name="settings" props={screenProps}>
+{#snippet fallback()}
 <div class="sheet" in:fly={{ y: 30, duration: 360, easing: cubicOut }}>
   <h3>{t(isExt(page) ? ext[page].titleKey : titles[page])}</h3>
   <div class="rows">
@@ -443,6 +489,8 @@
   </div>
   <p class="hint">{t('settings.hint')}</p>
 </div>
+{/snippet}
+</ScreenSlot>
 
 <style>
   .sheet { width: 46rem; padding: 2.2rem 2.4rem; border-radius: 1.8rem; background: var(--sheet); box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.55), inset 0 0 0 0.08rem var(--glass-strong); color: var(--text); }

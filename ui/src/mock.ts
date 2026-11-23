@@ -1,10 +1,20 @@
 // Harnais de développement : faux Tauri (invoke) avec des données de démonstration, pour voir l'interface dans un
 // navigateur ordinaire. Paramètres d'URL : os=<style>, keys=ArrowDown,ArrowRight,Enter (rejoués après le chargement),
 // theme=light, scale=110, lang=en, cont=0 (sans « Reprendre »).
+// screen=settings|display|search|quick|osd|mute|ambient|tilemenu|pairing|toast|launch : ouvre cet écran après le chargement (après keys).
+// q=<texte> : saisit ce texte dans la recherche. weather=1 : météo fictive activée. osd/ambient : voir Home.svelte (__rustvHome).
 import catalog from '../../crates/rustv-shell/src/catalog.json';
 
 const q = new URLSearchParams(location.search);
+(window as any).__RUSTV_MOCK__ = true;
 const prefsOver: Record<string, unknown> = {};
+if (q.get('weather')) prefsOver.weather = { enabled: true, city: 'Paris', lat: 48.85, lon: 2.35, unit: 'c' };
+const outputs = [
+  { id: 'o1', name: 'Haut-parleurs (TV HDMI)', default: true, volume: 42, muted: false },
+  { id: 'o2', name: 'Casque Bluetooth', default: false, volume: 30, muted: false },
+];
+const listeners = new Map<string, number[]>();
+const callbacks = new Map<number, (e: unknown) => void>();
 if (q.get('os')) prefsOver.osStyle = q.get('os');
 if (q.get('theme')) prefsOver.theme = q.get('theme');
 if (q.get('lang')) prefsOver.lang = q.get('lang');
@@ -30,10 +40,14 @@ const cont = q.get('cont') === '0' ? [] : [
 
 let cb = 1;
 (window as any).__TAURI_INTERNALS__ = {
-  transformCallback: () => cb++,
+  transformCallback: (fn?: (e: unknown) => void) => {
+    const id = cb++;
+    if (fn) callbacks.set(id, fn);
+    return id;
+  },
   unregisterCallback: () => {},
   convertFileSrc: (p: string) => p,
-  invoke: async (cmd: string) => {
+  invoke: async (cmd: string, args?: any) => {
     switch (cmd) {
       case 'get_state': return state;
       case 'prefs_get': return prefsOver;
@@ -41,7 +55,16 @@ let cb = 1;
       case 'mods_list': return [];
       case 'continue_list': return cont;
       case 'update_check': return { available: false, latest: '', current: '1.2.0' };
-      case 'plugin:event|listen': return cb++;
+      case 'plugin:event|listen': {
+        const ids = listeners.get(args.event) ?? [];
+        ids.push(args.handler);
+        listeners.set(args.event, ids);
+        return args.handler;
+      }
+      case 'audio_outputs': return outputs;
+      case 'audio_set_default': outputs.forEach((o) => (o.default = o.id === args.id)); return outputs;
+      case 'audio_set_output_volume': { const o = outputs.find((x) => x.id === args.id); if (o) o.volume = args.level; return null; }
+      case 'display_info': return { monitors: [{ index: 0, name: 'TV', width: 3840, height: 2160, refresh: 60, hdr: { supported: true, enabled: false }, modes: [{ width: 3840, height: 2160, refresh: 60 }, { width: 1920, height: 1080, refresh: 60 }] }], tvMonitor: 0, pendingRevertSeconds: null };
       case 'media_url': return '';
       default: return null;
     }
@@ -73,4 +96,30 @@ if (q.get('still')) {
   const st = document.createElement('style');
   st.textContent = '*{transition:none!important}';
   document.head.appendChild(st);
+}
+
+// Émet un événement Tauri factice : window.__emit('volume-changed', { level: 30, muted: false })
+(window as any).__emit = (event: string, payload: unknown) => {
+  for (const id of listeners.get(event) ?? []) callbacks.get(id)?.({ event, id, payload });
+};
+
+// ?screen=... : ouvre un écran sans touches (après les touches rejouées).
+if (q.get('screen')) {
+  setTimeout(() => {
+    const h = (window as any).__rustvHome;
+    const k = q.get('screen')!;
+    if (k === 'osd') (window as any).__emit('volume-changed', { level: 42, muted: false });
+    else if (k === 'mute') (window as any).__emit('volume-changed', { level: 42, muted: true });
+    else h?.show(k);
+    const text = q.get('q');
+    if (text) {
+      setTimeout(() => {
+        const input = document.querySelector('input') as HTMLInputElement | null;
+        if (input) {
+          input.value = text;
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      }, 400);
+    }
+  }, 1200 + 250 * (keys.length + 1));
 }

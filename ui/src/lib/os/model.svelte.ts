@@ -66,7 +66,10 @@ export interface HomeModel {
   /** Reprend une lecture de « Reprendre la lecture » par son URL. */
   resume(url: string): void;
   openSearch(): void;
-  openSettings(): void;
+  /** Ouvre les Réglages ; `page` (facultatif) : clé de page à ouvrir directement ('display', 'appearance'...). */
+  openSettings(page?: string): void;
+  /** Ouvre le panneau de réglages rapides (volume, sortie audio, écran, téléphones, quitter le mode TV). */
+  openQuick(): void;
   /** Pages internes : TV en direct et médiathèque (onglet). */
   openLive(): void;
   openMedia(tab: 'movies' | 'series' | 'photos' | 'music' | 'files'): void;

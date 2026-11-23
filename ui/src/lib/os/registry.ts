@@ -5,6 +5,8 @@
 // Un style dont le fichier .svelte n'existe pas encore est « indisponible » et caché du sélecteur.
 import type { Component } from 'svelte';
 import type { HomeModel, HomeRow } from './model.svelte';
+import type { OsScreens } from './screens';
+export type { OsScreens, ScreenName, ScreenProps } from './screens';
 
 export type OsStyleId = 'rustv' | 'googletv' | 'tizen' | 'webos' | 'vidaa' | 'titan' | 'fire' | 'tvos' | 'roku';
 export type Dir = 'up' | 'down' | 'left' | 'right';
@@ -53,6 +55,12 @@ export interface OsStyle {
    * Appelée dans un $derived : peut lire model.ui de façon réactive. Les index de focus portent sur ce résultat.
    */
   rows?: (base: HomeRow[], model: HomeModel) => HomeRow[];
+  /**
+   * Écrans communs redessinés par le style (Réglages, Recherche, menu de tuile, appairage, panneau rapide, volume, veille
+   * ambiante, toast, lancement). Chargement différé ; un écran absent = écran RusTV habillé par les jetons.
+   * Voir src/lib/os/screens.ts (props de chaque écran) et docs/OS-STYLES.md.
+   */
+  screens?: OsScreens;
 }
 
 /** Ce qu'exporte (par défaut) un fichier <id>.meta.ts. */

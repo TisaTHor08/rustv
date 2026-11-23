@@ -2,6 +2,7 @@
   import { onDestroy, onMount } from 'svelte';
   import { api, type Device, type PairingStart } from './api';
   import { t } from './i18n';
+  import ScreenSlot from './os/ScreenSlot.svelte';
 
   let { embedded = false, onclose }: { embedded?: boolean; onclose?: () => void } = $props();
 
@@ -36,6 +37,20 @@
     else onclose?.();
   }
 
+  // Props de l'écran de style (voir os/screens.ts).
+  const screenProps = $derived({
+    svg: pairing?.svg ?? '',
+    paired,
+    bluetooth: !!pairing?.bluetooth,
+    devices: others.map((d) => ({ id: d.id, name: d.name, connected: d.connected, armed: armed === d.id })),
+    index: sel,
+    embedded,
+    hover: (i: number) => (sel = i),
+    activate: (i: number) => ((sel = i), activate()),
+    newCode: () => void newCode(),
+    close: () => onclose?.(),
+  });
+
   function onKey(e: KeyboardEvent) {
     if (e.key === 'ArrowDown') sel = Math.min(count - 1, sel + 1);
     else if (e.key === 'ArrowUp') sel = Math.max(0, sel - 1);
@@ -61,6 +76,7 @@
 
 <svelte:window onkeydown={onKey} />
 
+{#snippet base()}
 <div class="wrap" class:embedded>
   <h2>{t('pair.title')}</h2>
   <div class="grid">
@@ -99,6 +115,16 @@
     {#if embedded}<button class="act" class:sel={sel === others.length + 1} onclick={() => onclose?.()}>{t('common.close')}</button>{/if}
   </div>
 </div>
+{/snippet}
+
+<!-- Fenêtre d'appairage du bureau : toujours l'écran RusTV. En mode TV (intégré aux Réglages) : écran du style s'il existe. -->
+{#if embedded}
+  <ScreenSlot name="pairing" props={screenProps}>
+    {#snippet fallback()}{@render base()}{/snippet}
+  </ScreenSlot>
+{:else}
+  {@render base()}
+{/if}
 
 <style>
   .wrap { padding: 1.4rem 1.6rem; color: var(--text); background: var(--bg); min-height: 100%; }
