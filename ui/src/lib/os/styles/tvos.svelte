@@ -73,7 +73,7 @@
   const rowTop = $derived(hasHero && model.focus.row <= 0 ? 'var(--rt)' : '9.4rem');
 </script>
 
-<div class="tvos" bind:clientWidth={W} style:--rt="max(33rem, 60%)" style:--tint={tint}>
+<div class="tvos" bind:clientWidth={W} style:--rt="max(36rem, 66%)" style:--tint={tint}>
   <!-- Vitrine (Top Shelf) -->
   {#if hasHero}
     <section class="shelf" style:opacity={model.focus.row > 0 ? 0 : 1}>
@@ -118,6 +118,7 @@
   </header>
 
   <!-- Rangées -->
+  {#if hasHero}<div class="dock" style:opacity={model.focus.row <= 0 && !inNav ? 1 : 0}></div>{/if}
   <main style:top={rowTop}>
     <div class="rows" style:--shift="{shift}rem">
       {#each model.rows as r, ri (r.key)}
@@ -186,6 +187,9 @@
   .info p { margin: 0 0 1.8rem; font-size: 1.5rem; font-weight: 500; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .play { display: inline-flex; align-items: center; gap: 0.6rem; height: 3.8rem; padding: 0 2.2rem 0 1.7rem; border-radius: 99rem; background: rgba(235, 235, 245, 0.26); backdrop-filter: blur(1.6rem) saturate(1.6); font-size: 1.35rem; font-weight: 600; }
   .play svg { width: 1.7rem; height: 1.7rem; fill: currentColor; }
+
+  /* dock translucide derrière la première rangée (comme l'écran d'accueil tvOS) */
+  .dock { position: absolute; z-index: 1; left: calc(var(--pad) - 2.4rem); right: calc(var(--pad) - 2.4rem); top: calc(var(--rt) - 1.2rem); height: 21rem; border-radius: 3rem; background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(2.4rem) saturate(1.5); box-shadow: inset 0 0 0 0.06rem rgba(255, 255, 255, 0.1); transition: opacity 0.4s; pointer-events: none; }
 
   /* rangées */
   main { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; overflow: hidden; transition: top 0.4s var(--ease); }

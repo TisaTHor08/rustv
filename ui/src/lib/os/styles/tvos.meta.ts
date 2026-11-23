@@ -33,6 +33,17 @@ const meta: OsStyleMeta = {
   descKey: 'os.tvos.d',
   font: 'Inter',
   slots: ['status'],
+  screens: {
+    settings: () => import('./tvos.screens/settings.svelte'),
+    search: () => import('./tvos.screens/search.svelte'),
+    tileMenu: () => import('./tvos.screens/tileMenu.svelte'),
+    pairing: () => import('./tvos.screens/pairing.svelte'),
+    quick: () => import('./tvos.screens/quick.svelte'),
+    osd: () => import('./tvos.screens/osd.svelte'),
+    ambient: () => import('./tvos.screens/ambient.svelte'),
+    toast: () => import('./tvos.screens/toast.svelte'),
+    launch: () => import('./tvos.screens/launch.svelte'),
+  },
   tokens: {
     '--bg': '#000000',
     '--bg-rgb': '0, 0, 0',
