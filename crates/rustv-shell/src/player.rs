@@ -130,7 +130,7 @@ pub fn install(app: &AppHandle) -> Result<PathBuf, String> {
     // L'archive officielle est un build Windows : sous Linux/macOS, mpv s'installe avec le gestionnaire de paquets
     // (apt, dnf, flatpak, brew : voir docs/PORTING.md) ; on ne télécharge jamais un binaire d'un autre OS.
     if !cfg!(windows) {
-        return Err(rustv_core::platform::UNSUPPORTED.into());
+        return Err(crate::features::install_hint("mpv"));
     }
     let agent = ureq::AgentBuilder::new().timeout_connect(Duration::from_secs(15)).timeout_read(Duration::from_secs(60)).user_agent("RusTV").build();
     let mut body = String::new();

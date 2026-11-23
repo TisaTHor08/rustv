@@ -40,13 +40,25 @@ unsafe fn take(out: CRYPT_INTEGER_BLOB) -> Vec<u8> {
 
 /// Hors Windows : pas de protection disponible. On échoue (jamais de repli en clair) ; le vrai backend sera
 /// libsecret/Secret Service (Linux) ou le Trousseau (macOS), voir docs/PORTING.md.
-#[cfg(not(windows))]
+#[cfg(all(not(windows), not(target_os = "linux")))]
 impl Protector for Dpapi {
     fn protect(&self, _plain: &[u8]) -> Result<Vec<u8>, String> {
         Err(rustv_core::platform::UNSUPPORTED.to_string())
     }
     fn unprotect(&self, _sealed: &[u8]) -> Result<Vec<u8>, String> {
         Err(rustv_core::platform::UNSUPPORTED.to_string())
+    }
+}
+
+/// Linux : Secret Service (trousseau du bureau). Le disque ne reçoit qu'un identifiant ; sans trousseau,
+/// `Err("keyring_unavailable")` (jamais de repli en clair).
+#[cfg(target_os = "linux")]
+impl Protector for Dpapi {
+    fn protect(&self, plain: &[u8]) -> Result<Vec<u8>, String> {
+        crate::linux::secrets::store("universalsearch", plain)
+    }
+    fn unprotect(&self, sealed: &[u8]) -> Result<Vec<u8>, String> {
+        crate::linux::secrets::fetch("universalsearch", sealed)
     }
 }
 

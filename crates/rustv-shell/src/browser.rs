@@ -18,6 +18,10 @@ use tauri::{AppHandle, Manager};
 pub enum Kind {
     Brave,
     Vivaldi,
+    /// Google Chrome (Linux) : Widevine inclus, pas de bloqueur de pub.
+    Chrome,
+    /// Chromium (Linux) : sans Widevine dans la plupart des distributions.
+    Chromium,
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Serialize)]
@@ -62,6 +66,14 @@ fn unix_candidate_paths(env: &dyn Fn(&str) -> Option<String>) -> Vec<(Kind, Path
     };
     v.extend(brave.iter().map(|p| (Kind::Brave, PathBuf::from(p))));
     v.extend(vivaldi.iter().map(|p| (Kind::Vivaldi, PathBuf::from(p))));
+    if cfg!(target_os = "linux") {
+        for p in ["/usr/bin/google-chrome-stable", "/usr/bin/google-chrome", "/opt/google/chrome/chrome", "/var/lib/flatpak/exports/bin/com.google.Chrome"] {
+            v.push((Kind::Chrome, PathBuf::from(p)));
+        }
+        for p in ["/usr/bin/chromium", "/usr/bin/chromium-browser", "/snap/bin/chromium", "/var/lib/flatpak/exports/bin/org.chromium.Chromium"] {
+            v.push((Kind::Chromium, PathBuf::from(p)));
+        }
+    }
     if let Some(path) = env("PATH") {
         for d in std::env::split_paths(&path) {
             for n in ["brave-browser", "brave"] {
@@ -69,6 +81,14 @@ fn unix_candidate_paths(env: &dyn Fn(&str) -> Option<String>) -> Vec<(Kind, Path
             }
             for n in ["vivaldi", "vivaldi-stable"] {
                 v.push((Kind::Vivaldi, d.join(n)));
+            }
+            if cfg!(target_os = "linux") {
+                for n in ["google-chrome-stable", "google-chrome"] {
+                    v.push((Kind::Chrome, d.join(n)));
+                }
+                for n in ["chromium", "chromium-browser"] {
+                    v.push((Kind::Chromium, d.join(n)));
+                }
             }
         }
     }
@@ -81,7 +101,7 @@ pub fn detect_with(env: &dyn Fn(&str) -> Option<String>, exists: &dyn Fn(&Path) 
     let mut out: Vec<Found> = Vec::new();
     let mut cands = candidate_paths(env);
     cands.extend(extra.iter().cloned());
-    for kind in [Kind::Brave, Kind::Vivaldi] {
+    for kind in [Kind::Brave, Kind::Vivaldi, Kind::Chrome, Kind::Chromium] {
         if let Some((_, p)) = cands.iter().find(|(k, p)| *k == kind && exists(p)) {
             out.push(Found { kind, path: p.clone() });
         }
@@ -147,8 +167,29 @@ pub fn resolve(choice: &str, found: &[Found]) -> Option<Found> {
         "builtin" => None,
         "brave" => found.iter().find(|f| f.kind == Kind::Brave).cloned(),
         "vivaldi" => found.iter().find(|f| f.kind == Kind::Vivaldi).cloned(),
-        _ => found.first().cloned(),
+        "chrome" => found.iter().find(|f| f.kind == Kind::Chrome).cloned(),
+        "chromium" => found.iter().find(|f| f.kind == Kind::Chromium).cloned(),
+        // Auto : seuls Brave et Vivaldi ont un bloqueur de pub (Chrome et Chromium ne servent qu'au choix explicite).
+        _ => found.iter().find(|f| matches!(f.kind, Kind::Brave | Kind::Vivaldi)).cloned(),
     }
+}
+
+/// Navigateur externe pour une tuile : tuiles `adblock_browser` (toutes plateformes), et sous Linux les tuiles
+/// protégées par DRM (WebKitGTK n'a pas Widevine, voir `platform/linux/streaming.rs`). `None` : vue web intégrée.
+pub fn select(id: &str, tile: &Value) -> Option<Found> {
+    if tile["adblock_browser"].as_bool().unwrap_or(false) {
+        let choice = tile["browser"].as_str().unwrap_or("auto");
+        return resolve(choice, &detect());
+    }
+    #[cfg(target_os = "linux")]
+    {
+        let cfg = crate::linux::streaming::load();
+        if cfg.streaming_browser && crate::linux::streaming::is_drm_tile(id, tile) {
+            return crate::linux::streaming::select(id, tile, &detect(), &cfg);
+        }
+    }
+    let _ = id;
+    None
 }
 
 /// Arguments Chromium : fenêtre « app » plein écran sur l'écran de la TV, profil dédié.
@@ -226,7 +267,10 @@ pub fn launch(app: &AppHandle, found: &Found, id: &str, tile: &Value, url: &str)
     let profile = settings::dir().join("browser-profiles").join(id);
     let _ = std::fs::create_dir_all(&profile);
     let lang = url_hl(url);
-    let args = build_args(url, tile["ua"].as_str(), &profile, mons.get(idx), lang.as_deref());
+    #[cfg_attr(not(target_os = "linux"), allow(unused_mut))]
+    let mut args = build_args(url, tile["ua"].as_str(), &profile, mons.get(idx), lang.as_deref());
+    #[cfg(target_os = "linux")]
+    args.extend(crate::linux::browser_extra_args());
     let mut cmd = Command::new(&found.path);
     cmd.args(&args).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
     let mut child = no_window(&mut cmd).spawn().map_err(|e| e.to_string())?;

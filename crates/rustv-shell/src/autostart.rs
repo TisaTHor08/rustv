@@ -40,13 +40,24 @@ pub fn set(mode: &str) {
 
 /// STUB non-Windows : démarrage automatique non pris en charge (toujours "off", `set` ne fait rien).
 /// Backend prévu : `~/.config/autostart/rustv.desktop` (Linux), LaunchAgent plist (macOS), voir docs/PORTING.md.
-#[cfg(not(windows))]
+#[cfg(all(not(windows), not(target_os = "linux")))]
 pub fn get() -> &'static str {
     "off"
 }
 
-#[cfg(not(windows))]
+#[cfg(all(not(windows), not(target_os = "linux")))]
 pub fn set(_mode: &str) {}
+
+/// Linux : `~/.config/autostart/rustv.desktop` (voir `platform/linux/autostart.rs`).
+#[cfg(target_os = "linux")]
+pub fn get() -> &'static str {
+    crate::linux::autostart::get()
+}
+
+#[cfg(target_os = "linux")]
+pub fn set(mode: &str) {
+    crate::linux::autostart::set(mode)
+}
 
 /// Valeur de la clé Run. `--boot` = démarrage silencieux (pas de fenêtre d'appairage, attente de l'écran de la
 /// TV, reprise du mode TV). Les anciennes entrées (`--tv` seul, ou sans argument) restent comprises par `get`.

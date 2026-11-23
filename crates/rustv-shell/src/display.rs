@@ -233,7 +233,10 @@ pub struct SetModeResult {
 // ---------- appels système (non testés automatiquement) ----------
 
 /// Windows : Core Audio, GDI, DisplayConfig. Autres OS : `platform/stub/display_sys.rs` (voir docs/PORTING.md).
-#[cfg(not(windows))]
+#[cfg(target_os = "linux")]
+#[path = "platform/linux/display_sys.rs"]
+mod sys;
+#[cfg(all(not(windows), not(target_os = "linux")))]
 #[path = "platform/stub/display_sys.rs"]
 mod sys;
 

@@ -300,9 +300,8 @@ pub fn launch_value(app: &AppHandle, tile: &Value, url: Option<String>) -> Resul
             if !matches!(parsed.scheme(), "http" | "https") {
                 return Err("Seules les adresses http(s) sont autorisées".into());
             }
-            if tile["adblock_browser"].as_bool().unwrap_or(false) {
-                let choice = tile["browser"].as_str().unwrap_or("auto");
-                if let Some(found) = crate::browser::resolve(choice, &crate::browser::detect()) {
+            {
+                if let Some(found) = crate::browser::select(id, &tile) {
                     for (label, w) in app.webview_windows() {
                         if label.starts_with("app-") {
                             let _ = w.destroy();
