@@ -3,6 +3,7 @@
 mod autostart;
 mod browser;
 mod commands;
+mod display;
 mod fs;
 mod guard;
 mod hooks;
@@ -122,6 +123,15 @@ fn main() {
             guard::guard_set,
             guard::guard_status,
             guard::guard_panic,
+            display::audio_outputs,
+            display::audio_set_default,
+            display::audio_set_output_volume,
+            display::audio_cycle_output,
+            display::display_info,
+            display::display_set_mode,
+            display::display_confirm,
+            display::display_revert,
+            display::display_set_hdr,
         ])
         .setup(move |app| {
             let h = app.handle().clone();
