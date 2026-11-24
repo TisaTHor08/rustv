@@ -242,6 +242,7 @@
       if (r !== 'ok') endLaunch();
       if (r === 'ok') {
         if (!web) endLaunch();
+        runningApp = web ? { id: tile.id, at: Date.now() } : null;
         recent = [tile.id, ...recent.filter((x) => x !== tile.id)].slice(0, 8);
         try {
           localStorage.setItem('rustv.recent', JSON.stringify(recent));
@@ -304,6 +305,60 @@
     e.preventDefault();
   }
 
+  // ---------- reprise (sauvegarde d'état, 3 h) ----------
+  // On mémorise la page ouverte, la tuile sélectionnée et l'app web en cours. Rouverte dans les 3 h, la TV y retombe (réglable).
+  let runningApp = $state<{ id: string; at: number } | null>(null);
+  let sessionReady = false;
+  const sessionSnap = $derived.by(() => {
+    const m = modal;
+    let page: Record<string, string> | null = null;
+    if (m?.kind === 'settings') page = { kind: 'settings', page: m.page ?? '' };
+    else if (m?.kind === 'live' || m?.kind === 'search' || m?.kind === 'mods') page = { kind: m.kind };
+    else if (m?.kind === 'media') page = { kind: 'media', tab: m.tab };
+    else if (m?.kind === 'page') page = { kind: 'page', modId: m.modId, entry: m.entry, title: m.title };
+    return JSON.stringify({ style: osState.style.id, tile: focused?.id ?? null, page, app: runningApp?.id ?? null });
+  });
+  let saveTimer: number | undefined;
+  $effect(() => {
+    const snap = sessionSnap;
+    const on = prefs.resume;
+    if (!sessionReady) return;
+    clearTimeout(saveTimer);
+    saveTimer = window.setTimeout(() => void (on ? api.sessionSave(JSON.parse(snap)) : api.sessionClear()).catch(() => {}), 400);
+  });
+
+  async function restoreSession() {
+    try {
+      if (!prefs.resume) return;
+      const s = await api.sessionLoad();
+      if (!s) return;
+      await tick();
+      // même style d'interface : on retrouve la tuile ; sinon l'accueil reste au début
+      if (s.tile && s.style === osState.style.id) {
+        for (let r = 0; r < rows.length; r++) {
+          const c = rows[r].tiles.findIndex((x) => x.id === s.tile);
+          if (c >= 0) {
+            focus = { row: r, col: c };
+            break;
+          }
+        }
+      }
+      const p = s.page;
+      if (p?.kind === 'settings') modal = { kind: 'settings', page: p.page || undefined };
+      else if (p?.kind === 'live' || p?.kind === 'search' || p?.kind === 'mods') modal = { kind: p.kind };
+      else if (p?.kind === 'media' && ['movies', 'series', 'photos', 'music', 'files'].includes(p.tab)) modal = { kind: 'media', tab: p.tab };
+      else if (p?.kind === 'page' && typeof p.modId === 'string' && mods.list.some((x) => x.id === p.modId)) modal = { kind: 'page', modId: p.modId, entry: p.entry || 'index.html', title: String(p.title ?? '') };
+      const tile = s.app ? tileFor(String(s.app)) : undefined;
+      if (tile && isWebTile(tile)) {
+        note(t('os.resume.app', { name: tile.name }));
+        await openTile(tile);
+      }
+    } catch {
+    } finally {
+      sessionReady = true;
+    }
+  }
+
   // ---------- cycle de vie ----------
 
   let idleTimer: number | undefined;
@@ -318,6 +373,8 @@
   function resync() {
     if (document.visibilityState === 'hidden') return;
     endLaunch();
+    // Retour à l'accueil (hors du lancement lui-même, qui peut aussi donner un focus) : plus d'app en cours à reprendre.
+    if (runningApp && Date.now() - runningApp.at > 8000) runningApp = null;
     sanitizeNav();
     if (zone !== 'content' && !modal) zone = 'content';
     const a = document.activeElement as HTMLElement | null;
@@ -343,7 +400,7 @@
     window.addEventListener('focus', onWinFocus);
     window.addEventListener('pageshow', onWinFocus);
     document.addEventListener('visibilitychange', onVis);
-    refresh();
+    refresh().then(restoreSession, () => (sessionReady = true));
     loadCont();
     const unClosed = api.onPlayerClosed(() => loadCont());
     // Vérification quotidienne des mises à jour (désactivable) : un simple GET vers l'API GitHub.

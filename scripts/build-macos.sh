@@ -4,6 +4,7 @@
 #   scripts/build-macos.sh              native architecture (Apple silicon or Intel)
 #   scripts/build-macos.sh --universal  one app for both (needs both Rust targets, installed automatically)
 #   scripts/build-macos.sh --skip-tests skip `cargo test` (not recommended)
+#   scripts/build-macos.sh --plain-dmg  plain dmg without Finder layout (needed over ssh, on CI, locked screen, automation agents)
 #
 # Output (dist-macos/): RusTV_<version>_<arch>.dmg, RusTV_<version>_<arch>.app.zip, SHA256SUMS,
 # build-report.json (machine readable), build.log (full log). No signing identity is used and nothing is uploaded.
@@ -12,11 +13,13 @@ set -uo pipefail
 
 UNIVERSAL=0
 SKIP_TESTS=0
+PLAIN_DMG=0
 for a in "$@"; do
   case "$a" in
     --universal) UNIVERSAL=1 ;;
     --skip-tests) SKIP_TESTS=1 ;;
-    -h|--help) sed -n '2,12p' "$0"; exit 0 ;;
+    --plain-dmg) PLAIN_DMG=1 ;;
+    -h|--help) sed -n '2,13p' "$0"; exit 0 ;;
     *) echo "unknown option: $a"; exit 3 ;;
   esac
 done
@@ -82,6 +85,9 @@ if [ "$STATUS_UI" = ok ]; then
   if [ "$UNIVERSAL" = 1 ]; then TARGET_ARG="--target universal-apple-darwin"; BUNDLE_DIR="target/universal-apple-darwin/release/bundle"; ARCH_LABEL="universal"
   else TARGET_ARG=""; BUNDLE_DIR="target/release/bundle"; ARCH_LABEL="$ARCH"; fi
   # shellcheck disable=SC2086
+  # --plain-dmg (or CI=true already set): the Tauri bundler then passes --skip-jenkins to bundle_dmg.sh, skipping the Finder
+  # AppleScript layout that times out (-1712) without an interactive session. The dmg is plain but valid. See tauri-apps/tauri#592.
+  [ "$PLAIN_DMG" = 1 ] && export CI=true
   if cargo tauri build --bundles app,dmg $TARGET_ARG >> "$LOG" 2>&1; then STATUS_BUILD="ok"; else STATUS_BUILD="failed"; note "cargo tauri build failed"; fi
 fi
 

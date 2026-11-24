@@ -162,7 +162,7 @@ export function createPage(ctx: { note: (m: string) => void }) {
         { label: t('usearch.jf.url'), value: c.jellyfin.url || c.jellyfin.tileUrl || t('usearch.none'), enter: () => ask('usearch.jf.url.q', c.jellyfin.url, t('usearch.jf.url.hint'), (v) => ({ jellyfin: { url: v } })) },
         { label: t('usearch.jf.key'), value: secretText(c.jellyfin.hasKey), enter: () => ask('usearch.jf.key.q', '', '', (v) => ({ jellyfin: { key: v } })) },
         { label: t('usearch.test', { name: 'Jellyfin' }), value: tests.jellyfin ?? t('usearch.test.never'), enter: () => runTest('jellyfin') },
-        { label: t('usearch.ugreen'), value: c.ugreen.url || t('usearch.ugreen.none') },
+        { label: t('usearch.ugreen.label'), value: c.ugreen.url || t('usearch.ugreen.none') },
         { label: t('usearch.test', { name: 'UGREEN' }), value: tests.ugreen ?? t('usearch.ugreen.note'), enter: () => runTest('ugreen') },
         { label: t('usearch.folders.add'), enter: async () => addFolder(await pickFile(t('picker.title.folder'), 'folder')) },
         { label: t('usearch.folders.type'), enter: async () => addFolder(await askText(t('usearch.folders.type.q'), '', '')) },

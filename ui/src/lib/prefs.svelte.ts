@@ -32,6 +32,8 @@ export interface Prefs {
   widgetPos: 'auto' | 'tr' | 'tl' | 'br' | 'bl' | 'hidden';
   /** Affiche le volume à l'écran (OSD) quand le volume du PC change (voir os/SystemLayer). */
   volumeOsd: boolean;
+  /** Reprise : si la TV est rouverte dans les 3 h, retour là où on était (page, tuile, app en cours). */
+  resume: boolean;
   /** Veille ambiante (écran de veille de l'accueil) après N minutes sans action ; 0 = désactivée. */
   ambientMin: number;
   clock24: boolean;
@@ -91,6 +93,7 @@ function defaults(): Prefs {
     osStyle: 'rustv',
     widgetPos: 'auto',
     volumeOsd: true,
+    resume: true,
     ambientMin: 0,
     clock24: true,
     sounds: true,

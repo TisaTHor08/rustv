@@ -2,7 +2,7 @@
 // (ordre, noms, couleurs, icônes, masquage).
 import { api, type Tile } from './api';
 import { t, tileDesc } from './i18n';
-import { modIcon, modTiles, type ModTile } from './mods.svelte';
+import { modBanner, modIcon, modTiles, type ModTile } from './mods.svelte';
 import { prefs, savePrefs, type Category, type CustomTile } from './prefs.svelte';
 
 export interface DTile {
@@ -14,6 +14,8 @@ export interface DTile {
   color2: string;
   dark_text?: boolean;
   icon?: string;
+  /** Visuel d'écran de l'appli (mod), affiché dans le bandeau du haut. */
+  banner?: string;
   custom: boolean;
   source: 'catalog' | 'custom' | 'mod' | 'builtin';
   customized: boolean;
@@ -70,6 +72,7 @@ function decorate(raw: Tile | CustomTile | ModTile | BuiltinTile, source: DTile[
     color2: col?.[1] ?? raw.color2,
     dark_text: (raw as Tile).dark_text && !col,
     icon: o.icons[raw.id] ?? (raw as CustomTile).icon ?? (raw as ModTile).icon ?? modIcon(raw.id),
+    banner: modBanner(raw.id),
     custom,
     source,
     customized: !!(o.names[raw.id] || col || o.icons[raw.id]),

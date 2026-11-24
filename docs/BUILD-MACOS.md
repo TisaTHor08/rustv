@@ -91,3 +91,9 @@ or right-click the app, choose "Open", then "Open" again. Signing and notarizati
 | `npm ci` fails | check `node -v` is 20 or newer, delete `ui/node_modules`, retry |
 | The app starts and quits immediately | run `dist-macos/../target/release/bundle/macos/RusTV.app/Contents/MacOS/rustv` from a terminal to see the error and include it in the pull request |
 | Out of disk space | `cargo clean` removes the `target` folder (rebuild takes a while) |
+
+## Build sans session graphique (ssh, CI, agent automatisé)
+
+`scripts/build-macos.sh --plain-dmg` produit un DMG « nu » (sans mise en page ni image de fond). Sans cette option, `bundle_dmg.sh` pilote le Finder par AppleScript et échoue par un délai dépassé (`-1712`) si aucune session interactive ne répond. Pour une version publique, construire sans l'option depuis une session ouverte afin de garder le rendu habituel.
+
+Premier lancement : l'app n'est pas signée (pas de compte développeur Apple). Gatekeeper refuse le premier double-clic : clic droit sur RusTV.app → Ouvrir, puis confirmer. Les binaires macOS 1.3.0 (Apple Silicon uniquement, compilés par un contributeur) n'ont pas été lancés avec une interface : seul le démarrage du processus est vérifié.

@@ -60,6 +60,23 @@ pub async fn prefs_set(prefs: Value) -> Result<(), String> {
     crate::prefs::set(&prefs)
 }
 
+/// Sauvegarde d'état de la TV (reprise dans les 3 h, voir session.rs).
+#[tauri::command]
+pub async fn session_save(state: Value) -> Result<(), String> {
+    crate::session::save(&state)
+}
+
+#[tauri::command]
+pub async fn session_load() -> Result<Value, String> {
+    Ok(crate::session::load())
+}
+
+#[tauri::command]
+pub async fn session_clear() -> Result<(), String> {
+    crate::session::clear();
+    Ok(())
+}
+
 /// Enregistre un fichier local et renvoie une URL http://127.0.0.1 secrète utilisable dans <img>/<video>.
 #[tauri::command]
 pub async fn media_url(shell: State<'_, Shell>, path: String) -> Result<String, String> {

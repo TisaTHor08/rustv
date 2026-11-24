@@ -175,6 +175,7 @@ pub fn choose(app: &AppHandle, index: usize) {
 }
 
 pub fn exit(app: &AppHandle) {
+    crate::session::touch(); // la reprise de 3 h court à partir de la fermeture
     crate::browser::close();
     let shell = app.state::<Shell>();
     for (label, w) in app.webview_windows() {

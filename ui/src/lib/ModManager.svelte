@@ -476,7 +476,7 @@
                 <span>{t('mods.rate')}</span>
                 <span class="stars">
                   {#each starRow as n}
-                    <button class="star" class:on={n <= stars} onclick={() => setRating(stars === n ? 0 : n)} aria-label="{n}">★</button>
+                    <button class="star" class:on={n <= stars} onclick={() => setRating(stars === n ? 0 : n)} aria-label={String(n)}>★</button>
                   {/each}
                 </span>
               </div>

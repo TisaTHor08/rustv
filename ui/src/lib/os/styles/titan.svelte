@@ -3,6 +3,7 @@
   import { t } from '../../i18n';
   import ModWidgets from '../../ModWidgets.svelte';
   import { iconSrc, type DTile } from '../../tiles.svelte';
+  import HeroShot from '../HeroShot.svelte';
   import Weather from '../../Weather.svelte';
   import type { HomeModel } from '../model.svelte';
   import { tileFg } from '../util';
@@ -69,10 +70,11 @@
     <section class="hero" class:away={!hero}>
       {#key heroTile?.id}
         <div class="art" transition:fade={{ duration: 360 }} style:--a={heroTile?.color ?? '#2a2f5d'} style:--b={heroTile?.color2 ?? '#12142a'}>
-          {#if heroTile?.icon}<img src={iconSrc(heroTile.icon)} alt="" />{:else if heroTile}<span class="big">{heroTile.name[0]}</span>{/if}
+        {#if heroTile?.banner}<HeroShot src={iconSrc(heroTile.banner)} />{/if}
+          {#if heroTile?.banner}{:else if heroTile?.icon}<img src={iconSrc(heroTile.icon)} alt="" />{:else if heroTile}<span class="big">{heroTile.name[0]}</span>{/if}
         </div>
         {#if heroTile}
-          <div class="info" transition:fade={{ duration: 360 }}>
+          <div class="info" in:fade={{ duration: 300, delay: 60 }}>
             <span class="kicker">{t(`cat.${heroTile.category}`)}</span>
             <h1>{heroTile.name}</h1>
             <p>{heroTile.desc}</p>

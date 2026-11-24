@@ -26,6 +26,7 @@ Working examples are in [`mods/`](../mods).
     "widgets":  [{ "id": "w", "slot": "topbar", "entry": "widget.html", "width": 12 }],
     "adapters": [{ "match": ["*://*.example.org/*"], "js": "adapter.js", "css": "adapter.css", "runAt": "ready" }],
     "icons":    [{ "tile": "youtube", "src": "icons/youtube.svg" }],
+    "banners":  [{ "tile": "youtube", "src": "banners/youtube.svg" }],
     "remote":   { "themes": [], "panels": [] },
     "strings":  { "fr": { "my.key": "Bonjour" }, "en": { "my.key": "Hello" } },
     "search":   [{ "id": "site", "name": "My site", "tile": "site", "urlTemplate": "https://example.org/search?q={q}", "providerNames": ["My site"], "kinds": ["movie"] }]
@@ -50,6 +51,8 @@ needs the `launch` permission) or implied `page` for entries under `pages`.
   page**, so they can read what that page shows: this is why they require an explicit `inject:<pattern>` approval.
 - **Icons**: replace the letter on an existing tile (catalog, built-in or another mod's, by tile id) with an image from your
   mod. See [`mods/real-icons`](../mods/real-icons). Icons the user picked themselves still win.
+- **Banners**: an image shown full-frame in the top banner of the home screen when that tile is selected (Fire TV, Google TV,
+  Titan, tvOS, VIDAA and Tizen styles). Same rules as icons; see `mods/real-icons/banners`.
 - **Strings**: translations added to the interface (`registerStrings`).
 - **Search**: providers of the universal search, see [Search providers](#search-providers).
 

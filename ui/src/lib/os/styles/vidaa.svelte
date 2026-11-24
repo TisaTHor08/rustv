@@ -3,6 +3,7 @@
   import { t } from '../../i18n';
   import ModWidgets from '../../ModWidgets.svelte';
   import { iconSrc, type DTile } from '../../tiles.svelte';
+  import HeroShot from '../HeroShot.svelte';
   import Weather from '../../Weather.svelte';
   import type { HomeModel } from '../model.svelte';
   import { tileFg } from '../util';
@@ -87,8 +88,9 @@
   <!-- Bannière : suit la tuile ciblée, cadre blanc quand elle a le focus -->
   <section class="banner" class:away={!hero} class:focus={inBanner}>
     {#key heroTile?.id}
-      <div class="card-b" transition:fade={{ duration: 320 }} style:--a={heroTile?.color ?? '#1d6fb8'} style:--b={heroTile?.color2 ?? '#0b3a66'}>
-        {#if heroTile?.icon}<img src={iconSrc(heroTile.icon)} alt="" />{:else if heroTile}<span class="big">{heroTile.name[0]}</span>{/if}
+      <div class="card-b" in:fade={{ duration: 240 }} style:--a={heroTile?.color ?? '#1d6fb8'} style:--b={heroTile?.color2 ?? '#0b3a66'}>
+        {#if heroTile?.banner}<HeroShot src={iconSrc(heroTile.banner)} />{/if}
+        {#if heroTile?.banner}{:else if heroTile?.icon}<img src={iconSrc(heroTile.icon)} alt="" />{:else if heroTile}<span class="big">{heroTile.name[0]}</span>{/if}
         {#if heroTile}
           <div class="info" style:color={tileFg(heroTile.dark_text)}>
             <h1>{heroTile.name}</h1>

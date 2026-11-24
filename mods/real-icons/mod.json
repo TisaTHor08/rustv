@@ -3,7 +3,7 @@
   "name": "Real icons",
   "version": "1.0.0",
   "author": "RusTV",
-  "description": "Shows each built-in app's real logo on its tile instead of a letter.",
+  "description": "Shows each built-in app's real logo on its tile and an app screen visual in the top banner.",
   "license": "GPL-3.0-or-later",
   "permissions": [],
   "contributes": {
@@ -176,6 +176,176 @@
         "tile": "ytmusic",
         "src": "icons/ytmusic.svg"
       }
+    ],
+    "banners": [
+      {
+        "tile": "adn",
+        "src": "banners/adn.svg"
+      },
+      {
+        "tile": "applemusic",
+        "src": "banners/applemusic.svg"
+      },
+      {
+        "tile": "appletv",
+        "src": "banners/appletv.svg"
+      },
+      {
+        "tile": "arte",
+        "src": "banners/arte.svg"
+      },
+      {
+        "tile": "canal",
+        "src": "banners/canal.svg"
+      },
+      {
+        "tile": "crunchyroll",
+        "src": "banners/crunchyroll.svg"
+      },
+      {
+        "tile": "dailymotion",
+        "src": "banners/dailymotion.svg"
+      },
+      {
+        "tile": "deezer",
+        "src": "banners/deezer.svg"
+      },
+      {
+        "tile": "disney",
+        "src": "banners/disney.svg"
+      },
+      {
+        "tile": "emby",
+        "src": "banners/emby.svg"
+      },
+      {
+        "tile": "francetv",
+        "src": "banners/francetv.svg"
+      },
+      {
+        "tile": "geforcenow",
+        "src": "banners/geforcenow.svg"
+      },
+      {
+        "tile": "jellyfin",
+        "src": "banners/jellyfin.svg"
+      },
+      {
+        "tile": "kick",
+        "src": "banners/kick.svg"
+      },
+      {
+        "tile": "luna",
+        "src": "banners/luna.svg"
+      },
+      {
+        "tile": "m6",
+        "src": "banners/m6.svg"
+      },
+      {
+        "tile": "max",
+        "src": "banners/max.svg"
+      },
+      {
+        "tile": "molotov",
+        "src": "banners/molotov.svg"
+      },
+      {
+        "tile": "netflix",
+        "src": "banners/netflix.svg"
+      },
+      {
+        "tile": "ocs",
+        "src": "banners/ocs.svg"
+      },
+      {
+        "tile": "odysee",
+        "src": "banners/odysee.svg"
+      },
+      {
+        "tile": "paramount",
+        "src": "banners/paramount.svg"
+      },
+      {
+        "tile": "plex",
+        "src": "banners/plex.svg"
+      },
+      {
+        "tile": "pluto",
+        "src": "banners/pluto.svg"
+      },
+      {
+        "tile": "prime",
+        "src": "banners/prime.svg"
+      },
+      {
+        "tile": "radiofrance",
+        "src": "banners/radiofrance.svg"
+      },
+      {
+        "tile": "rakuten",
+        "src": "banners/rakuten.svg"
+      },
+      {
+        "tile": "rmcbfm",
+        "src": "banners/rmcbfm.svg"
+      },
+      {
+        "tile": "rtlplay",
+        "src": "banners/rtlplay.svg"
+      },
+      {
+        "tile": "soundcloud",
+        "src": "banners/soundcloud.svg"
+      },
+      {
+        "tile": "spotify",
+        "src": "banners/spotify.svg"
+      },
+      {
+        "tile": "steam",
+        "src": "banners/steam.svg"
+      },
+      {
+        "tile": "tf1",
+        "src": "banners/tf1.svg"
+      },
+      {
+        "tile": "tidal",
+        "src": "banners/tidal.svg"
+      },
+      {
+        "tile": "tubi",
+        "src": "banners/tubi.svg"
+      },
+      {
+        "tile": "twitch",
+        "src": "banners/twitch.svg"
+      },
+      {
+        "tile": "ugreen",
+        "src": "banners/ugreen.svg"
+      },
+      {
+        "tile": "vimeo",
+        "src": "banners/vimeo.svg"
+      },
+      {
+        "tile": "vlc",
+        "src": "banners/vlc.svg"
+      },
+      {
+        "tile": "xbox",
+        "src": "banners/xbox.svg"
+      },
+      {
+        "tile": "youtube",
+        "src": "banners/youtube.svg"
+      },
+      {
+        "tile": "ytmusic",
+        "src": "banners/ytmusic.svg"
+      }
     ]
   },
   "category": "icons",
@@ -192,7 +362,7 @@
     "tiles",
     "simple-icons"
   ],
-  "details": "Replaces the letter on built-in tiles (Netflix, YouTube, Spotify, Twitch, Steam and more) with the service's logo. The logos come from Simple Icons and are released under CC0. Icons you picked yourself on a tile always win. Logos remain trademarks of their owners.",
+  "details": "Replaces the letter on built-in tiles (Netflix, YouTube, Spotify, Twitch, Steam and more) with the service's logo, and shows an illustrated app screen (not an official screenshot) in the top banner when the tile is selected. Logos come from Simple Icons (CC0) and remain trademarks of their owners.",
   "i18n": {
     "fr": {
       "name": "Vraies icônes",

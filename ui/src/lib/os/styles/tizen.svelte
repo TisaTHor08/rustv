@@ -74,7 +74,8 @@
     <section class="hero" style:--a={f?.color ?? '#233a6b'} style:--b={f?.color2 ?? '#0d1630'}>
       {#key f?.id}
         <div class="art">
-          {#if f?.icon}<img src={iconSrc(f.icon)} alt="" />{:else if f}<span class="big">{f.name[0]}</span>{/if}
+        {#if f?.banner}<HeroShot src={iconSrc(f.banner)} />{/if}
+          {#if f?.banner}{:else if f?.icon}<img src={iconSrc(f.icon)} alt="" />{:else if f}<span class="big">{f.name[0]}</span>{/if}
         </div>
         {#if f}
           <div class="info">

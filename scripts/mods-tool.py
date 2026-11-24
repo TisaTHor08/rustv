@@ -87,7 +87,7 @@ def referenced_files(m):
         files += [w.get("entry")]
     for a in c.get("adapters", []):
         files += [a.get("js"), a.get("css")]
-    for i in c.get("icons", []):
+    for i in c.get("icons", []) + c.get("banners", []):
         files += [i.get("src")]
     for t in (c.get("remote") or {}).get("themes", []):
         files += [t.get("css")]
@@ -191,7 +191,7 @@ def check():
             if not (d / f).exists():
                 e(f"missing file {f}")
         c = m.get("contributes", {})
-        if not any(c.get(k) for k in ("themes", "tiles", "pages", "widgets", "adapters", "icons", "strings", "remote", "search")):
+        if not any(c.get(k) for k in ("themes", "tiles", "pages", "widgets", "adapters", "icons", "banners", "strings", "remote", "search")):
             e("contributes nothing")
         check_search(m, e)
     for msg in errors:

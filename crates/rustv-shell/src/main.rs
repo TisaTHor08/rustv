@@ -25,6 +25,7 @@ mod media;
 mod mods;
 mod player;
 mod prefs;
+mod session;
 mod settings;
 mod store;
 mod tuner;
@@ -96,6 +97,9 @@ fn main() {
             commands::launch_custom,
             commands::prefs_get,
             commands::prefs_set,
+            commands::session_save,
+            commands::session_load,
+            commands::session_clear,
             commands::media_url,
             commands::folder_images,
             commands::vault_status,

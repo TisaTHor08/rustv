@@ -102,6 +102,15 @@ export function modIcon(tileId: string): string | undefined {
   return undefined;
 }
 
+/** Visuels d'écran apportés par les mods actifs (id de tuile → URL), affichés en grand dans le bandeau du haut. */
+export function modBanner(tileId: string): string | undefined {
+  for (const m of enabled()) {
+    const hit = ((m.manifest.contributes?.banners as any[]) ?? []).find((i) => i && i.tile === tileId && typeof i.src === 'string');
+    if (hit) return m.base + String(hit.src).replace(/^\/+/, '');
+  }
+  return undefined;
+}
+
 export interface ModWidget {
   key: string;
   modId: string;

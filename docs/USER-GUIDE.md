@@ -222,13 +222,17 @@ Only enabled mods are sent.
 Honest status: these themes and panels were verified with the real PC protocol and a browser rendering. They have not yet
 been tested on a physical phone.
 
+## Resume where you left off
+
+If you close TV mode and reopen it within 3 hours, RusTV returns to the same place: the page that was open (settings, live TV, library, search), the selected tile and, for a web app, the app that was running (it is relaunched at its start page, not at the exact page you were on). It does not resume after 3 hours, after a change of interface style (the tile selection is then not restored), or when the setting is off (Settings > Appearance). The state is stored locally in `session.json` in the RusTV configuration folder.
+
 ## Settings
 
 Everything is driven with the remote.
 
 | Section | What is in it |
 | --- | --- |
-| Appearance | Language, theme, accent color, ambient color from the focused tile, time format, navigation sounds and their volume, interface size |
+| Appearance | Language, theme, accent color, ambient color from the focused tile, time format, navigation sounds and their volume, interface size, resume where you left off (3 h) |
 | Wallpaper | Type, file or folder, blur, darken, slideshow interval |
 | Tiles | Add a website or a Windows app, category for new tiles, hidden tiles, reset |
 | Weather & time | Show weather, city, unit |

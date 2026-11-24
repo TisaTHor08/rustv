@@ -6,7 +6,7 @@
   import { askConfirm, askText, overlay, pickApp, pickFile } from './overlays.svelte';
   import { ACCENTS, TILE_COLORS, prefs, resetTiles, savePrefs, type Category, type CustomTile } from './prefs.svelte';
   import { geocode } from './weather';
-  import { modThemes } from './mods.svelte';
+  import { loadMods, modThemes, mods } from './mods.svelte';
   import { scanLibrary } from './library.svelte';
   import { loadLive } from './live.svelte';
   import { play } from './sounds';
@@ -118,6 +118,31 @@
 
   function choice<T extends string>(label: string, opts: T[], get: () => T, put: (v: T) => void, text: (v: T) => string): Row {
     return { label, value: text(get()), arrows: true, left: () => put(cycle(opts, get(), -1)), right: () => put(cycle(opts, get(), 1)), enter: () => put(cycle(opts, get(), 1)) };
+  }
+
+  // Active (ou installe au besoin) le mod « Real icons » : vrais logos sur les tuiles et visuel d'écran dans le bandeau du haut.
+  let iconsBusy = $state(false);
+  const realIconsOn = $derived(!!mods.list.find((m) => m.id === 'real-icons')?.enabled);
+  async function toggleRealIcons() {
+    if (iconsBusy) return;
+    iconsBusy = true;
+    try {
+      const cur = mods.list.find((m) => m.id === 'real-icons');
+      if (cur) await api.modSetEnabled('real-icons', !cur.enabled);
+      else {
+        const r = await api.registryFetch();
+        const entry = (Array.isArray(r?.mods) ? r.mods : []).find((m: any) => m.id === 'real-icons');
+        if (!entry) throw new Error('real-icons');
+        await api.modInstallPrepare(entry);
+        await api.modInstallCommit('real-icons');
+      }
+      await loadMods();
+      note(t(realIconsOn ? 'os.realicons.on' : 'os.realicons.off'));
+    } catch (e) {
+      note(String(e));
+    } finally {
+      iconsBusy = false;
+    }
   }
 
   async function addWeb() {
@@ -282,6 +307,8 @@
           choice(t('settings.size'), ['80', '90', '100', '110', '125', '140'], () => String(prefs.uiScale), (v) => ((prefs.uiScale = +v), savePrefs()), (v) => ` %`),
           choice(t('settings.clock24'), ['24', '12'] as const, () => (prefs.clock24 ? '24' : '12'), (v) => set('clock24', v === '24'), (v) => t(`clock.${v}`)),
           choice(t('os.osd'), ['yes', 'no'] as const, () => (prefs.volumeOsd ? 'yes' : 'no'), (v) => set('volumeOsd', v === 'yes'), (v) => t(`common.${v}`)),
+          { label: t('os.realicons'), value: iconsBusy ? '…' : t(`common.${realIconsOn ? 'yes' : 'no'}`), enter: toggleRealIcons, left: toggleRealIcons, right: toggleRealIcons, arrows: true },
+          choice(t('os.resume'), ['yes', 'no'] as const, () => (prefs.resume ? 'yes' : 'no'), (v) => set('resume', v === 'yes'), (v) => t(`common.${v}`)),
           choice(t('os.ambient'), AMBIENT_CHOICES.map(String), () => String(prefs.ambientMin), (v) => set('ambientMin', +v), (v) => (+v ? t('os.ambient.min', { n: v }) : t('os.ambient.off'))),
           choice(t('settings.sounds'), ['yes', 'no'] as const, () => (prefs.sounds ? 'yes' : 'no'), (v) => set('sounds', v === 'yes'), (v) => t(`common.${v}`)),
           ...(prefs.sounds ? [soundVolumeRow()] : []),

@@ -5,6 +5,22 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-11-23
+
+### Added
+
+- Mods can contribute `banners`: an app screen visual shown in the top banner of the home screen. The *Real icons* mod now ships one for each of its 42 apps (illustrations in each service's colours, not official screenshots).
+- *Settings → Appearance → Real app logos and visuals*: one-click switch that installs/enables the *Real icons* mod.
+- **State saving (resume within 3 hours)**: RusTV remembers the open page (settings, live TV, library, search, mod page), the selected tile and the running web app. If TV mode is closed and reopened within 3 hours, the home screen returns to the same place and relaunches the app that was running. The 3 hours count from closing. Setting: Appearance > "Resume where you left off" (on by default). The state is one small local file (`session.json`), nothing leaves the PC.
+
+### Fixed
+
+- Home banner: the previous app's title no longer overlaps the new one for a split second when moving between tiles (Fire TV, Google TV, Titan, tvOS, VIDAA).
+
+- **TV navigation after switching style or coming back to the window**: a stale navigation zone (for example Roku's menu, where only up/down act) or a focus on a row that does not exist in the new style could leave left/right dead. The zone and focus are now validated on every style change and when the window regains focus, a stuck launch animation is ended, orphaned tile menus close, and the tile menu no longer crashes on Escape in the webOS, VIDAA, Titan and Apple TV styles. A navigation test suite (`ui/tests/nav.mjs`) runs every style.
+- **Phone remote showing a text box when there is none**: text-field detection on the PC was too wide (any writable control counted) and is now limited to real text inputs and confirmed by a second sample; the state is reconciled on every ping and on app resume, cleared on disconnect, the close button of the text bar works, and remote model changes no longer leave timers that send phantom keys. Protocol note in docs/PROTOCOL.md.
+- Search subtitle for UGREEN and a type error in the library rating buttons (the type check is clean again).
+
 ## [1.3.0] - 2026-11-23
 
 ### Added
